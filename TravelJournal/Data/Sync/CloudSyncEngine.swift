@@ -15,12 +15,14 @@ public struct SyncRecordEnvelope: Equatable, Sendable {
     public let id: UUID
     public let updatedAt: Date
     public let payload: Data
+    public let isDeleted: Bool
 
-    public init(kind: Kind, id: UUID, updatedAt: Date, payload: Data) {
+    public init(kind: Kind, id: UUID, updatedAt: Date, payload: Data, isDeleted: Bool = false) {
         self.kind = kind
         self.id = id
         self.updatedAt = updatedAt
         self.payload = payload
+        self.isDeleted = isDeleted
     }
 }
 
@@ -78,8 +80,11 @@ public actor InMemoryCloudSyncStorage {
             if let existing = recordsByKey[key] {
                 if existing.record.updatedAt > record.updatedAt { continue }
                 if existing.record.updatedAt == record.updatedAt {
-                    // deterministic tie-breaker keeps payload that is lexicographically last.
-                    if existing.record.payload.lexicographicallyPrecedes(record.payload) == false {
+                    // deterministic tie-breaker prefers tombstones first on equal timestamps,
+                    // then keeps payload that is lexicographically last.
+                    if existing.record.isDeleted != record.isDeleted {
+                        if existing.record.isDeleted { continue }
+                    } else if existing.record.payload.lexicographicallyPrecedes(record.payload) == false {
                         continue
                     }
                 }

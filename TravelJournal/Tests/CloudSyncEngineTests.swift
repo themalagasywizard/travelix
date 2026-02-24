@@ -79,6 +79,36 @@ final class CloudSyncEngineTests: XCTestCase {
 
         XCTAssertEqual(pulledSinceInitialPush.records, [newerRecord])
     }
+
+    func testInMemorySharedEnginePrefersTombstoneForEqualTimestamps() async throws {
+        let storage = InMemoryCloudSyncStorage()
+        let clock = TestClock(times: [100, 110])
+        let engineA = InMemoryCloudSyncEngine(storage: storage, now: clock.next)
+        let engineB = InMemoryCloudSyncEngine(storage: storage, now: clock.next)
+
+        let sharedID = UUID()
+        let liveRecord = SyncRecordEnvelope(
+            kind: .spot,
+            id: sharedID,
+            updatedAt: Date(timeIntervalSince1970: 200),
+            payload: Data("live".utf8),
+            isDeleted: false
+        )
+        let tombstoneRecord = SyncRecordEnvelope(
+            kind: .spot,
+            id: sharedID,
+            updatedAt: Date(timeIntervalSince1970: 200),
+            payload: Data(),
+            isDeleted: true
+        )
+
+        try await engineA.push(localChanges: SyncBatch(records: [liveRecord]))
+        try await engineB.push(localChanges: SyncBatch(records: [tombstoneRecord]))
+
+        let pulled = try await engineA.pullChanges(since: nil)
+
+        XCTAssertEqual(pulled.records, [tombstoneRecord])
+    }
 }
 
 private final class TestClock: @unchecked Sendable {
