@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 11:55 Europe/Paris
+Last updated: 2026-02-24 12:08 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -45,7 +45,7 @@ Last updated: 2026-02-24 11:55 Europe/Paris
 - [~] Design system tokens (expanded `DesignTokens.swift` with typography and shadow token families in addition to spacing/radius; added `DesignTokensTests` for token scale/hierarchy/subtle-shadow constraints; Swift test execution and runtime visual verification pending on Xcode runner)
 - [~] Haptics (added `HapticsClient` with injectable `HapticsEngine` and default UIKit-backed implementation using `UISelectionFeedbackGenerator`/`UINotificationFeedbackGenerator`, plus non-UIKit no-op fallback; added `HapticsClientTests` to verify event routing for selection/success/warning/error; runtime tactile verification pending on iOS device/simulator via Xcode)
 - [~] Motion (added `TJMotion` tokens with bounded durations and explicit curve presets via `MotionTokens.swift`, including globe-focus-specific spring timing; added `MotionTokensTests` covering duration bounds, ordering hierarchy, and curve selection; runtime animation tuning/verification pending on Xcode runner)
-- [~] Accessibility pass (added centralized accessibility tokens in `TJAccessibility` and applied identifiers/labels to key Home and Visit Detail UI elements: search field, filter chips, selected-place badge, and visit detail sections/header; added `AccessibilityTokensTests` for token stability and label semantics; VoiceOver/dynamic-type runtime validation still pending on Xcode runner)
+- [~] Accessibility pass (added centralized accessibility tokens in `TJAccessibility` and applied identifiers/labels to key Home and Visit Detail UI elements: search field, filter chips, selected-place badge, visit detail sections/header, plus a new Home “Pins List” VoiceOver fallback sheet for selecting visible pins without globe hit-testing; added `AccessibilityTokensTests` for token stability/label semantics and extended `HomeViewModelTests` coverage for deterministic/sorted pin list items filtered by search; VoiceOver/dynamic-type runtime validation still pending on Xcode runner)
 
 ## Phase 8 — Hardening
 - [~] Error handling (added `TJAppError` + `ErrorPresentationMapper` to produce user-facing non-crashing banner models for database/media/input/unknown failures; wired `VisitSpotsEditorViewModel` failure paths to emit mapped `errorBanner` values alongside error text, then extended the same banner mapping to `AddVisitFlowViewModel`, `EditVisitViewModel`, and now `HomeViewModel` repository-hydration failures (with dismissible Home banner UI + new tests); broader runtime banner presentation/validation across all UI flows still pending on Xcode runner)

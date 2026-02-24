@@ -150,6 +150,20 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.chipTitle(for: .tag), "Tag: food")
     }
 
+    func testPinListItemsFollowVisiblePinsAndAreSortedByTitle() {
+        let pins = [
+            GlobePin(id: "tokyo", latitude: 35.6764, longitude: 139.65),
+            GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522),
+            GlobePin(id: "lisbon", latitude: 38.7223, longitude: -9.1393)
+        ]
+        let viewModel = HomeViewModel(pins: pins)
+
+        XCTAssertEqual(viewModel.pinListItems.map(\.title), ["Lisbon", "Paris", "Tokyo"])
+
+        viewModel.searchText = "to"
+        XCTAssertEqual(viewModel.pinListItems.map(\.id), ["tokyo"])
+    }
+
     func testSelectedPlaceStoryUsesRepositoryBackedPlaceAndVisitsWhenAvailable() {
         let placeID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
         let visitID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!

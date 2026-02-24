@@ -28,6 +28,16 @@ public final class HomeViewModel: ObservableObject {
     @Published public private(set) var visiblePins: [GlobePin]
     @Published public private(set) var errorBanner: ErrorBannerModel?
 
+    public struct PinListItem: Identifiable, Equatable {
+        public let id: String
+        public let title: String
+
+        public init(id: String, title: String) {
+            self.id = id
+            self.title = title
+        }
+    }
+
     private let placeIDsByTagID: [String: Set<String>]
     private let placeIDsByTripID: [String: Set<String>]
     private let placeIDsByYear: [Int: Set<String>]
@@ -293,6 +303,14 @@ public final class HomeViewModel: ObservableObject {
             .filter { $0.isEmpty == false }
 
         return Array(sentenceChunks.prefix(2))
+    }
+
+    public var pinListItems: [PinListItem] {
+        visiblePins
+            .map { PinListItem(id: $0.id, title: $0.id.capitalized) }
+            .sorted { lhs, rhs in
+                lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
+            }
     }
 
     static let defaultPins: [GlobePin] = [

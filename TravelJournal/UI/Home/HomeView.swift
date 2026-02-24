@@ -3,6 +3,7 @@ import TravelJournalCore
 
 public struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
+    @State private var isPinsListPresented = false
 
     public init(viewModel: @autoclosure @escaping () -> HomeViewModel = HomeViewModel()) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -20,6 +21,7 @@ public struct HomeView: View {
             VStack(spacing: 10) {
                 searchBar
                 filtersRow
+                pinsListButton
 
                 if let selectedPlaceID = viewModel.selectedPlaceID {
                     Text("Selected: \(selectedPlaceID)")
@@ -64,6 +66,20 @@ public struct HomeView: View {
         .sheet(item: selectedPlaceStoryItem, onDismiss: viewModel.clearSelectedPlace) { item in
             PlaceStoryView(viewModel: item.viewModel)
         }
+        .sheet(isPresented: $isPinsListPresented) {
+            NavigationStack {
+                List(viewModel.pinListItems) { item in
+                    Button(item.title) {
+                        viewModel.handlePinSelected(item.id)
+                        isPinsListPresented = false
+                    }
+                    .accessibilityIdentifier(TJAccessibility.Identifier.homePinsListRowPrefix + item.id)
+                    .accessibilityLabel(TJAccessibility.Label.pinListRow(item.title))
+                }
+                .accessibilityIdentifier(TJAccessibility.Identifier.homePinsList)
+                .navigationTitle("Visible Pins")
+            }
+        }
     }
 
     private var searchBar: some View {
@@ -81,6 +97,26 @@ public struct HomeView: View {
         .padding(.vertical, 10)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private var pinsListButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                isPinsListPresented = true
+            } label: {
+                Label("Pins List", systemImage: "list.bullet")
+                    .font(.footnote.weight(.semibold))
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.white)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.16))
+            .clipShape(Capsule())
+            .accessibilityIdentifier(TJAccessibility.Identifier.homePinsListButton)
+            .accessibilityLabel(TJAccessibility.Label.homePinsListButton)
+        }
     }
 
     private var selectedPlaceStoryItem: PlaceStorySheetItem? {
