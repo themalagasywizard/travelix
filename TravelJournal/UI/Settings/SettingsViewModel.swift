@@ -6,6 +6,7 @@ public final class SettingsViewModel: ObservableObject {
     @Published public var isSyncEnabled: Bool
     @Published public private(set) var isRunningSyncNow = false
     @Published public private(set) var syncStatusMessage: String?
+    @Published public private(set) var syncErrorBanner: ErrorBannerModel?
 
     public var canRunSyncNow: Bool {
         runSyncNowAction != nil
@@ -33,6 +34,9 @@ public final class SettingsViewModel: ObservableObject {
         guard let runSyncNowAction else { return }
         guard isSyncEnabled else {
             syncStatusMessage = "Enable iCloud Sync to run a sync now"
+            syncErrorBanner = ErrorPresentationMapper.banner(
+                for: .invalidInput(message: "Enable iCloud Sync to run a sync now")
+            )
             return
         }
 
@@ -40,9 +44,11 @@ public final class SettingsViewModel: ObservableObject {
         defer { isRunningSyncNow = false }
 
         do {
+            syncErrorBanner = nil
             syncStatusMessage = try await runSyncNowAction() ?? "Sync finished"
         } catch {
             syncStatusMessage = "Sync failed: \(error.localizedDescription)"
+            syncErrorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
         }
     }
 }

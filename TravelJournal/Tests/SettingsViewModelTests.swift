@@ -51,6 +51,10 @@ final class SettingsViewModelTests: XCTestCase {
 
         XCTAssertEqual(recorder.callCount, 0)
         XCTAssertEqual(viewModel.syncStatusMessage, "Enable iCloud Sync to run a sync now")
+        XCTAssertEqual(
+            viewModel.syncErrorBanner,
+            ErrorPresentationMapper.banner(for: .invalidInput(message: "Enable iCloud Sync to run a sync now"))
+        )
         XCTAssertFalse(viewModel.isRunningSyncNow)
     }
 
@@ -63,6 +67,7 @@ final class SettingsViewModelTests: XCTestCase {
 
         XCTAssertEqual(recorder.callCount, 1)
         XCTAssertEqual(viewModel.syncStatusMessage, "Sync finished: pushed 2, pulled 1, applied 1")
+        XCTAssertNil(viewModel.syncErrorBanner)
         XCTAssertFalse(viewModel.isRunningSyncNow)
     }
 
@@ -75,6 +80,7 @@ final class SettingsViewModelTests: XCTestCase {
 
         XCTAssertEqual(recorder.callCount, 1)
         XCTAssertEqual(viewModel.syncStatusMessage, "Sync failed: The operation could not be completed. (SettingsViewModelTests.SyncNowActionRecorder.TestError error 0.)")
+        XCTAssertEqual(viewModel.syncErrorBanner, ErrorPresentationMapper.banner(for: .databaseFailure))
         XCTAssertFalse(viewModel.isRunningSyncNow)
     }
 }

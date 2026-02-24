@@ -44,6 +44,16 @@ public struct SettingsView: View {
                         .accessibilityIdentifier(TJAccessibility.Identifier.settingsSyncNowButton)
                         .accessibilityLabel(TJAccessibility.Label.settingsSyncNowButton)
 
+                        if let banner = viewModel.syncErrorBanner {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(banner.title)
+                                    .font(.footnote.weight(.semibold))
+                                Text(banner.message)
+                                    .font(.footnote)
+                            }
+                            .foregroundStyle(.orange)
+                        }
+
                         if let syncStatusMessage = viewModel.syncStatusMessage {
                             Text(syncStatusMessage)
                                 .font(.footnote)

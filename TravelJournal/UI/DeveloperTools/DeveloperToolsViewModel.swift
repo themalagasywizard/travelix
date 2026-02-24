@@ -6,6 +6,7 @@ import TravelJournalData
 @MainActor
 public final class DeveloperToolsViewModel: ObservableObject {
     @Published public private(set) var statusMessage: String?
+    @Published public private(set) var errorBanner: ErrorBannerModel?
     @Published public private(set) var isSeeding = false
     @Published public private(set) var cacheSummary: String?
 
@@ -29,6 +30,7 @@ public final class DeveloperToolsViewModel: ObservableObject {
 
         do {
             let report = try seeder.seedIfNeeded(targetPlaces: 50, targetVisits: 120)
+            errorBanner = nil
             if report.placesInserted == 0, report.visitsInserted == 0 {
                 statusMessage = "Demo data already loaded"
             } else {
@@ -36,6 +38,7 @@ public final class DeveloperToolsViewModel: ObservableObject {
             }
         } catch {
             statusMessage = "Failed to load demo data: \(error.localizedDescription)"
+            errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
         }
     }
 
@@ -48,9 +51,11 @@ public final class DeveloperToolsViewModel: ObservableObject {
         do {
             try thumbnailCache.removeAll()
             refreshThumbnailCacheSummary()
+            errorBanner = nil
             statusMessage = "Cleared thumbnail cache"
         } catch {
             statusMessage = "Failed to clear thumbnail cache: \(error.localizedDescription)"
+            errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
         }
     }
 

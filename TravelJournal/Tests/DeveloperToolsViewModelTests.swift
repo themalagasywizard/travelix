@@ -12,6 +12,7 @@ final class DeveloperToolsViewModelTests: XCTestCase {
         viewModel.loadDemoData()
 
         XCTAssertEqual(viewModel.statusMessage, "Loaded 50 places and 120 visits")
+        XCTAssertNil(viewModel.errorBanner)
         XCTAssertFalse(viewModel.isSeeding)
     }
 
@@ -50,6 +51,7 @@ final class DeveloperToolsViewModelTests: XCTestCase {
         viewModel.loadDemoData()
 
         XCTAssertEqual(viewModel.statusMessage, "Failed to load demo data: Demo seeding is unavailable in this build context")
+        XCTAssertEqual(viewModel.errorBanner, ErrorPresentationMapper.banner(for: .databaseFailure))
     }
 }
 

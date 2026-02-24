@@ -30,6 +30,16 @@ public struct DeveloperToolsView: View {
                 .buttonStyle(.bordered)
             }
 
+            if let banner = viewModel.errorBanner {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(banner.title)
+                        .font(.footnote.weight(.semibold))
+                    Text(banner.message)
+                        .font(.footnote)
+                }
+                .foregroundStyle(.orange)
+            }
+
             if let status = viewModel.statusMessage {
                 Text(status)
                     .font(.footnote)
