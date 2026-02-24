@@ -1,0 +1,115 @@
+import Foundation
+import XCTest
+@testable import TravelJournalData
+
+final class SyncOrchestratorTests: XCTestCase {
+    func testRunOncePushesPendingAndMarksAsPushed() async throws {
+        let pending = SyncBatch(records: [
+            SyncRecordEnvelope(kind: .visit, id: UUID(), updatedAt: Date(timeIntervalSince1970: 10), payload: Data("v1".utf8))
+        ])
+        let cloud = CloudSyncEngineSpy(pullResult: .empty)
+        let local = LocalSyncStoreSpy(pending: pending)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: nil)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        let report = try await orchestrator.runOnce()
+
+        XCTAssertEqual(cloud.pushedBatches, [pending])
+        XCTAssertEqual(local.markedPushedBatches, [pending])
+        XCTAssertEqual(report.pushedCount, 1)
+        XCTAssertEqual(report.pulledCount, 0)
+        XCTAssertNil(report.updatedCursor)
+    }
+
+    func testRunOncePullsAndAppliesAndAdvancesCursorToLatestPulledTimestamp() async throws {
+        let pulled = SyncBatch(records: [
+            SyncRecordEnvelope(kind: .place, id: UUID(), updatedAt: Date(timeIntervalSince1970: 50), payload: Data("p1".utf8)),
+            SyncRecordEnvelope(kind: .visit, id: UUID(), updatedAt: Date(timeIntervalSince1970: 120), payload: Data("v1".utf8))
+        ])
+        let cloud = CloudSyncEngineSpy(pullResult: pulled)
+        let local = LocalSyncStoreSpy(pending: .empty)
+        let initialCursor = Date(timeIntervalSince1970: 20)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: initialCursor)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        let report = try await orchestrator.runOnce()
+
+        XCTAssertEqual(cloud.pulledSinceArguments, [initialCursor])
+        XCTAssertEqual(local.appliedPulledBatches, [pulled])
+        XCTAssertEqual(cursor.lastPulledAt(), Date(timeIntervalSince1970: 120))
+        XCTAssertEqual(report.pushedCount, 0)
+        XCTAssertEqual(report.pulledCount, 2)
+        XCTAssertEqual(report.appliedCount, 2)
+        XCTAssertEqual(report.updatedCursor, Date(timeIntervalSince1970: 120))
+    }
+
+    func testRunOnceDoesNotTouchCursorWhenNoPulledRecords() async throws {
+        let cloud = CloudSyncEngineSpy(pullResult: .empty)
+        let local = LocalSyncStoreSpy(pending: .empty)
+        let initialCursor = Date(timeIntervalSince1970: 88)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: initialCursor)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        _ = try await orchestrator.runOnce()
+
+        XCTAssertEqual(cursor.lastPulledAt(), initialCursor)
+        XCTAssertEqual(local.appliedPulledBatches.count, 0)
+    }
+}
+
+private final class CloudSyncEngineSpy: CloudSyncEngine, @unchecked Sendable {
+    private(set) var pushedBatches: [SyncBatch] = []
+    private(set) var pulledSinceArguments: [Date?] = []
+    private let pullResult: SyncBatch
+
+    init(pullResult: SyncBatch) {
+        self.pullResult = pullResult
+    }
+
+    func push(localChanges: SyncBatch) async throws {
+        pushedBatches.append(localChanges)
+    }
+
+    func pullChanges(since: Date?) async throws -> SyncBatch {
+        pulledSinceArguments.append(since)
+        return pullResult
+    }
+}
+
+private final class LocalSyncStoreSpy: LocalSyncChangeStore, @unchecked Sendable {
+    private let pending: SyncBatch
+    private(set) var markedPushedBatches: [SyncBatch] = []
+    private(set) var appliedPulledBatches: [SyncBatch] = []
+
+    init(pending: SyncBatch) {
+        self.pending = pending
+    }
+
+    func pendingPushBatch() async throws -> SyncBatch {
+        pending
+    }
+
+    func markBatchAsPushed(_ batch: SyncBatch) async throws {
+        markedPushedBatches.append(batch)
+    }
+
+    func applyPulledBatch(_ batch: SyncBatch) async throws {
+        appliedPulledBatches.append(batch)
+    }
+}
+
+private final class InMemorySyncCursorStore: SyncCursorStoring, @unchecked Sendable {
+    private var cursor: Date?
+
+    init(lastPulledAt: Date?) {
+        cursor = lastPulledAt
+    }
+
+    func lastPulledAt() -> Date? {
+        cursor
+    }
+
+    func save(lastPulledAt: Date?) {
+        cursor = lastPulledAt
+    }
+}
