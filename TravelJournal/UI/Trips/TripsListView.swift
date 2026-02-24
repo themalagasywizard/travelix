@@ -35,7 +35,7 @@ public struct TripsListView: View {
         }
         .overlay(alignment: .top) {
             if let banner = viewModel.errorBanner {
-                Text("\(banner.title): \(banner.message)")
+                Text(TJStrings.Trips.banner(title: banner.title, message: banner.message))
                     .font(.footnote)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 12)

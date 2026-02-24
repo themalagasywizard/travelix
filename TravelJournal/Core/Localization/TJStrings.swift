@@ -34,6 +34,13 @@ public enum TJStrings {
         public static func tagFilterTitle(_ value: String) -> String {
             "\(tagFilter): \(value)"
         }
+
+        public static func searchResultAccessibilityLabel(title: String, subtitle: String?) -> String {
+            guard let subtitle, subtitle.isEmpty == false else {
+                return title
+            }
+            return "\(title), \(subtitle)"
+        }
     }
 
     public enum AddVisit {
@@ -72,6 +79,10 @@ public enum TJStrings {
 
         public static func visitCount(_ count: Int) -> String {
             "\(count) visit\(count == 1 ? "" : "s")"
+        }
+
+        public static func banner(title: String, message: String) -> String {
+            "\(title): \(message)"
         }
     }
 

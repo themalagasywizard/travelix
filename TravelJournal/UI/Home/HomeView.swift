@@ -258,7 +258,7 @@ public struct HomeView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityIdentifier(TJAccessibility.Identifier.homeSearchResultRowPrefix + result.id)
-                .accessibilityLabel(result.subtitle.map { "\(result.title), \($0)" } ?? result.title)
+                .accessibilityLabel(TJStrings.Home.searchResultAccessibilityLabel(title: result.title, subtitle: result.subtitle))
 
                 if result.id != viewModel.searchResults.last?.id {
                     Divider()

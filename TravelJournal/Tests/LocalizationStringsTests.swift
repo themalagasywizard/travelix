@@ -30,6 +30,7 @@ final class LocalizationStringsTests: XCTestCase {
     func testTripsVisitCountPluralization() {
         XCTAssertEqual(TJStrings.Trips.visitCount(1), "1 visit")
         XCTAssertEqual(TJStrings.Trips.visitCount(3), "3 visits")
+        XCTAssertEqual(TJStrings.Trips.banner(title: "Error", message: "Failed to load"), "Error: Failed to load")
     }
 
     func testAddVisitErrorAndStepTokensAreStable() {
@@ -51,6 +52,8 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertEqual(TJStrings.Home.yearFilterTitle(2026), "Year: 2026")
         XCTAssertEqual(TJStrings.Home.tripFilterTitle("japan-2025"), "Trip: japan-2025")
         XCTAssertEqual(TJStrings.Home.tagFilterTitle("food"), "Tag: food")
+        XCTAssertEqual(TJStrings.Home.searchResultAccessibilityLabel(title: "Tokyo", subtitle: "Japan"), "Tokyo, Japan")
+        XCTAssertEqual(TJStrings.Home.searchResultAccessibilityLabel(title: "Tokyo", subtitle: nil), "Tokyo")
         XCTAssertEqual(TJStrings.VisitDetail.photosSectionTitle(4), "Photos (4)")
     }
 
