@@ -6,12 +6,29 @@ public struct PlaceStoryVisitRow: Identifiable, Equatable {
     public let title: String
     public let dateRangeText: String
     public let summary: String?
+    public let notes: String?
+    public let photoCount: Int
+    public let spots: [VisitSpotRow]
+    public let recommendations: [String]
 
-    public init(id: String, title: String, dateRangeText: String, summary: String?) {
+    public init(
+        id: String,
+        title: String,
+        dateRangeText: String,
+        summary: String?,
+        notes: String? = nil,
+        photoCount: Int = 0,
+        spots: [VisitSpotRow] = [],
+        recommendations: [String] = []
+    ) {
         self.id = id
         self.title = title
         self.dateRangeText = dateRangeText
         self.summary = summary
+        self.notes = notes
+        self.photoCount = photoCount
+        self.spots = spots
+        self.recommendations = recommendations
     }
 }
 
@@ -64,10 +81,10 @@ public final class PlaceStoryViewModel: ObservableObject {
             title: visit.title,
             dateRangeText: visit.dateRangeText,
             summary: visit.summary,
-            notes: visit.summary,
-            photoCount: 0,
-            spots: [],
-            recommendations: []
+            notes: visit.notes,
+            photoCount: visit.photoCount,
+            spots: visit.spots,
+            recommendations: visit.recommendations
         )
     }
 }

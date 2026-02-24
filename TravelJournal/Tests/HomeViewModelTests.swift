@@ -96,6 +96,7 @@ final class HomeViewModelTests: XCTestCase {
 
     func testSelectedPlaceStoryUsesRepositoryBackedPlaceAndVisitsWhenAvailable() {
         let placeID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+        let visitID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let place = Place(
             id: placeID,
@@ -107,13 +108,26 @@ final class HomeViewModelTests: XCTestCase {
             updatedAt: now
         )
         let visit = Visit(
-            id: UUID(uuidString: "22222222-2222-2222-2222-222222222222")!,
+            id: visitID,
             placeID: placeID,
             tripID: nil,
             startDate: now,
             endDate: now.addingTimeInterval(86_400),
             summary: "Autumn Trip",
-            notes: "Shibuya and sushi",
+            notes: "Book TeamLab early. Try omakase in Ginza.",
+            createdAt: now,
+            updatedAt: now
+        )
+        let spot = Spot(
+            id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
+            visitID: visitID,
+            name: "Sushi Dai",
+            category: "restaurant",
+            latitude: nil,
+            longitude: nil,
+            address: nil,
+            rating: 5,
+            note: "Queue before opening",
             createdAt: now,
             updatedAt: now
         )
@@ -122,15 +136,26 @@ final class HomeViewModelTests: XCTestCase {
             pins: [GlobePin(id: "tokyo-pin", latitude: 35.6764, longitude: 139.65)],
             pinIDToPlaceID: ["tokyo-pin": placeID],
             placeRepository: StubPlaceRepository(placeByID: [placeID: place]),
-            visitRepository: StubVisitRepository(visitsByPlaceID: [placeID: [visit]])
+            visitRepository: StubVisitRepository(visitsByPlaceID: [placeID: [visit]]),
+            spotRepository: StubSpotRepository(spotsByVisitID: [visitID: [spot]]),
+            mediaRepository: StubMediaRepository(mediaByVisitID: [visitID: [
+                Media(id: UUID(), visitID: visitID, localIdentifier: "1", fileURL: nil, width: 100, height: 100, createdAt: now, updatedAt: now),
+                Media(id: UUID(), visitID: visitID, localIdentifier: "2", fileURL: nil, width: 100, height: 100, createdAt: now, updatedAt: now)
+            ]])
         )
 
         viewModel.handlePinSelected("tokyo-pin")
 
+        let row = viewModel.selectedPlaceStoryViewModel?.visits.first
         XCTAssertEqual(viewModel.selectedPlaceStoryViewModel?.placeName, "Tokyo")
         XCTAssertEqual(viewModel.selectedPlaceStoryViewModel?.countryName, "Japan")
-        XCTAssertEqual(viewModel.selectedPlaceStoryViewModel?.visits.first?.title, "Autumn Trip")
-        XCTAssertEqual(viewModel.selectedPlaceStoryViewModel?.visits.first?.summary, "Shibuya and sushi")
+        XCTAssertEqual(row?.title, "Autumn Trip")
+        XCTAssertEqual(row?.summary, "Autumn Trip")
+        XCTAssertEqual(row?.notes, "Book TeamLab early. Try omakase in Ginza.")
+        XCTAssertEqual(row?.photoCount, 2)
+        XCTAssertEqual(row?.spots.first?.name, "Sushi Dai")
+        XCTAssertEqual(row?.spots.first?.ratingText, "5/5")
+        XCTAssertEqual(row?.recommendations, ["Book TeamLab early", "Try omakase in Ginza"])
     }
 }
 
@@ -163,5 +188,41 @@ private struct StubVisitRepository: VisitRepository {
 
     func fetchVisits(forTrip tripID: UUID) throws -> [Visit] {
         []
+    }
+}
+
+private struct StubSpotRepository: SpotRepository {
+    let spotsByVisitID: [UUID: [Spot]]
+
+    func addSpot(_ spot: Spot) throws {}
+
+    func updateSpot(_ spot: Spot) throws {}
+
+    func deleteSpot(id: UUID) throws {}
+
+    func fetchSpots(forVisit visitID: UUID) throws -> [Spot] {
+        spotsByVisitID[visitID] ?? []
+    }
+}
+
+private struct StubMediaRepository: MediaRepository {
+    let mediaByVisitID: [UUID: [Media]]
+
+    func addMedia(_ media: Media) throws {}
+
+    func importMedia(from payload: MediaImportPayload, forVisit visitID: UUID, importedAt: Date) throws -> Media {
+        Media(id: UUID(), visitID: visitID, localIdentifier: payload.localIdentifier, fileURL: payload.fileURL, width: payload.width, height: payload.height, createdAt: importedAt, updatedAt: importedAt)
+    }
+
+    func updateMedia(_ media: Media) throws {}
+
+    func deleteMedia(id: UUID) throws {}
+
+    func fetchMedia(forVisit visitID: UUID) throws -> [Media] {
+        mediaByVisitID[visitID] ?? []
+    }
+
+    func fetchMedia(id: UUID) throws -> Media? {
+        mediaByVisitID.values.flatMap { $0 }.first(where: { $0.id == id })
     }
 }

@@ -32,7 +32,18 @@ final class PlaceStoryViewModelTests: XCTestCase {
     }
 
     func testSelectingVisitBuildsVisitDetailViewModel() {
-        let row = PlaceStoryVisitRow(id: "v42", title: "Tokyo Food Run", dateRangeText: "Apr 01 - Apr 04", summary: "Ramen and markets")
+        let row = PlaceStoryVisitRow(
+            id: "v42",
+            title: "Tokyo Food Run",
+            dateRangeText: "Apr 01 - Apr 04",
+            summary: "Ramen and markets",
+            notes: "Book in advance",
+            photoCount: 4,
+            spots: [
+                .init(id: "s1", name: "Sushi Dai", category: "restaurant", ratingText: "5/5", note: "Arrive early")
+            ],
+            recommendations: ["Go before 7am"]
+        )
         let viewModel = PlaceStoryViewModel(
             placeName: "Tokyo",
             countryName: "Japan",
@@ -44,5 +55,9 @@ final class PlaceStoryViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedVisitID, "v42")
         XCTAssertEqual(viewModel.selectedVisitDetailViewModel?.title, "Tokyo Food Run")
         XCTAssertEqual(viewModel.selectedVisitDetailViewModel?.summary, "Ramen and markets")
+        XCTAssertEqual(viewModel.selectedVisitDetailViewModel?.notes, "Book in advance")
+        XCTAssertEqual(viewModel.selectedVisitDetailViewModel?.photoCount, 4)
+        XCTAssertEqual(viewModel.selectedVisitDetailViewModel?.spots.count, 1)
+        XCTAssertEqual(viewModel.selectedVisitDetailViewModel?.recommendations, ["Go before 7am"])
     }
 }

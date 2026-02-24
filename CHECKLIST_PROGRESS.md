@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 10:35 Europe/Paris
+Last updated: 2026-02-24 10:39 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -24,7 +24,7 @@ Last updated: 2026-02-24 10:35 Europe/Paris
 ## Phase 3 — Core UI flows
 - [~] Home = GlobeView + top search bar + filters (implemented `HomeView` + `HomeViewModel` with search field, filter chips, globe embedding, and pin selection state; runtime UI validation pending on Xcode)
 - [~] Place Story screen (wired `HomeViewModel` to build repository-backed `PlaceStoryViewModel` data when pin↔place mapping and repositories are injected, with placeholder fallback retained for non-wired contexts; added repository-backed coverage in `HomeViewModelTests`; runtime UI validation pending on Xcode)
-- [~] Visit Detail screen (wired Place Story visit-row selection to present `VisitDetailView` sheet via `selectedVisitDetailViewModel`; added selection-to-detail mapping coverage in `PlaceStoryViewModelTests`; richer repository-backed visit detail content wiring and runtime validation pending)
+- [~] Visit Detail screen (wired Place Story visit-row selection to present `VisitDetailView` sheet via `selectedVisitDetailViewModel`; completed repository-backed detail hydration for notes/photo counts/spots/recommendations via `HomeViewModel` + `PlaceStoryVisitRow`, and expanded `PlaceStoryViewModelTests`/`HomeViewModelTests` coverage; runtime UI validation pending on Xcode)
 
 ## Phase 4 — Create/Edit content
 - [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content and step-navigation tests; persistence + globe refresh wiring pending)

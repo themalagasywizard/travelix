@@ -28,6 +28,8 @@ public final class HomeViewModel: ObservableObject {
     private let pinIDToPlaceID: [String: UUID]
     private let placeRepository: PlaceRepository?
     private let visitRepository: VisitRepository?
+    private let spotRepository: SpotRepository?
+    private let mediaRepository: MediaRepository?
 
     public init(
         pins: [GlobePin] = HomeViewModel.defaultPins,
@@ -36,7 +38,9 @@ public final class HomeViewModel: ObservableObject {
         placeIDsByYear: [Int: Set<String>] = [:],
         pinIDToPlaceID: [String: UUID] = [:],
         placeRepository: PlaceRepository? = nil,
-        visitRepository: VisitRepository? = nil
+        visitRepository: VisitRepository? = nil,
+        spotRepository: SpotRepository? = nil,
+        mediaRepository: MediaRepository? = nil
     ) {
         self.pins = pins
         self.visiblePins = pins
@@ -46,6 +50,8 @@ public final class HomeViewModel: ObservableObject {
         self.pinIDToPlaceID = pinIDToPlaceID
         self.placeRepository = placeRepository
         self.visitRepository = visitRepository
+        self.spotRepository = spotRepository
+        self.mediaRepository = mediaRepository
     }
 
     public func toggleFilter(_ filter: FilterChip) {
@@ -154,11 +160,26 @@ public final class HomeViewModel: ObservableObject {
 
         let visits = (try? visitRepository.fetchVisits(forPlace: place.id)) ?? []
         let rows = visits.map { visit in
-            PlaceStoryVisitRow(
+            let spots = ((try? spotRepository?.fetchSpots(forVisit: visit.id)) ?? [])
+                .map { spot in
+                    VisitSpotRow(
+                        id: spot.id.uuidString.lowercased(),
+                        name: spot.name,
+                        category: spot.category ?? "Spot",
+                        ratingText: Self.ratingText(for: spot.rating),
+                        note: spot.note
+                    )
+                }
+            let photoCount = (try? mediaRepository?.fetchMedia(forVisit: visit.id).count) ?? 0
+            return PlaceStoryVisitRow(
                 id: visit.id.uuidString.lowercased(),
                 title: visit.summary?.isEmpty == false ? (visit.summary ?? "") : "Visit",
                 dateRangeText: Self.dateRangeFormatter.string(from: visit.startDate, to: visit.endDate),
-                summary: visit.notes
+                summary: visit.summary,
+                notes: visit.notes,
+                photoCount: photoCount,
+                spots: spots,
+                recommendations: Self.recommendations(from: visit.notes)
             )
         }
 
@@ -175,6 +196,32 @@ public final class HomeViewModel: ObservableObject {
         formatter.timeStyle = .none
         return formatter
     }()
+
+    private static func ratingText(for rating: Int?) -> String? {
+        guard let rating else { return nil }
+        return "\(rating)/5"
+    }
+
+    private static func recommendations(from notes: String?) -> [String] {
+        guard let notes else { return [] }
+
+        let normalized = notes
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .split(separator: "\n")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { $0.isEmpty == false }
+
+        if normalized.count > 1 {
+            return Array(normalized.prefix(3))
+        }
+
+        let sentenceChunks = notes
+            .split(separator: ".")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { $0.isEmpty == false }
+
+        return Array(sentenceChunks.prefix(2))
+    }
 
     static let defaultPins: [GlobePin] = [
         GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522),
