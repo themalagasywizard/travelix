@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 14:14 Europe/Paris
+Last updated: 2026-02-24 14:24 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -54,7 +54,7 @@ Last updated: 2026-02-24 14:14 Europe/Paris
 - [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; introduced `PerformanceBudgetEvaluator` (median + p95 budget gating) and expanded `DatabasePerformanceBenchmarkTests` with configurable p95 performance budgets (`TJ_DB_COLD_START_BUDGET_MS`, `TJ_DB_VISIT_READ_BUDGET_MS`), plus new `PerformanceBudgetEvaluatorTests`; Instruments traces for cold start + globe interaction still pending on macOS/Xcode, and benchmark execution remains pending on a Swift-capable runner in this container)
 
 ## Optional Phase 9 — iCloud sync
-- [~] Feature flag (implemented `SyncFeatureFlagProviding` + `UserDefaultsSyncFeatureFlagStore` with deterministic default-off behavior and persistence toggling coverage in `SyncFeatureFlagsTests`; wiring to a dedicated Settings UI toggle remains pending on Xcode runtime integration)
+- [~] Feature flag (implemented `SyncFeatureFlagProviding` + `UserDefaultsSyncFeatureFlagStore` with deterministic default-off behavior and persistence toggling coverage in `SyncFeatureFlagsTests`; now added `SettingsViewModel` + `SettingsView` iCloud sync toggle wiring and integrated Home gear-button sheet presentation, with new `SettingsViewModelTests` covering initialization, persistence, and unchanged-toggle no-op behavior; runtime verification pending on Xcode)
 - [~] CloudKit schema + sync engine (added sync-domain scaffolding with `SyncRecordEnvelope`, `SyncBatch`, and `CloudSyncEngine` protocol plus default `NoopCloudSyncEngine` factory implementation and baseline async coverage in `CloudSyncEngineTests`; concrete CloudKit transport and end-to-end multi-device replication remain pending)
 - [~] Conflict policy (implemented reusable `SyncConflictResolver.resolveLastWriteWins` with tie-breaker semantics and dedicated unit tests in `SyncConflictResolverTests`; runtime validation in real sync flows remains pending)
 

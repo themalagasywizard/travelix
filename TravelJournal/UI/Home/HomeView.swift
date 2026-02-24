@@ -6,6 +6,7 @@ public struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
     @State private var isPinsListPresented = false
     @State private var isAddVisitPresented = false
+    @State private var isSettingsPresented = false
     @State private var addVisitViewModel = AddVisitFlowViewModel()
 
     public init(viewModel: @autoclosure @escaping () -> HomeViewModel = HomeViewModel()) {
@@ -93,9 +94,28 @@ public struct HomeView: View {
                 isAddVisitPresented = false
             }
         }
+        .sheet(isPresented: $isSettingsPresented) {
+            SettingsView(viewModel: SettingsViewModel(syncFeatureFlags: UserDefaultsSyncFeatureFlagStore()))
+        }
         .safeAreaInset(edge: .bottom) {
             HStack {
+                Button {
+                    isSettingsPresented = true
+                } label: {
+                    Image(systemName: "gearshape")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(14)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .padding(.leading, 16)
+                .padding(.bottom, 8)
+                .accessibilityLabel("Settings")
+
                 Spacer()
+
                 Button {
                     addVisitViewModel = viewModel.makeAddVisitFlowViewModel()
                     isAddVisitPresented = true
