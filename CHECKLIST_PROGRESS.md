@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 11:01 Europe/Paris
+Last updated: 2026-02-24 11:13 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -39,7 +39,7 @@ Last updated: 2026-02-24 11:01 Europe/Paris
 
 ## Phase 6 — Search & filters
 - [~] Search index (implemented `GRDBSearchRepository` with SQL LIKE-based global search across places, visits, spots, and tags with deterministic ordering and limit; added `SearchRepositoryTests` for entity coverage and result limiting; runtime UI wiring and Swift test execution on a Swift/Xcode runner still pending)
-- [~] Filter chips (extended `HomeViewModel` filter state with explicit year/trip/tag selections and deterministic intersection logic across active chips; disabling a chip now clears its associated selection and recomputes visible pins; expanded `HomeViewModelTests` for multi-chip intersection and filter-disable behavior; runtime UI wiring verification pending on Xcode runner)
+- [~] Filter chips (extended `HomeViewModel` filter state with explicit year/trip/tag selections and deterministic intersection logic across active chips; disabling a chip now clears its associated selection and recomputes visible pins; wired `searchText` to live recomputation so search + chips intersect deterministically; expanded `HomeViewModelTests` for search-only and search+chip intersection behavior; runtime UI wiring verification pending on Xcode runner)
 
 ## Phase 7 — Premium polish
 - [~] Design system tokens (expanded `DesignTokens.swift` with typography and shadow token families in addition to spacing/radius; added `DesignTokensTests` for token scale/hierarchy/subtle-shadow constraints; Swift test execution and runtime visual verification pending on Xcode runner)
@@ -55,3 +55,4 @@ Last updated: 2026-02-24 11:01 Europe/Paris
 ## Notes / blockers
 - Per user override, Xcode project creation/tooling steps are intentionally skipped in this environment; manual Xcode import/build will be handled by the user.
 - Runtime iOS/SceneKit verification and Swift test execution remain pending on a macOS/Xcode-capable runner.
+- Local verification attempt: `swift test --filter HomeViewModelTests` failed in this environment because `swift` CLI is not installed (`sh: 1: swift: not found`).

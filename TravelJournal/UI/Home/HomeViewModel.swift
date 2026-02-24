@@ -13,7 +13,11 @@ public final class HomeViewModel: ObservableObject {
         public var id: String { rawValue }
     }
 
-    @Published public var searchText: String = ""
+    @Published public var searchText: String = "" {
+        didSet {
+            applyFilters()
+        }
+    }
     @Published public private(set) var selectedFilters: Set<FilterChip> = []
     @Published public private(set) var selectedPlaceID: String?
     @Published public private(set) var pins: [GlobePin]
@@ -123,7 +127,15 @@ public final class HomeViewModel: ObservableObject {
             allowedPlaceIDs.formIntersection(placeIDs)
         }
 
-        visiblePins = pins.filter { allowedPlaceIDs.contains($0.id) }
+        let normalizedSearch = searchText
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+
+        visiblePins = pins.filter { pin in
+            guard allowedPlaceIDs.contains(pin.id) else { return false }
+            guard normalizedSearch.isEmpty == false else { return true }
+            return pin.id.lowercased().contains(normalizedSearch)
+        }
     }
 
     public var selectedPlaceStoryViewModel: PlaceStoryViewModel? {
