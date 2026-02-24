@@ -1,4 +1,5 @@
 import XCTest
+@testable import TravelJournalCore
 @testable import TravelJournalUI
 @testable import TravelJournalData
 @testable import TravelJournalDomain
@@ -35,6 +36,28 @@ final class VisitSpotsEditorViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.spots.first?.category, "cafe")
         XCTAssertEqual(viewModel.spots.first?.note, "Great coffee")
     }
+
+    func testInvalidSpotIdProducesInputErrorBanner() {
+        let viewModel = VisitSpotsEditorViewModel(visitID: UUID(), repository: InMemorySpotRepository())
+
+        viewModel.deleteSpot(id: "not-a-uuid")
+
+        XCTAssertEqual(viewModel.errorMessage, "Invalid spot id")
+        XCTAssertEqual(
+            viewModel.errorBanner,
+            ErrorPresentationMapper.banner(for: .invalidInput(message: "Spot reference is invalid."))
+        )
+    }
+
+    func testRepositoryFailureProducesDatabaseErrorBanner() {
+        let visitID = UUID()
+        let viewModel = VisitSpotsEditorViewModel(visitID: visitID, repository: FailingSpotRepository())
+
+        viewModel.loadSpots()
+
+        XCTAssertNotNil(viewModel.errorMessage)
+        XCTAssertEqual(viewModel.errorBanner, ErrorPresentationMapper.banner(for: .databaseFailure))
+    }
 }
 
 private final class InMemorySpotRepository: SpotRepository {
@@ -56,4 +79,13 @@ private final class InMemorySpotRepository: SpotRepository {
     func fetchSpots(forVisit visitID: UUID) throws -> [Spot] {
         storage.filter { $0.visitID == visitID }
     }
+}
+
+private final class FailingSpotRepository: SpotRepository {
+    struct DummyError: Error {}
+
+    func addSpot(_ spot: Spot) throws { throw DummyError() }
+    func updateSpot(_ spot: Spot) throws { throw DummyError() }
+    func deleteSpot(id: UUID) throws { throw DummyError() }
+    func fetchSpots(forVisit visitID: UUID) throws -> [Spot] { throw DummyError() }
 }

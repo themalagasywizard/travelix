@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import TravelJournalCore
 import TravelJournalData
 import TravelJournalDomain
 
@@ -7,6 +8,7 @@ import TravelJournalDomain
 public final class VisitSpotsEditorViewModel: ObservableObject {
     @Published public private(set) var spots: [VisitSpotRow] = []
     @Published public private(set) var errorMessage: String?
+    @Published public private(set) var errorBanner: ErrorBannerModel?
 
     private let visitID: UUID
     private let repository: SpotRepository
@@ -21,8 +23,9 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             let loaded = try repository.fetchSpots(forVisit: visitID)
             spots = loaded.map(Self.mapSpot)
             errorMessage = nil
+            errorBanner = nil
         } catch {
-            errorMessage = "Failed to load spots: \(error.localizedDescription)"
+            setError(message: "Failed to load spots: \(error.localizedDescription)", appError: .databaseFailure)
         }
     }
 
@@ -46,20 +49,20 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             try repository.addSpot(spot)
             loadSpots()
         } catch {
-            errorMessage = "Failed to add spot: \(error.localizedDescription)"
+            setError(message: "Failed to add spot: \(error.localizedDescription)", appError: .databaseFailure)
         }
     }
 
     public func updateSpot(id: String, name: String, category: String, note: String?) {
         guard let uuid = UUID(uuidString: id) else {
-            errorMessage = "Invalid spot id"
+            setError(message: "Invalid spot id", appError: .invalidInput(message: "Spot reference is invalid."))
             return
         }
 
         do {
             let existing = try repository.fetchSpots(forVisit: visitID).first(where: { $0.id == uuid })
             guard var spot = existing else {
-                errorMessage = "Spot not found"
+                setError(message: "Spot not found", appError: .invalidInput(message: "The selected spot no longer exists."))
                 return
             }
 
@@ -71,13 +74,13 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             try repository.updateSpot(spot)
             loadSpots()
         } catch {
-            errorMessage = "Failed to update spot: \(error.localizedDescription)"
+            setError(message: "Failed to update spot: \(error.localizedDescription)", appError: .databaseFailure)
         }
     }
 
     public func deleteSpot(id: String) {
         guard let uuid = UUID(uuidString: id) else {
-            errorMessage = "Invalid spot id"
+            setError(message: "Invalid spot id", appError: .invalidInput(message: "Spot reference is invalid."))
             return
         }
 
@@ -85,8 +88,13 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             try repository.deleteSpot(id: uuid)
             loadSpots()
         } catch {
-            errorMessage = "Failed to delete spot: \(error.localizedDescription)"
+            setError(message: "Failed to delete spot: \(error.localizedDescription)", appError: .databaseFailure)
         }
+    }
+
+    private func setError(message: String, appError: TJAppError) {
+        errorMessage = message
+        errorBanner = ErrorPresentationMapper.banner(for: appError)
     }
 
     private static func mapSpot(_ spot: Spot) -> VisitSpotRow {
