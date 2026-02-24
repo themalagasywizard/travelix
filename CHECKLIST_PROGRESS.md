@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 06:01 Europe/Paris
+Last updated: 2026-02-24 06:11 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -50,7 +50,7 @@ Last updated: 2026-02-24 06:01 Europe/Paris
 ## Phase 8 — Hardening
 - [~] Error handling (added `TJAppError` + `ErrorPresentationMapper` to produce user-facing non-crashing banner models for database/media/input/unknown failures; added `ErrorPresentationTests` for mapping determinism and safe fallbacks; runtime banner integration in UI flows pending on Xcode runner)
 - [~] Migrations + version bump (added `v2_add_visits_mood` migration in `DatabaseManager.makeMigrator()` introducing a dummy `visits.mood` column with default `""`; expanded `MigrationsTests` to assert latest schema column presence and to simulate v1→v2 upgrade path via migration table priming; Swift test execution still blocked in this environment)
-- [ ] Performance final
+- [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; added `DatabasePerformanceBenchmarkTests` for non-negative timing assertions and operation identity; Instruments traces for cold start + globe interaction still pending on macOS/Xcode)
 
 ## Notes / blockers
 - `Create Xcode project` remains open: this Linux environment cannot generate/validate an iOS Xcode project build/run lifecycle (simulator/device) directly.
