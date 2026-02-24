@@ -415,6 +415,39 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.errorBanner?.title, "Something went wrong")
     }
 
+    func testHandleDeepLinkPlaceSelectsPin() {
+        let viewModel = HomeViewModel()
+
+        viewModel.handleDeepLink(.place(id: "TOKYO"))
+
+        XCTAssertEqual(viewModel.selectedPlaceID, "tokyo")
+    }
+
+    func testHandleDeepLinkTripAppliesTripFilter() {
+        let tripID = "trip-2025"
+        let viewModel = HomeViewModel(
+            pins: [
+                GlobePin(id: "tokyo", latitude: 35.6764, longitude: 139.65),
+                GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522)
+            ],
+            placeIDsByTripID: [tripID: ["tokyo"]]
+        )
+
+        viewModel.handleDeepLink(.trip(id: "TRIP-2025"))
+
+        XCTAssertEqual(viewModel.selectedTripID, tripID)
+        XCTAssertEqual(viewModel.visiblePins.map(\.id), ["tokyo"])
+    }
+
+    func testHandleDeepLinkVisitStoresPendingVisitIdentifier() {
+        let viewModel = HomeViewModel()
+
+        viewModel.handleDeepLink(.visit(id: "VISIT-42"))
+
+        XCTAssertEqual(viewModel.consumePendingVisitDeepLinkID(), "visit-42")
+        XCTAssertNil(viewModel.consumePendingVisitDeepLinkID())
+    }
+
     func testMakeTripsListViewModelReturnsRepositoryBackedViewModelWhenDependenciesExist() throws {
         let viewModel = HomeViewModel(
             tripRepository: StubTripRepository(trips: []),

@@ -29,6 +29,7 @@ public final class HomeViewModel: ObservableObject {
     @Published public private(set) var visiblePins: [GlobePin]
     @Published public private(set) var errorBanner: ErrorBannerModel?
     @Published public private(set) var searchResults: [SearchResult] = []
+    @Published public private(set) var pendingVisitDeepLinkID: String?
 
     public struct PinListItem: Identifiable, Equatable {
         public let id: String
@@ -137,6 +138,26 @@ public final class HomeViewModel: ObservableObject {
         if searchText.localizedCaseInsensitiveContains(result.title) == false {
             searchText = result.title
         }
+    }
+
+    public func handleDeepLink(_ deepLink: AppDeepLink) {
+        switch deepLink {
+        case .place(let id):
+            handlePinSelected(id.lowercased())
+        case .trip(let id):
+            selectTrip(id.lowercased())
+            searchResults = []
+            errorBanner = nil
+        case .visit(let id):
+            pendingVisitDeepLinkID = id.lowercased()
+            searchResults = []
+            errorBanner = nil
+        }
+    }
+
+    public func consumePendingVisitDeepLinkID() -> String? {
+        defer { pendingVisitDeepLinkID = nil }
+        return pendingVisitDeepLinkID
     }
 
     public func clearSelectedPlace() {
