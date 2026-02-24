@@ -1,4 +1,5 @@
 import XCTest
+@testable import TravelJournalCore
 @testable import TravelJournalData
 @testable import TravelJournalUI
 
@@ -22,6 +23,26 @@ final class DeveloperToolsViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.statusMessage, "Demo data already loaded")
     }
+
+    func testRefreshThumbnailCacheSummaryShowsFileAndSize() {
+        let seeder = SeederStub(result: .success(DemoSeedReport(placesInserted: 0, visitsInserted: 0)))
+        let cache = ThumbnailCacheStub(stats: ThumbnailCacheStats(entryCount: 2, totalBytes: 2_048))
+        let viewModel = DeveloperToolsViewModel(seeder: seeder, thumbnailCache: cache)
+
+        XCTAssertEqual(viewModel.cacheSummary, "Thumbnail cache: 2 files (2 KB)")
+    }
+
+    func testClearThumbnailCacheUpdatesSummaryAndStatus() {
+        let seeder = SeederStub(result: .success(DemoSeedReport(placesInserted: 0, visitsInserted: 0)))
+        let cache = ThumbnailCacheStub(stats: ThumbnailCacheStats(entryCount: 1, totalBytes: 512))
+        let viewModel = DeveloperToolsViewModel(seeder: seeder, thumbnailCache: cache)
+
+        viewModel.clearThumbnailCache()
+
+        XCTAssertEqual(cache.removeAllCallCount, 1)
+        XCTAssertEqual(viewModel.cacheSummary?.hasPrefix("Thumbnail cache: 0 files ("), true)
+        XCTAssertEqual(viewModel.statusMessage, "Cleared thumbnail cache")
+    }
 }
 
 private struct SeederStub: DemoDataSeeding {
@@ -31,5 +52,27 @@ private struct SeederStub: DemoDataSeeding {
 
     func seedIfNeeded(targetPlaces: Int, targetVisits: Int) throws -> DemoSeedReport {
         try result.get()
+    }
+}
+
+private final class ThumbnailCacheStub: ThumbnailCache {
+    private(set) var statsValue: ThumbnailCacheStats
+    private(set) var removeAllCallCount = 0
+
+    init(stats: ThumbnailCacheStats) {
+        self.statsValue = stats
+    }
+
+    func store(_ data: Data, for request: ThumbnailRequest) throws {}
+
+    func load(for request: ThumbnailRequest) throws -> Data? { nil }
+
+    func removeAll() throws {
+        removeAllCallCount += 1
+        statsValue = ThumbnailCacheStats(entryCount: 0, totalBytes: 0)
+    }
+
+    func stats() throws -> ThumbnailCacheStats {
+        statsValue
     }
 }

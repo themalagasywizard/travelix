@@ -18,10 +18,21 @@ public struct ThumbnailRequest: Hashable {
     }
 }
 
+public struct ThumbnailCacheStats: Equatable {
+    public let entryCount: Int
+    public let totalBytes: Int
+
+    public init(entryCount: Int, totalBytes: Int) {
+        self.entryCount = entryCount
+        self.totalBytes = totalBytes
+    }
+}
+
 public protocol ThumbnailCache {
     func store(_ data: Data, for request: ThumbnailRequest) throws
     func load(for request: ThumbnailRequest) throws -> Data?
     func removeAll() throws
+    func stats() throws -> ThumbnailCacheStats
 }
 
 public final class DefaultThumbnailCache: ThumbnailCache {
@@ -67,5 +78,29 @@ public final class DefaultThumbnailCache: ThumbnailCache {
         for url in contents {
             try fileManager.removeItem(at: url)
         }
+    }
+
+    public func stats() throws -> ThumbnailCacheStats {
+        guard fileManager.fileExists(atPath: rootDirectory.path) else {
+            return ThumbnailCacheStats(entryCount: 0, totalBytes: 0)
+        }
+
+        let keys: Set<URLResourceKey> = [.isRegularFileKey, .fileSizeKey]
+        let contents = try fileManager.contentsOfDirectory(
+            at: rootDirectory,
+            includingPropertiesForKeys: Array(keys),
+            options: [.skipsHiddenFiles]
+        )
+
+        var count = 0
+        var totalBytes = 0
+        for url in contents {
+            let values = try url.resourceValues(forKeys: keys)
+            guard values.isRegularFile == true else { continue }
+            count += 1
+            totalBytes += values.fileSize ?? 0
+        }
+
+        return ThumbnailCacheStats(entryCount: count, totalBytes: totalBytes)
     }
 }

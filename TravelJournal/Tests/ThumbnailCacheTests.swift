@@ -31,5 +31,20 @@ final class ThumbnailCacheTests: XCTestCase {
         XCTAssertNil(try cache.load(for: request))
         let files = try fileManager.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
         XCTAssertTrue(files.isEmpty)
+        XCTAssertEqual(try cache.stats(), ThumbnailCacheStats(entryCount: 0, totalBytes: 0))
+    }
+
+    func testStatsReportsFileCountAndByteSize() throws {
+        let fileManager = FileManager.default
+        let root = fileManager.temporaryDirectory.appendingPathComponent("traveljournal-thumbnail-tests-\(UUID().uuidString)")
+        defer { try? fileManager.removeItem(at: root) }
+
+        let cache = try DefaultThumbnailCache(rootDirectory: root)
+        try cache.store(Data([0x10, 0x11, 0x12]), for: ThumbnailRequest(mediaID: UUID(), pixelSize: 256))
+        try cache.store(Data([0x20, 0x21]), for: ThumbnailRequest(mediaID: UUID(), pixelSize: 512))
+
+        let stats = try cache.stats()
+        XCTAssertEqual(stats.entryCount, 2)
+        XCTAssertEqual(stats.totalBytes, 5)
     }
 }

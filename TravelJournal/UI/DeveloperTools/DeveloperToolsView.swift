@@ -19,6 +19,17 @@ public struct DeveloperToolsView: View {
             .buttonStyle(.borderedProminent)
             .disabled(viewModel.isSeeding)
 
+            if let cacheSummary = viewModel.cacheSummary {
+                Text(cacheSummary)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                Button("Clear Thumbnail Cache") {
+                    viewModel.clearThumbnailCache()
+                }
+                .buttonStyle(.bordered)
+            }
+
             if let status = viewModel.statusMessage {
                 Text(status)
                     .font(.footnote)
