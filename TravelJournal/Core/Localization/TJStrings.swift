@@ -45,6 +45,42 @@ public enum TJStrings {
         }
     }
 
+    public enum PlaceStory {
+        public static let miniGlobePreview = "Mini globe preview"
+        public static let visits = "Visits"
+    }
+
+    public enum EditVisit {
+        public static let title = "Edit Visit"
+        public static let cancel = "Cancel"
+        public static let save = "Save"
+        public static let locationSection = "Location"
+        public static let locationField = "Location"
+        public static let datesSection = "Dates"
+        public static let startDate = "Start"
+        public static let endDate = "End"
+        public static let summarySection = "Summary"
+        public static let oneLineSummary = "One-line summary"
+        public static let notesSection = "Notes"
+    }
+
+    public enum SpotsEditor {
+        public static let title = "Manage Spots"
+        public static let addSpotSection = "Add spot"
+        public static let nameField = "Name"
+        public static let categoryField = "Category"
+        public static let noteField = "Note"
+        public static let addSpotButton = "Add Spot"
+        public static let savedSpotsSection = "Saved spots"
+        public static let noSpotsYet = "No spots yet"
+        public static let errorSection = "Error"
+    }
+
+    public enum DeveloperTools {
+        public static let loadDemoData = "Load Demo Data"
+        public static let clearThumbnailCache = "Clear Thumbnail Cache"
+    }
+
     public enum Settings {
         public static let title = "Settings"
         public static let syncSectionTitle = "Sync"

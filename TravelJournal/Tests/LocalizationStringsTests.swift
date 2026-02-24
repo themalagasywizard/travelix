@@ -27,4 +27,18 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertEqual(TJStrings.Settings.lastSuccessfulSync("formatted"), "Last successful sync: formatted")
         XCTAssertEqual(TJStrings.Settings.syncFailed("network error"), "Sync failed: network error")
     }
+
+    func testEditVisitAndPlaceStoryTokensAreStable() {
+        XCTAssertEqual(TJStrings.EditVisit.title, "Edit Visit")
+        XCTAssertEqual(TJStrings.EditVisit.save, "Save")
+        XCTAssertEqual(TJStrings.PlaceStory.visits, "Visits")
+        XCTAssertEqual(TJStrings.PlaceStory.miniGlobePreview, "Mini globe preview")
+    }
+
+    func testSpotsEditorAndDeveloperToolsTokensAreStable() {
+        XCTAssertEqual(TJStrings.SpotsEditor.title, "Manage Spots")
+        XCTAssertEqual(TJStrings.SpotsEditor.addSpotButton, "Add Spot")
+        XCTAssertEqual(TJStrings.DeveloperTools.loadDemoData, "Load Demo Data")
+        XCTAssertEqual(TJStrings.DeveloperTools.clearThumbnailCache, "Clear Thumbnail Cache")
+    }
 }

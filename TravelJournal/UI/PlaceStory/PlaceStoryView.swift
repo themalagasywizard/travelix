@@ -1,4 +1,5 @@
 import SwiftUI
+import TravelJournalCore
 
 public struct PlaceStoryView: View {
     @StateObject private var viewModel: PlaceStoryViewModel
@@ -44,7 +45,7 @@ public struct PlaceStoryView: View {
             .overlay(
                 HStack(spacing: 8) {
                     Image(systemName: "globe.europe.africa.fill")
-                    Text("Mini globe preview")
+                    Text(TJStrings.PlaceStory.miniGlobePreview)
                         .font(.footnote.weight(.medium))
                 }
                 .foregroundStyle(.white.opacity(0.9))
@@ -64,7 +65,7 @@ public struct PlaceStoryView: View {
 
     private var visitsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Visits")
+            Text(TJStrings.PlaceStory.visits)
                 .font(.headline)
                 .foregroundStyle(.white)
 

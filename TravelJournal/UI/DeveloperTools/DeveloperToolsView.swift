@@ -1,4 +1,5 @@
 import SwiftUI
+import TravelJournalCore
 
 public struct DeveloperToolsView: View {
     @StateObject private var viewModel: DeveloperToolsViewModel
@@ -13,7 +14,7 @@ public struct DeveloperToolsView: View {
                 if viewModel.isSeeding {
                     ProgressView()
                 } else {
-                    Text("Load Demo Data")
+                    Text(TJStrings.DeveloperTools.loadDemoData)
                 }
             }
             .buttonStyle(.borderedProminent)
@@ -24,7 +25,7 @@ public struct DeveloperToolsView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
-                Button("Clear Thumbnail Cache") {
+                Button(TJStrings.DeveloperTools.clearThumbnailCache) {
                     viewModel.clearThumbnailCache()
                 }
                 .buttonStyle(.bordered)

@@ -1,4 +1,5 @@
 import SwiftUI
+import TravelJournalCore
 
 struct VisitSpotsEditorSheetView: View {
     @StateObject private var viewModel: VisitSpotsEditorViewModel
@@ -13,13 +14,13 @@ struct VisitSpotsEditorSheetView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Add spot") {
-                    TextField("Name", text: $draftName)
-                    TextField("Category", text: $draftCategory)
-                    TextField("Note", text: $draftNote, axis: .vertical)
+                Section(TJStrings.SpotsEditor.addSpotSection) {
+                    TextField(TJStrings.SpotsEditor.nameField, text: $draftName)
+                    TextField(TJStrings.SpotsEditor.categoryField, text: $draftCategory)
+                    TextField(TJStrings.SpotsEditor.noteField, text: $draftNote, axis: .vertical)
                         .lineLimit(2...4)
 
-                    Button("Add Spot") {
+                    Button(TJStrings.SpotsEditor.addSpotButton) {
                         viewModel.addSpot(
                             name: draftName.trimmingCharacters(in: .whitespacesAndNewlines),
                             category: draftCategory.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -32,9 +33,9 @@ struct VisitSpotsEditorSheetView: View {
                     .disabled(draftName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
 
-                Section("Saved spots") {
+                Section(TJStrings.SpotsEditor.savedSpotsSection) {
                     if viewModel.spots.isEmpty {
-                        Text("No spots yet")
+                        Text(TJStrings.SpotsEditor.noSpotsYet)
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(viewModel.spots) { spot in
@@ -59,7 +60,7 @@ struct VisitSpotsEditorSheetView: View {
                 }
 
                 if let banner = viewModel.errorBanner {
-                    Section("Error") {
+                    Section(TJStrings.SpotsEditor.errorSection) {
                         Text(banner.title)
                             .font(.headline)
                         Text(banner.message)
@@ -67,7 +68,7 @@ struct VisitSpotsEditorSheetView: View {
                     }
                 }
             }
-            .navigationTitle("Manage Spots")
+            .navigationTitle(TJStrings.SpotsEditor.title)
             .onAppear { viewModel.loadSpots() }
         }
     }

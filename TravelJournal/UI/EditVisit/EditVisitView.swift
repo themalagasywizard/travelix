@@ -1,4 +1,5 @@
 import SwiftUI
+import TravelJournalCore
 
 public struct EditVisitView: View {
     @StateObject private var viewModel: EditVisitViewModel
@@ -11,14 +12,14 @@ public struct EditVisitView: View {
     public var body: some View {
         NavigationStack {
             Form {
-                Section("Location") {
-                    TextField("Location", text: $viewModel.locationName)
+                Section(TJStrings.EditVisit.locationSection) {
+                    TextField(TJStrings.EditVisit.locationField, text: $viewModel.locationName)
                         .textInputAutocapitalization(.words)
                 }
 
-                Section("Dates") {
-                    DatePicker("Start", selection: $viewModel.startDate, displayedComponents: .date)
-                    DatePicker("End", selection: $viewModel.endDate, displayedComponents: .date)
+                Section(TJStrings.EditVisit.datesSection) {
+                    DatePicker(TJStrings.EditVisit.startDate, selection: $viewModel.startDate, displayedComponents: .date)
+                    DatePicker(TJStrings.EditVisit.endDate, selection: $viewModel.endDate, displayedComponents: .date)
 
                     if let banner = viewModel.dateValidationBanner ?? viewModel.saveErrorBanner {
                         VStack(alignment: .leading, spacing: 2) {
@@ -31,22 +32,22 @@ public struct EditVisitView: View {
                     }
                 }
 
-                Section("Summary") {
-                    TextField("One-line summary", text: $viewModel.summary)
+                Section(TJStrings.EditVisit.summarySection) {
+                    TextField(TJStrings.EditVisit.oneLineSummary, text: $viewModel.summary)
                 }
 
-                Section("Notes") {
+                Section(TJStrings.EditVisit.notesSection) {
                     TextEditor(text: $viewModel.notes)
                         .frame(minHeight: 120)
                 }
             }
-            .navigationTitle("Edit Visit")
+            .navigationTitle(TJStrings.EditVisit.title)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel", action: { dismiss() })
+                    Button(TJStrings.EditVisit.cancel, action: { dismiss() })
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
+                    Button(TJStrings.EditVisit.save) {
                         if viewModel.saveChanges() {
                             dismiss()
                         }
