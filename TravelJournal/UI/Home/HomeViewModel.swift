@@ -48,11 +48,11 @@ public final class HomeViewModel: ObservableObject {
         }
     }
 
-    private let placeIDsByTagID: [String: Set<String>]
-    private let placeIDsByTripID: [String: Set<String>]
-    private let placeIDsByYear: [Int: Set<String>]
-    private let placeSearchMetadataByPinID: [String: PlaceSearchMetadata]
-    private let pinIDToPlaceID: [String: UUID]
+    private var placeIDsByTagID: [String: Set<String>]
+    private var placeIDsByTripID: [String: Set<String>]
+    private var placeIDsByYear: [Int: Set<String>]
+    private var placeSearchMetadataByPinID: [String: PlaceSearchMetadata]
+    private var pinIDToPlaceID: [String: UUID]
     private let placeRepository: PlaceRepository?
     private let visitRepository: VisitRepository?
     private let spotRepository: SpotRepository?
@@ -107,6 +107,39 @@ public final class HomeViewModel: ObservableObject {
 
     public func clearErrorBanner() {
         errorBanner = nil
+    }
+
+    public func makeAddVisitFlowViewModel(now: @escaping () -> Date = Date.init) -> AddVisitFlowViewModel {
+        AddVisitFlowViewModel(
+            placeRepository: placeRepository,
+            visitRepository: visitRepository,
+            now: now
+        )
+    }
+
+    public func registerCreatedVisit(_ result: AddVisitSaveResult) {
+        let pinID = result.place.id.uuidString.lowercased()
+
+        pinIDToPlaceID[pinID] = result.place.id
+        placeSearchMetadataByPinID[pinID] = PlaceSearchMetadata(
+            title: result.place.name,
+            subtitle: result.place.country
+        )
+
+        if pins.contains(where: { $0.id == pinID }) == false {
+            let pin = GlobePin(
+                id: pinID,
+                latitude: result.place.latitude,
+                longitude: result.place.longitude
+            )
+            pins.append(pin)
+        }
+
+        let year = Calendar.current.component(.year, from: result.visit.startDate)
+        placeIDsByYear[year, default: []].insert(pinID)
+
+        selectedPlaceID = pinID
+        applyFilters()
     }
 
     public func selectTag(_ tagID: String?) {

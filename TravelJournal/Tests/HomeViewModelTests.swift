@@ -296,6 +296,40 @@ final class HomeViewModelTests: XCTestCase {
         viewModel.handlePinSelected("pin")
         XCTAssertNil(viewModel.errorBanner)
     }
+
+    func testRegisterCreatedVisitAddsPinMetadataAndSelectsIt() {
+        let viewModel = HomeViewModel(pins: [])
+        let placeID = UUID(uuidString: "cccccccc-cccc-cccc-cccc-cccccccccccc")!
+        let visitID = UUID(uuidString: "dddddddd-dddd-dddd-dddd-dddddddddddd")!
+        let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+        let place = Place(
+            id: placeID,
+            name: "Berlin",
+            country: "Germany",
+            latitude: 52.52,
+            longitude: 13.405,
+            createdAt: timestamp,
+            updatedAt: timestamp
+        )
+        let visit = Visit(
+            id: visitID,
+            placeID: placeID,
+            tripID: nil,
+            startDate: timestamp,
+            endDate: timestamp,
+            summary: "Berlin Weekend",
+            notes: "Museum Island + Mitte cafes",
+            createdAt: timestamp,
+            updatedAt: timestamp
+        )
+
+        viewModel.registerCreatedVisit(.init(place: place, visit: visit))
+
+        XCTAssertEqual(viewModel.pins.count, 1)
+        XCTAssertEqual(viewModel.visiblePins.count, 1)
+        XCTAssertEqual(viewModel.pinListItems.first?.title, "Berlin")
+        XCTAssertEqual(viewModel.selectedPlaceID, placeID.uuidString.lowercased())
+    }
 }
 
 private struct FailingPlaceRepository: PlaceRepository {

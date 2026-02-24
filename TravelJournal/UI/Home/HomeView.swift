@@ -4,6 +4,8 @@ import TravelJournalCore
 public struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
     @State private var isPinsListPresented = false
+    @State private var isAddVisitPresented = false
+    @State private var addVisitViewModel = AddVisitFlowViewModel()
 
     public init(viewModel: @autoclosure @escaping () -> HomeViewModel = HomeViewModel()) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -78,6 +80,32 @@ public struct HomeView: View {
                 }
                 .accessibilityIdentifier(TJAccessibility.Identifier.homePinsList)
                 .navigationTitle("Visible Pins")
+            }
+        }
+        .sheet(isPresented: $isAddVisitPresented) {
+            AddVisitFlowView(viewModel: addVisitViewModel) { result in
+                viewModel.registerCreatedVisit(result)
+                isAddVisitPresented = false
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            HStack {
+                Spacer()
+                Button {
+                    addVisitViewModel = viewModel.makeAddVisitFlowViewModel()
+                    isAddVisitPresented = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(16)
+                        .background(Color.blue.opacity(0.9))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, 16)
+                .padding(.bottom, 8)
+                .accessibilityLabel("Add visit")
             }
         }
     }

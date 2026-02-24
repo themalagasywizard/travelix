@@ -2,9 +2,14 @@ import SwiftUI
 
 public struct AddVisitFlowView: View {
     @StateObject private var viewModel: AddVisitFlowViewModel
+    private let onSaved: ((AddVisitSaveResult) -> Void)?
 
-    public init(viewModel: @autoclosure @escaping () -> AddVisitFlowViewModel = AddVisitFlowViewModel()) {
+    public init(
+        viewModel: @autoclosure @escaping () -> AddVisitFlowViewModel = AddVisitFlowViewModel(),
+        onSaved: ((AddVisitSaveResult) -> Void)? = nil
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel())
+        self.onSaved = onSaved
     }
 
     public var body: some View {
@@ -111,7 +116,9 @@ public struct AddVisitFlowView: View {
 
             Button(viewModel.isLastStep ? "Save" : "Next") {
                 if viewModel.isLastStep {
-                    _ = viewModel.saveVisit()
+                    if let result = viewModel.saveVisit() {
+                        onSaved?(result)
+                    }
                 } else {
                     viewModel.goNext()
                 }

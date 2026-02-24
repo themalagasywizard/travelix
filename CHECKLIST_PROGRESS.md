@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 12:39 Europe/Paris
+Last updated: 2026-02-24 12:49 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -27,7 +27,7 @@ Last updated: 2026-02-24 12:39 Europe/Paris
 - [~] Visit Detail screen (wired Place Story visit-row selection to present `VisitDetailView` sheet via `selectedVisitDetailViewModel`; completed repository-backed detail hydration for notes/photo counts/spots/recommendations via `HomeViewModel` + `PlaceStoryVisitRow`, and expanded `PlaceStoryViewModelTests`/`HomeViewModelTests` coverage; runtime UI validation pending on Xcode)
 
 ## Phase 4 — Create/Edit content
-- [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content, plus `saveVisit()` persistence wiring to `PlaceRepository`/`VisitRepository` with input validation and error states; updated save CTA to persist on final step, standardized validation/persistence failures through `ErrorPresentationMapper` banner models, and expanded `AddVisitFlowViewModelTests` for persistence + banner mapping coverage; globe refresh wiring + runtime end-to-end verification pending on Xcode)
+- [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content, plus `saveVisit()` persistence wiring to `PlaceRepository`/`VisitRepository` with input validation and error states; updated save CTA to persist on final step, standardized validation/persistence failures through `ErrorPresentationMapper` banner models, and expanded `AddVisitFlowViewModelTests` for persistence + banner mapping coverage; now wired Home floating “+” CTA to present Add Visit flow, inject repository-backed flow model, and register successful saves back into `HomeViewModel` so the new place pin/metadata appears on the globe immediately with auto-selection; runtime end-to-end verification pending on Xcode)
 - [~] Edit Visit (implemented `EditVisitView` + `EditVisitViewModel` edit form and date-range validation with tests; date-range failures now emit shared `ErrorPresentationMapper` banner content via `dateValidationBanner`; wired repository-backed save via new `EditVisitViewModel(visit:locationName:repository:)` + `saveChanges()` flow, updated `EditVisitView` Save action to persist before dismiss, and expanded `EditVisitViewModelTests` to cover successful persistence plus mapped database-failure banners; runtime relaunch verification on Xcode runner still pending)
 - [~] Spots CRUD (implemented repository-backed `VisitSpotsEditorViewModel` add/update/delete/load operations and unit tests with in-memory repository; wired Visit Detail to present a new `VisitSpotsEditorSheetView` via “Manage Spots” action and refresh displayed spots from repository-backed editor state; runtime UI verification pending on Xcode)
 - [~] Tags (implemented `GRDBTagRepository` create/assign/remove/fetch operations, place IDs by tag query for deterministic globe filtering, and tests in `TagRepositoryTests` + `HomeViewModelTests`; runtime verification on Xcode runner and local Swift test execution still pending)
