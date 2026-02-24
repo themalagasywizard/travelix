@@ -32,40 +32,40 @@ public enum TJAccessibility {
     }
 
     public enum Label {
-        public static let homeSearchField = "Search places, trips, spots, or tags"
-        public static let homeGlobe = "Travel globe with visited place pins"
-        public static let homePinsListButton = "Open list of visible pins"
-        public static let homeSettingsButton = "Open settings"
-        public static let homeTripsButton = "Open trips list"
-        public static let homeAddVisitButton = "Add a new visit"
+        public static let homeSearchField = TJStrings.Accessibility.homeSearchField
+        public static let homeGlobe = TJStrings.Accessibility.homeGlobe
+        public static let homePinsListButton = TJStrings.Accessibility.homePinsListButton
+        public static let homeSettingsButton = TJStrings.Accessibility.homeSettingsButton
+        public static let homeTripsButton = TJStrings.Accessibility.homeTripsButton
+        public static let homeAddVisitButton = TJStrings.Accessibility.homeAddVisitButton
 
-        public static let tripsList = "Trips list"
+        public static let tripsList = TJStrings.Accessibility.tripsList
         public static func tripsRow(title: String, dateRange: String, visitCount: String) -> String {
-            "Trip \(title), \(dateRange), \(visitCount)"
+            TJStrings.Accessibility.tripsRow(title: title, dateRange: dateRange, visitCount: visitCount)
         }
-        public static let tripsErrorBanner = "Trips loading error"
+        public static let tripsErrorBanner = TJStrings.Accessibility.tripsErrorBanner
 
-        public static let settingsSyncToggle = "Enable iCloud sync"
-        public static let settingsSyncDescription = "Sync feature description"
-        public static let settingsSyncNowButton = "Run sync now"
-        public static let settingsSyncNowStatus = "Latest sync status"
+        public static let settingsSyncToggle = TJStrings.Accessibility.settingsSyncToggle
+        public static let settingsSyncDescription = TJStrings.Accessibility.settingsSyncDescription
+        public static let settingsSyncNowButton = TJStrings.Accessibility.settingsSyncNowButton
+        public static let settingsSyncNowStatus = TJStrings.Accessibility.settingsSyncNowStatus
 
         public static func pinListRow(_ placeID: String) -> String {
-            "Select place \(placeID)"
+            TJStrings.Accessibility.pinListRow(placeID)
         }
 
         public static func filterChip(_ name: String, isSelected: Bool) -> String {
-            isSelected ? "\(name) filter selected" : "\(name) filter"
+            TJStrings.Accessibility.filterChip(name, isSelected: isSelected)
         }
 
         public static func selectedPlace(_ placeID: String) -> String {
-            "Selected place \(placeID)"
+            TJStrings.Accessibility.selectedPlace(placeID)
         }
 
-        public static let visitSummaryTitle = "Visit summary"
-        public static let visitPhotosTitle = "Visit photos"
-        public static let visitNotesTitle = "Visit notes"
-        public static let visitSpotsTitle = "Visit spots"
-        public static let visitRecommendationsTitle = "Visit recommendations"
+        public static let visitSummaryTitle = TJStrings.Accessibility.visitSummaryTitle
+        public static let visitPhotosTitle = TJStrings.Accessibility.visitPhotosTitle
+        public static let visitNotesTitle = TJStrings.Accessibility.visitNotesTitle
+        public static let visitSpotsTitle = TJStrings.Accessibility.visitSpotsTitle
+        public static let visitRecommendationsTitle = TJStrings.Accessibility.visitRecommendationsTitle
     }
 }

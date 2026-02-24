@@ -222,4 +222,43 @@ public enum TJStrings {
     public enum Globe {
         public static let sceneKitUnavailable = "SceneKit unavailable on this platform"
     }
+
+    public enum Accessibility {
+        public static let homeSearchField = "Search places, trips, spots, or tags"
+        public static let homeGlobe = "Travel globe with visited place pins"
+        public static let homePinsListButton = "Open list of visible pins"
+        public static let homeSettingsButton = "Open settings"
+        public static let homeTripsButton = "Open trips list"
+        public static let homeAddVisitButton = "Add a new visit"
+
+        public static let tripsList = "Trips list"
+        public static let tripsErrorBanner = "Trips loading error"
+
+        public static let settingsSyncToggle = "Enable iCloud sync"
+        public static let settingsSyncDescription = "Sync feature description"
+        public static let settingsSyncNowButton = "Run sync now"
+        public static let settingsSyncNowStatus = "Latest sync status"
+
+        public static let visitSummaryTitle = "Visit summary"
+        public static let visitPhotosTitle = "Visit photos"
+        public static let visitNotesTitle = "Visit notes"
+        public static let visitSpotsTitle = "Visit spots"
+        public static let visitRecommendationsTitle = "Visit recommendations"
+
+        public static func tripsRow(title: String, dateRange: String, visitCount: String) -> String {
+            "Trip \(title), \(dateRange), \(visitCount)"
+        }
+
+        public static func pinListRow(_ placeID: String) -> String {
+            "Select place \(placeID)"
+        }
+
+        public static func filterChip(_ name: String, isSelected: Bool) -> String {
+            isSelected ? "\(name) filter selected" : "\(name) filter"
+        }
+
+        public static func selectedPlace(_ placeID: String) -> String {
+            "Selected place \(placeID)"
+        }
+    }
 }

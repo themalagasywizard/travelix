@@ -109,4 +109,33 @@ final class LocalizationStringsTests: XCTestCase {
     func testGlobeFallbackTokenIsStable() {
         XCTAssertEqual(TJStrings.Globe.sceneKitUnavailable, "SceneKit unavailable on this platform")
     }
+
+    func testAccessibilityTokensAreStable() {
+        XCTAssertEqual(TJStrings.Accessibility.homeSearchField, "Search places, trips, spots, or tags")
+        XCTAssertEqual(TJStrings.Accessibility.homeGlobe, "Travel globe with visited place pins")
+        XCTAssertEqual(TJStrings.Accessibility.homePinsListButton, "Open list of visible pins")
+        XCTAssertEqual(TJStrings.Accessibility.homeSettingsButton, "Open settings")
+        XCTAssertEqual(TJStrings.Accessibility.homeTripsButton, "Open trips list")
+        XCTAssertEqual(TJStrings.Accessibility.homeAddVisitButton, "Add a new visit")
+        XCTAssertEqual(TJStrings.Accessibility.tripsList, "Trips list")
+        XCTAssertEqual(TJStrings.Accessibility.tripsErrorBanner, "Trips loading error")
+        XCTAssertEqual(TJStrings.Accessibility.settingsSyncToggle, "Enable iCloud sync")
+        XCTAssertEqual(TJStrings.Accessibility.settingsSyncDescription, "Sync feature description")
+        XCTAssertEqual(TJStrings.Accessibility.settingsSyncNowButton, "Run sync now")
+        XCTAssertEqual(TJStrings.Accessibility.settingsSyncNowStatus, "Latest sync status")
+        XCTAssertEqual(TJStrings.Accessibility.visitSummaryTitle, "Visit summary")
+        XCTAssertEqual(TJStrings.Accessibility.visitPhotosTitle, "Visit photos")
+        XCTAssertEqual(TJStrings.Accessibility.visitNotesTitle, "Visit notes")
+        XCTAssertEqual(TJStrings.Accessibility.visitSpotsTitle, "Visit spots")
+        XCTAssertEqual(TJStrings.Accessibility.visitRecommendationsTitle, "Visit recommendations")
+
+        XCTAssertEqual(
+            TJStrings.Accessibility.tripsRow(title: "Japan 2025", dateRange: "Jan 2 – Jan 12, 2025", visitCount: "4 visits"),
+            "Trip Japan 2025, Jan 2 – Jan 12, 2025, 4 visits"
+        )
+        XCTAssertEqual(TJStrings.Accessibility.pinListRow("Tokyo"), "Select place Tokyo")
+        XCTAssertEqual(TJStrings.Accessibility.filterChip("Tag", isSelected: false), "Tag filter")
+        XCTAssertEqual(TJStrings.Accessibility.filterChip("Tag", isSelected: true), "Tag filter selected")
+        XCTAssertEqual(TJStrings.Accessibility.selectedPlace("paris"), "Selected place paris")
+    }
 }
