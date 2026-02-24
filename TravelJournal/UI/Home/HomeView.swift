@@ -100,11 +100,19 @@ public struct HomeView: View {
         .sheet(isPresented: $isSettingsPresented) {
             #if DEBUG
             SettingsView(
-                viewModel: SettingsViewModel(syncFeatureFlags: UserDefaultsSyncFeatureFlagStore()),
+                viewModel: SettingsViewModel(
+                    syncFeatureFlags: UserDefaultsSyncFeatureFlagStore(),
+                    syncRunStatusStore: UserDefaultsSyncRunStatusStore()
+                ),
                 developerToolsViewModel: DeveloperToolsViewModel()
             )
             #else
-            SettingsView(viewModel: SettingsViewModel(syncFeatureFlags: UserDefaultsSyncFeatureFlagStore()))
+            SettingsView(
+                viewModel: SettingsViewModel(
+                    syncFeatureFlags: UserDefaultsSyncFeatureFlagStore(),
+                    syncRunStatusStore: UserDefaultsSyncRunStatusStore()
+                )
+            )
             #endif
         }
         .sheet(isPresented: $isTripsPresented) {

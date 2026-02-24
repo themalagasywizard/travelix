@@ -61,12 +61,22 @@ final class SettingsViewModelTests: XCTestCase {
     func testRunSyncNowStoresSuccessStatusMessage() async {
         let store = SyncFeatureFlagStoreStub(isSyncEnabled: true)
         let recorder = SyncNowActionRecorder(result: .success("Sync finished: pushed 2, pulled 1, applied 1"))
-        let viewModel = SettingsViewModel(syncFeatureFlags: store, runSyncNowAction: recorder.action)
+        let statusStore = SyncRunStatusStoreStub(lastSuccessfulSyncAt: nil)
+        let now = Date(timeIntervalSince1970: 9_999)
+        let viewModel = SettingsViewModel(
+            syncFeatureFlags: store,
+            runSyncNowAction: recorder.action,
+            syncRunStatusStore: statusStore,
+            now: { now },
+            dateString: { _ in "formatted-now" }
+        )
 
         await viewModel.runSyncNow()
 
         XCTAssertEqual(recorder.callCount, 1)
         XCTAssertEqual(viewModel.syncStatusMessage, "Sync finished: pushed 2, pulled 1, applied 1")
+        XCTAssertEqual(viewModel.lastSuccessfulSyncDescription, "Last successful sync: formatted-now")
+        XCTAssertEqual(statusStore.savedCalls, [now])
         XCTAssertNil(viewModel.syncErrorBanner)
         XCTAssertFalse(viewModel.isRunningSyncNow)
     }
@@ -74,14 +84,29 @@ final class SettingsViewModelTests: XCTestCase {
     func testRunSyncNowStoresFailureStatusMessage() async {
         let store = SyncFeatureFlagStoreStub(isSyncEnabled: true)
         let recorder = SyncNowActionRecorder(result: .failure(SyncNowActionRecorder.TestError.networkDown))
-        let viewModel = SettingsViewModel(syncFeatureFlags: store, runSyncNowAction: recorder.action)
+        let statusStore = SyncRunStatusStoreStub(lastSuccessfulSyncAt: nil)
+        let viewModel = SettingsViewModel(syncFeatureFlags: store, runSyncNowAction: recorder.action, syncRunStatusStore: statusStore)
 
         await viewModel.runSyncNow()
 
         XCTAssertEqual(recorder.callCount, 1)
         XCTAssertEqual(viewModel.syncStatusMessage, "Sync failed: The operation could not be completed. (SettingsViewModelTests.SyncNowActionRecorder.TestError error 0.)")
         XCTAssertEqual(viewModel.syncErrorBanner, ErrorPresentationMapper.banner(for: .databaseFailure))
+        XCTAssertEqual(statusStore.savedCalls, [])
         XCTAssertFalse(viewModel.isRunningSyncNow)
+    }
+
+    func testInitLoadsLastSuccessfulSyncDescriptionWhenAvailable() {
+        let store = SyncFeatureFlagStoreStub(isSyncEnabled: true)
+        let statusStore = SyncRunStatusStoreStub(lastSuccessfulSyncAt: Date(timeIntervalSince1970: 321))
+
+        let viewModel = SettingsViewModel(
+            syncFeatureFlags: store,
+            syncRunStatusStore: statusStore,
+            dateString: { _ in "formatted-321" }
+        )
+
+        XCTAssertEqual(viewModel.lastSuccessfulSyncDescription, "Last successful sync: formatted-321")
     }
 }
 
@@ -96,6 +121,24 @@ private final class SyncFeatureFlagStoreStub: SyncFeatureFlagProviding {
     func setSyncEnabled(_ enabled: Bool) {
         setCalls.append(enabled)
         isSyncEnabled = enabled
+    }
+}
+
+private final class SyncRunStatusStoreStub: SyncRunStatusStoring, @unchecked Sendable {
+    private let lastSuccessful: Date?
+    private(set) var savedCalls: [Date] = []
+
+    init(lastSuccessfulSyncAt: Date?) {
+        self.lastSuccessful = lastSuccessfulSyncAt
+    }
+
+    func lastSuccessfulSyncAt() -> Date? {
+        lastSuccessful
+    }
+
+    func saveLastSuccessfulSync(at date: Date?) {
+        guard let date else { return }
+        savedCalls.append(date)
     }
 }
 

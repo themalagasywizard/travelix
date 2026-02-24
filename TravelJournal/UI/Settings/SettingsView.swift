@@ -61,6 +61,12 @@ public struct SettingsView: View {
                                 .accessibilityIdentifier(TJAccessibility.Identifier.settingsSyncNowStatus)
                                 .accessibilityLabel(TJAccessibility.Label.settingsSyncNowStatus)
                         }
+
+                        if let lastSuccessfulSyncDescription = viewModel.lastSuccessfulSyncDescription {
+                            Text(lastSuccessfulSyncDescription)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
 
