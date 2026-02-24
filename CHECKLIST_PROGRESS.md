@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 02:30 Europe/Paris
+Last updated: 2026-02-24 02:40 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -17,7 +17,7 @@ Last updated: 2026-02-24 02:30 Europe/Paris
 - [~] Lat/Lon → 3D conversion utility (implemented `GlobeCoordinateConverter` + sanity unit tests; test execution pending on Swift/Xcode-capable runner)
 - [~] SceneKit globe view wrapper (implemented `GlobeSceneView` with sphere, texture hook, camera, and lighting setup; runtime validation pending on iOS/macOS SceneKit environment)
 - [~] Camera + gestures (added pan rotate, pinch zoom, and inertial deceleration in `GlobeSceneView.Coordinator`; runtime tuning/verification pending on Xcode runner)
-- [ ] Render pins
+- [~] Render pins (added `GlobePin` model + pin container rendering pipeline in `GlobeSceneView`, with lat/lon placement via `GlobeCoordinateConverter`; visual/runtime validation pending on SceneKit runner)
 - [ ] Pin hit-testing
 - [ ] Performance benchmark
 

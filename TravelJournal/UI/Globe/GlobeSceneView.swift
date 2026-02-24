@@ -1,15 +1,30 @@
 import SwiftUI
+import TravelJournalCore
 #if canImport(SceneKit)
 import SceneKit
+
+public struct GlobePin: Identifiable, Equatable {
+    public let id: String
+    public let latitude: Double
+    public let longitude: Double
+
+    public init(id: String, latitude: Double, longitude: Double) {
+        self.id = id
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+}
 
 public struct GlobeSceneView: UIViewRepresentable {
     public struct Configuration: Equatable {
         public var radius: CGFloat
         public var earthTextureName: String?
+        public var pins: [GlobePin]
 
-        public init(radius: CGFloat = 1.0, earthTextureName: String? = nil) {
+        public init(radius: CGFloat = 1.0, earthTextureName: String? = nil, pins: [GlobePin] = []) {
             self.radius = radius
             self.earthTextureName = earthTextureName
+            self.pins = pins
         }
     }
 
@@ -32,7 +47,13 @@ public struct GlobeSceneView: UIViewRepresentable {
 
         let sceneNodes = buildScene(configuration: configuration)
         view.scene = sceneNodes.scene
-        context.coordinator.attach(to: view, globeNode: sceneNodes.globeNode, cameraNode: sceneNodes.cameraNode)
+        context.coordinator.attach(
+            to: view,
+            globeNode: sceneNodes.globeNode,
+            cameraNode: sceneNodes.cameraNode,
+            pinsContainerNode: sceneNodes.pinsContainerNode
+        )
+        context.coordinator.renderPins(configuration.pins)
 
         return view
     }
@@ -44,13 +65,18 @@ public struct GlobeSceneView: UIViewRepresentable {
             sphere.firstMaterial?.diffuse.contents = configuration.earthTextureName.flatMap(UIImage.init(named:)) ?? UIColor.systemBlue
         }
         context.coordinator.updateCameraDistanceIfNeeded()
+        context.coordinator.renderPins(configuration.pins)
     }
 
-    private func buildScene(configuration: Configuration) -> (scene: SCNScene, globeNode: SCNNode, cameraNode: SCNNode) {
+    private func buildScene(configuration: Configuration) -> (scene: SCNScene, globeNode: SCNNode, cameraNode: SCNNode, pinsContainerNode: SCNNode) {
         let scene = SCNScene()
 
         let globeNode = makeGlobeNode(configuration: configuration)
         scene.rootNode.addChildNode(globeNode)
+
+        let pinsContainerNode = SCNNode()
+        pinsContainerNode.name = "pins-container"
+        scene.rootNode.addChildNode(pinsContainerNode)
 
         let cameraNode = SCNNode()
         cameraNode.camera = SCNCamera()
@@ -71,7 +97,7 @@ public struct GlobeSceneView: UIViewRepresentable {
         ambientNode.light?.color = UIColor(white: 0.18, alpha: 1.0)
         scene.rootNode.addChildNode(ambientNode)
 
-        return (scene, globeNode, cameraNode)
+        return (scene, globeNode, cameraNode, pinsContainerNode)
     }
 
     private func makeGlobeNode(configuration: Configuration) -> SCNNode {
@@ -85,7 +111,9 @@ public struct GlobeSceneView: UIViewRepresentable {
         material.metalness.contents = 0.0
         sphere.firstMaterial = material
 
-        return SCNNode(geometry: sphere)
+        let node = SCNNode(geometry: sphere)
+        node.name = "earth-globe"
+        return node
     }
 }
 
@@ -95,7 +123,9 @@ public extension GlobeSceneView {
 
         weak var globeNode: SCNNode?
         weak var cameraNode: SCNNode?
+        weak var pinsContainerNode: SCNNode?
 
+        private var renderedPinIDs: [String] = []
         private var inertiaVelocity = CGPoint.zero
         private var displayLink: CADisplayLink?
         private var lastFrameTimestamp: CFTimeInterval?
@@ -117,9 +147,10 @@ public extension GlobeSceneView {
             currentCameraDistance = max(minDistance, min(maxDistance, currentCameraDistance))
         }
 
-        func attach(to view: SCNView, globeNode: SCNNode, cameraNode: SCNNode) {
+        func attach(to view: SCNView, globeNode: SCNNode, cameraNode: SCNNode, pinsContainerNode: SCNNode) {
             self.globeNode = globeNode
             self.cameraNode = cameraNode
+            self.pinsContainerNode = pinsContainerNode
             self.currentCameraDistance = configuration.radius * 3.0
 
             let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
@@ -130,8 +161,43 @@ public extension GlobeSceneView {
             view.addGestureRecognizer(pinch)
         }
 
+        func renderPins(_ pins: [GlobePin]) {
+            guard let pinsContainerNode else { return }
+
+            let pinIDs = pins.map(\.id)
+            guard pinIDs != renderedPinIDs else { return }
+            renderedPinIDs = pinIDs
+
+            pinsContainerNode.childNodes.forEach { $0.removeFromParentNode() }
+
+            for pin in pins {
+                let node = makePinNode(pin: pin)
+                pinsContainerNode.addChildNode(node)
+            }
+        }
+
         func updateCameraDistanceIfNeeded() {
             cameraNode?.position.z = Float(currentCameraDistance)
+        }
+
+        private func makePinNode(pin: GlobePin) -> SCNNode {
+            let pinGeometry = SCNSphere(radius: configuration.radius * 0.02)
+            let material = SCNMaterial()
+            material.diffuse.contents = UIColor.systemRed
+            material.emission.contents = UIColor.systemRed.withAlphaComponent(0.15)
+            pinGeometry.firstMaterial = material
+
+            let node = SCNNode(geometry: pinGeometry)
+            node.name = "pin-\(pin.id)"
+
+            let position = GlobeCoordinateConverter.latLonToCartesian(
+                latitude: pin.latitude,
+                longitude: pin.longitude,
+                radius: Double(configuration.radius * 1.01)
+            )
+            node.position = SCNVector3(position.x, position.y, position.z)
+
+            return node
         }
 
         @objc private func handlePan(_ recognizer: UIPanGestureRecognizer) {
@@ -227,14 +293,28 @@ public extension GlobeSceneView {
 }
 
 #else
+public struct GlobePin: Identifiable, Equatable {
+    public let id: String
+    public let latitude: Double
+    public let longitude: Double
+
+    public init(id: String, latitude: Double, longitude: Double) {
+        self.id = id
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+}
+
 public struct GlobeSceneView: View {
     public struct Configuration: Equatable {
         public var radius: CGFloat
         public var earthTextureName: String?
+        public var pins: [GlobePin]
 
-        public init(radius: CGFloat = 1.0, earthTextureName: String? = nil) {
+        public init(radius: CGFloat = 1.0, earthTextureName: String? = nil, pins: [GlobePin] = []) {
             self.radius = radius
             self.earthTextureName = earthTextureName
+            self.pins = pins
         }
     }
 
