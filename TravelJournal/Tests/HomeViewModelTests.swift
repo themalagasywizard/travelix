@@ -124,6 +124,32 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.visiblePins.map(\.id), ["lisbon"])
     }
 
+    func testEnablingFilterSeedsDefaultSelectionDeterministically() {
+        let viewModel = HomeViewModel(
+            pins: [GlobePin(id: "tokyo", latitude: 35.6764, longitude: 139.65)],
+            placeIDsByTagID: ["zeta": ["tokyo"], "alpha": ["tokyo"]],
+            placeIDsByTripID: ["trip-b": ["tokyo"], "trip-a": ["tokyo"]],
+            placeIDsByYear: [2026: ["tokyo"], 2024: ["tokyo"]]
+        )
+
+        viewModel.toggleFilter(.tag)
+        viewModel.toggleFilter(.trip)
+        viewModel.toggleFilter(.year)
+
+        XCTAssertEqual(viewModel.selectedTagID, "alpha")
+        XCTAssertEqual(viewModel.selectedTripID, "trip-a")
+        XCTAssertEqual(viewModel.selectedYear, 2024)
+    }
+
+    func testChipTitleReflectsCurrentSelection() {
+        let viewModel = HomeViewModel()
+
+        XCTAssertEqual(viewModel.chipTitle(for: .tag), "Tag")
+
+        viewModel.selectTag("food")
+        XCTAssertEqual(viewModel.chipTitle(for: .tag), "Tag: food")
+    }
+
     func testSelectedPlaceStoryUsesRepositoryBackedPlaceAndVisitsWhenAvailable() {
         let placeID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
         let visitID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!

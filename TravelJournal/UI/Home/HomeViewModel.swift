@@ -66,6 +66,7 @@ public final class HomeViewModel: ObservableObject {
             clearSelection(for: filter)
         } else {
             selectedFilters.insert(filter)
+            seedDefaultSelectionIfNeeded(for: filter)
         }
 
         applyFilters()
@@ -103,6 +104,25 @@ public final class HomeViewModel: ObservableObject {
         applyFilters()
     }
 
+    public func chipTitle(for filter: FilterChip) -> String {
+        switch filter {
+        case .year:
+            if let selectedYear {
+                return "Year: \(selectedYear)"
+            }
+        case .trip:
+            if let selectedTripID {
+                return "Trip: \(selectedTripID)"
+            }
+        case .tag:
+            if let selectedTagID {
+                return "Tag: \(selectedTagID)"
+            }
+        }
+
+        return filter.rawValue
+    }
+
     private func clearSelection(for filter: FilterChip) {
         switch filter {
         case .year:
@@ -111,6 +131,23 @@ public final class HomeViewModel: ObservableObject {
             selectedTripID = nil
         case .tag:
             selectedTagID = nil
+        }
+    }
+
+    private func seedDefaultSelectionIfNeeded(for filter: FilterChip) {
+        switch filter {
+        case .year:
+            if selectedYear == nil {
+                selectedYear = placeIDsByYear.keys.sorted().first
+            }
+        case .trip:
+            if selectedTripID == nil {
+                selectedTripID = placeIDsByTripID.keys.sorted().first
+            }
+        case .tag:
+            if selectedTagID == nil {
+                selectedTagID = placeIDsByTagID.keys.sorted().first
+            }
         }
     }
 

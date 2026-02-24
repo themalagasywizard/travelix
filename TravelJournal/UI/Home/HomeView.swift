@@ -99,7 +99,7 @@ public struct HomeView: View {
                     Button {
                         viewModel.toggleFilter(filter)
                     } label: {
-                        Text(filter.rawValue)
+                        Text(viewModel.chipTitle(for: filter))
                             .font(.footnote.weight(.semibold))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
