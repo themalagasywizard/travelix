@@ -2,7 +2,7 @@ import Foundation
 
 public enum SyncBatchMerging {
     /// Merges local and remote records by (kind,id), applying last-write-wins on `updatedAt`.
-    /// If timestamps are equal, remote wins to keep pull reconciliation deterministic.
+    /// If timestamps are equal, tombstones win over non-deleted records; otherwise remote wins.
     public static func mergeLastWriteWins(
         local: SyncBatch,
         remote: SyncBatch
@@ -30,11 +30,19 @@ public enum SyncBatchMerging {
         current: SyncRecordEnvelope,
         incoming: SyncRecordEnvelope
     ) -> SyncRecordEnvelope {
-        if incoming.updatedAt >= current.updatedAt {
+        if incoming.updatedAt > current.updatedAt {
             return incoming
         }
 
-        return current
+        if incoming.updatedAt < current.updatedAt {
+            return current
+        }
+
+        if incoming.isDeleted != current.isDeleted {
+            return incoming.isDeleted ? incoming : current
+        }
+
+        return incoming
     }
 
     private static func sortOrder(

@@ -81,11 +81,7 @@ public struct SyncOrchestrator: Sendable {
         for record in records {
             let identity = "\(record.kind.rawValue)::\(record.id.uuidString)"
             if let existing = latestByIdentity[identity] {
-                let resolved = SyncConflictResolver.resolveLastWriteWins(
-                    local: SyncConflictValue(value: existing, updatedAt: existing.updatedAt),
-                    remote: SyncConflictValue(value: record, updatedAt: record.updatedAt)
-                )
-                latestByIdentity[identity] = resolved.value
+                latestByIdentity[identity] = resolveEnvelopeConflict(local: existing, remote: record)
             } else {
                 latestByIdentity[identity] = record
             }
@@ -140,12 +136,27 @@ public struct SyncOrchestrator: Sendable {
             return false
         }
 
-        let resolved = SyncConflictResolver.resolveLastWriteWins(
-            local: SyncConflictValue(value: pending, updatedAt: pending.updatedAt),
-            remote: SyncConflictValue(value: pulled, updatedAt: pulled.updatedAt)
-        )
+        let resolved = resolveEnvelopeConflict(local: pending, remote: pulled)
+        return resolved == pending
+    }
 
-        return resolved.value == pending
+    private func resolveEnvelopeConflict(
+        local: SyncRecordEnvelope,
+        remote: SyncRecordEnvelope
+    ) -> SyncRecordEnvelope {
+        if remote.updatedAt > local.updatedAt {
+            return remote
+        }
+
+        if remote.updatedAt < local.updatedAt {
+            return local
+        }
+
+        if remote.isDeleted != local.isDeleted {
+            return remote.isDeleted ? remote : local
+        }
+
+        return remote
     }
 
     private func latestTimestamp(in records: [SyncRecordEnvelope]) -> Date? {

@@ -197,6 +197,39 @@ final class SyncOrchestratorTests: XCTestCase {
         XCTAssertEqual(cursor.lastPulledAt(), Date(timeIntervalSince1970: 150))
     }
 
+    func testRunOnceDropsPulledNonDeletedRecordWhenPendingTombstoneHasEqualTimestamp() async throws {
+        let sharedID = UUID()
+        let timestamp = Date(timeIntervalSince1970: 520)
+        let pendingTombstone = SyncRecordEnvelope(
+            kind: .visit,
+            id: sharedID,
+            updatedAt: timestamp,
+            payload: Data(),
+            isDeleted: true
+        )
+        let pulledLiveRecord = SyncRecordEnvelope(
+            kind: .visit,
+            id: sharedID,
+            updatedAt: timestamp,
+            payload: Data("live".utf8),
+            isDeleted: false
+        )
+
+        let pending = SyncBatch(records: [pendingTombstone])
+        let pulled = SyncBatch(records: [pulledLiveRecord])
+        let cloud = CloudSyncEngineSpy(pullResult: pulled)
+        let local = LocalSyncStoreSpy(pending: pending)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: nil)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        let report = try await orchestrator.runOnce()
+
+        XCTAssertEqual(local.appliedPulledBatches.count, 0)
+        XCTAssertEqual(report.pulledCount, 1)
+        XCTAssertEqual(report.appliedCount, 0)
+        XCTAssertEqual(cursor.lastPulledAt(), timestamp)
+    }
+
     func testRunOnceNormalizesPulledDuplicatesOnTimestampTieByKeepingLaterRecord() async throws {
         let sharedID = UUID()
         let timestamp = Date(timeIntervalSince1970: 220)
@@ -222,6 +255,36 @@ final class SyncOrchestratorTests: XCTestCase {
         _ = try await orchestrator.runOnce()
 
         XCTAssertEqual(local.appliedPulledBatches, [SyncBatch(records: [second])])
+        XCTAssertEqual(cursor.lastPulledAt(), timestamp)
+    }
+
+    func testRunOnceNormalizesPulledDuplicatesOnTimestampTiePreferringTombstone() async throws {
+        let sharedID = UUID()
+        let timestamp = Date(timeIntervalSince1970: 620)
+        let live = SyncRecordEnvelope(
+            kind: .spot,
+            id: sharedID,
+            updatedAt: timestamp,
+            payload: Data("live".utf8),
+            isDeleted: false
+        )
+        let tombstone = SyncRecordEnvelope(
+            kind: .spot,
+            id: sharedID,
+            updatedAt: timestamp,
+            payload: Data(),
+            isDeleted: true
+        )
+
+        let pulled = SyncBatch(records: [live, tombstone])
+        let cloud = CloudSyncEngineSpy(pullResult: pulled)
+        let local = LocalSyncStoreSpy(pending: .empty)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: nil)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        _ = try await orchestrator.runOnce()
+
+        XCTAssertEqual(local.appliedPulledBatches, [SyncBatch(records: [tombstone])])
         XCTAssertEqual(cursor.lastPulledAt(), timestamp)
     }
 }

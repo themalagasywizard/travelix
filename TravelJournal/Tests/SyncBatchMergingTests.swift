@@ -51,6 +51,33 @@ final class SyncBatchMergingTests: XCTestCase {
         XCTAssertEqual(merged.records, [remote])
     }
 
+    func testMergePrefersTombstoneWhenTimestampsEqual() {
+        let id = UUID()
+        let timestamp = Date(timeIntervalSince1970: 450)
+
+        let local = SyncRecordEnvelope(
+            kind: .spot,
+            id: id,
+            updatedAt: timestamp,
+            payload: Data("live".utf8),
+            isDeleted: false
+        )
+        let remoteTombstone = SyncRecordEnvelope(
+            kind: .spot,
+            id: id,
+            updatedAt: timestamp,
+            payload: Data(),
+            isDeleted: true
+        )
+
+        let merged = SyncBatchMerging.mergeLastWriteWins(
+            local: SyncBatch(records: [local]),
+            remote: SyncBatch(records: [remoteTombstone])
+        )
+
+        XCTAssertEqual(merged.records, [remoteTombstone])
+    }
+
     func testMergeKeepsDistinctRecordsAndSortsDeterministically() {
         let place = SyncRecordEnvelope(
             kind: .place,
