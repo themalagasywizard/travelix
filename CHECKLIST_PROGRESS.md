@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 14:08 Europe/Paris
+Last updated: 2026-02-24 14:14 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -52,6 +52,11 @@ Last updated: 2026-02-24 14:08 Europe/Paris
 - [~] Error handling (added `TJAppError` + `ErrorPresentationMapper` to produce user-facing non-crashing banner models for database/media/input/unknown failures; wired `VisitSpotsEditorViewModel` failure paths to emit mapped `errorBanner` values alongside error text, then extended the same banner mapping to `AddVisitFlowViewModel`, `EditVisitViewModel`, and now `HomeViewModel` repository-hydration failures (with dismissible Home banner UI + new tests); broader runtime banner presentation/validation across all UI flows still pending on Xcode runner)
 - [~] Migrations + version bump (added `v2_add_visits_mood` migration in `DatabaseManager.makeMigrator()` introducing a dummy `visits.mood` column with default `""`; expanded `MigrationsTests` to assert latest schema column presence and to simulate v1→v2 upgrade path via migration table priming; Swift test execution still blocked in this environment)
 - [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; introduced `PerformanceBudgetEvaluator` (median + p95 budget gating) and expanded `DatabasePerformanceBenchmarkTests` with configurable p95 performance budgets (`TJ_DB_COLD_START_BUDGET_MS`, `TJ_DB_VISIT_READ_BUDGET_MS`), plus new `PerformanceBudgetEvaluatorTests`; Instruments traces for cold start + globe interaction still pending on macOS/Xcode, and benchmark execution remains pending on a Swift-capable runner in this container)
+
+## Optional Phase 9 — iCloud sync
+- [~] Feature flag (implemented `SyncFeatureFlagProviding` + `UserDefaultsSyncFeatureFlagStore` with deterministic default-off behavior and persistence toggling coverage in `SyncFeatureFlagsTests`; wiring to a dedicated Settings UI toggle remains pending on Xcode runtime integration)
+- [~] CloudKit schema + sync engine (added sync-domain scaffolding with `SyncRecordEnvelope`, `SyncBatch`, and `CloudSyncEngine` protocol plus default `NoopCloudSyncEngine` factory implementation and baseline async coverage in `CloudSyncEngineTests`; concrete CloudKit transport and end-to-end multi-device replication remain pending)
+- [~] Conflict policy (implemented reusable `SyncConflictResolver.resolveLastWriteWins` with tie-breaker semantics and dedicated unit tests in `SyncConflictResolverTests`; runtime validation in real sync flows remains pending)
 
 ## Notes / blockers
 - Per user override, Xcode project creation/tooling steps are intentionally skipped in this environment; manual Xcode import/build will be handled by the user.
