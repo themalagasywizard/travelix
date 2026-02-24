@@ -1,4 +1,5 @@
 import SwiftUI
+import TravelJournalCore
 
 public struct VisitDetailView: View {
     @StateObject private var viewModel: VisitDetailViewModel
@@ -32,6 +33,7 @@ public struct VisitDetailView: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
+        .accessibilityIdentifier(TJAccessibility.Identifier.visitHeader)
     }
 
     private var summarySection: some View {
@@ -40,6 +42,8 @@ public struct VisitDetailView: View {
                 .font(.body)
                 .foregroundStyle(.white.opacity(0.92))
         }
+        .accessibilityIdentifier(TJAccessibility.Identifier.visitSummarySection)
+        .accessibilityLabel(TJAccessibility.Label.visitSummaryTitle)
     }
 
     private var photosSection: some View {
@@ -52,6 +56,8 @@ public struct VisitDetailView: View {
                 }
             }
         }
+        .accessibilityIdentifier(TJAccessibility.Identifier.visitPhotosSection)
+        .accessibilityLabel(TJAccessibility.Label.visitPhotosTitle)
     }
 
     private var notesSection: some View {
@@ -60,6 +66,8 @@ public struct VisitDetailView: View {
                 .font(.body)
                 .foregroundStyle(.white.opacity(0.9))
         }
+        .accessibilityIdentifier(TJAccessibility.Identifier.visitNotesSection)
+        .accessibilityLabel(TJAccessibility.Label.visitNotesTitle)
     }
 
     private var spotsSection: some View {
@@ -96,6 +104,8 @@ public struct VisitDetailView: View {
                 }
             }
         }
+        .accessibilityIdentifier(TJAccessibility.Identifier.visitSpotsSection)
+        .accessibilityLabel(TJAccessibility.Label.visitSpotsTitle)
     }
 
     private var recommendationsSection: some View {
@@ -121,6 +131,8 @@ public struct VisitDetailView: View {
                 }
             }
         }
+        .accessibilityIdentifier(TJAccessibility.Identifier.visitRecommendationsSection)
+        .accessibilityLabel(TJAccessibility.Label.visitRecommendationsTitle)
     }
 
     private func sectionCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {

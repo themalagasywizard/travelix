@@ -1,4 +1,5 @@
 import SwiftUI
+import TravelJournalCore
 
 public struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
@@ -14,6 +15,7 @@ public struct HomeView: View {
                 onPinSelected: viewModel.handlePinSelected
             )
             .ignoresSafeArea()
+            .accessibilityLabel(TJAccessibility.Label.homeGlobe)
 
             VStack(spacing: 10) {
                 searchBar
@@ -27,6 +29,8 @@ public struct HomeView: View {
                         .padding(.vertical, 6)
                         .background(.ultraThinMaterial)
                         .clipShape(Capsule())
+                        .accessibilityIdentifier(TJAccessibility.Identifier.homeSelectedPlaceBadge)
+                        .accessibilityLabel(TJAccessibility.Label.selectedPlace(selectedPlaceID))
                 }
             }
             .padding(.horizontal, 16)
@@ -46,6 +50,8 @@ public struct HomeView: View {
             TextField("Search places, trips, spots, tags", text: $viewModel.searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
+                .accessibilityIdentifier(TJAccessibility.Identifier.homeSearchField)
+                .accessibilityLabel(TJAccessibility.Label.homeSearchField)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
@@ -78,6 +84,8 @@ public struct HomeView: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.white)
+                    .accessibilityIdentifier(TJAccessibility.Identifier.homeFilterChipPrefix + filter.rawValue.lowercased())
+                    .accessibilityLabel(TJAccessibility.Label.filterChip(filter.rawValue, isSelected: viewModel.selectedFilters.contains(filter)))
                 }
             }
         }

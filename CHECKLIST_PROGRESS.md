@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 05:31 Europe/Paris
+Last updated: 2026-02-24 05:41 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -45,7 +45,7 @@ Last updated: 2026-02-24 05:31 Europe/Paris
 - [~] Design system tokens (expanded `DesignTokens.swift` with typography and shadow token families in addition to spacing/radius; added `DesignTokensTests` for token scale/hierarchy/subtle-shadow constraints; Swift test execution and runtime visual verification pending on Xcode runner)
 - [~] Haptics (added `HapticsClient` with injectable `HapticsEngine` and default UIKit-backed implementation using `UISelectionFeedbackGenerator`/`UINotificationFeedbackGenerator`, plus non-UIKit no-op fallback; added `HapticsClientTests` to verify event routing for selection/success/warning/error; runtime tactile verification pending on iOS device/simulator via Xcode)
 - [~] Motion (added `TJMotion` tokens with bounded durations and explicit curve presets via `MotionTokens.swift`, including globe-focus-specific spring timing; added `MotionTokensTests` covering duration bounds, ordering hierarchy, and curve selection; runtime animation tuning/verification pending on Xcode runner)
-- [ ] Accessibility pass
+- [~] Accessibility pass (added centralized accessibility tokens in `TJAccessibility` and applied identifiers/labels to key Home and Visit Detail UI elements: search field, filter chips, selected-place badge, and visit detail sections/header; added `AccessibilityTokensTests` for token stability and label semantics; VoiceOver/dynamic-type runtime validation still pending on Xcode runner)
 
 ## Notes / blockers
 - `Create Xcode project` remains open: this Linux environment cannot generate/validate an iOS Xcode project build/run lifecycle (simulator/device) directly.
