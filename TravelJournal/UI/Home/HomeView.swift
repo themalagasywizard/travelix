@@ -315,8 +315,8 @@ public struct HomeView: View {
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(.white)
-                    .accessibilityIdentifier(TJAccessibility.Identifier.homeFilterChipPrefix + filter.rawValue.lowercased())
-                    .accessibilityLabel(TJAccessibility.Label.filterChip(filter.rawValue, isSelected: viewModel.selectedFilters.contains(filter)))
+                    .accessibilityIdentifier(TJAccessibility.Identifier.homeFilterChipPrefix + filter.id.lowercased())
+                    .accessibilityLabel(TJAccessibility.Label.filterChip(filter.id, isSelected: viewModel.selectedFilters.contains(filter)))
                 }
             }
         }

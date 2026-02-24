@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 18:23 Europe/Paris
+Last updated: 2026-02-24 18:31 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -64,7 +64,7 @@ Last updated: 2026-02-24 18:23 Europe/Paris
 - [x] Basic privacy policy text ready (added `PrivacyPolicy.md` draft covering local-first storage, optional iCloud sync, media handling, and deletion semantics)
 
 ## PRD non-functional follow-through
-- [~] Localization-ready string externalization (introduced centralized `TJStrings` copy tokens in `TravelJournal/Core/Localization/TJStrings.swift`, migrated key Home + Add Visit UI literals to shared tokens, and added `LocalizationStringsTests` for format/coverage stability; this run expanded externalization into Trips (`TripsListView`/`TripsListViewModel`), Settings (`SettingsView`/`SettingsViewModel`), and Visit Detail section/empty-state copy, plus updated `LocalizationStringsTests`, `SettingsViewModelTests`, and `TripsListViewModelTests` to assert formatter/pluralization behavior and centralized copy usage; this run further migrated Place Story (`PlaceStoryView`), Edit Visit (`EditVisitView`), Visit Spots editor (`VisitSpotsEditorSheetView`), and Developer Tools (`DeveloperToolsView`) literals onto new `TJStrings` namespaces (`PlaceStory`, `EditVisit`, `SpotsEditor`, `DeveloperTools`) and expanded `LocalizationStringsTests` stability coverage for those tokens; full-app migration to localized resources remains pending)
+- [~] Localization-ready string externalization (introduced centralized `TJStrings` copy tokens in `TravelJournal/Core/Localization/TJStrings.swift`, migrated key Home + Add Visit UI literals to shared tokens, and added `LocalizationStringsTests` for format/coverage stability; this run expanded externalization into Trips (`TripsListView`/`TripsListViewModel`), Settings (`SettingsView`/`SettingsViewModel`), and Visit Detail section/empty-state copy, plus updated `LocalizationStringsTests`, `SettingsViewModelTests`, and `TripsListViewModelTests` to assert formatter/pluralization behavior and centralized copy usage; this run further migrated Place Story (`PlaceStoryView`), Edit Visit (`EditVisitView`), Visit Spots editor (`VisitSpotsEditorSheetView`), and Developer Tools (`DeveloperToolsView`) literals onto new `TJStrings` namespaces (`PlaceStory`, `EditVisit`, `SpotsEditor`, `DeveloperTools`) and expanded `LocalizationStringsTests` stability coverage for those tokens; this run externalized remaining Home filter labels/title formatting + unknown-country fallback copy, Visit Detail photo-section title formatting, and SceneKit-unavailable fallback text into `TJStrings` (`Home`, `VisitDetail`, `Globe`) with corresponding updates in `HomeViewModel`, `HomeView`, `VisitDetailViewModel`, `GlobeSceneView`, and `LocalizationStringsTests`; full-app migration to localized resources remains pending)
 
 ## Notes / blockers
 - Per user override, Xcode project creation/tooling steps are intentionally skipped in this environment; manual Xcode import/build will be handled by the user.

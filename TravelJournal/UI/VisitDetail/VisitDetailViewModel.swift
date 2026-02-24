@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import TravelJournalCore
 
 public struct VisitSpotRow: Identifiable, Equatable {
     public let id: String
@@ -51,7 +52,7 @@ public final class VisitDetailViewModel: ObservableObject {
     }
 
     public var photoSectionTitle: String {
-        "Photos (\(photoCount))"
+        TJStrings.VisitDetail.photosSectionTitle(photoCount)
     }
 
     public var canManageSpots: Bool {

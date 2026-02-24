@@ -11,6 +11,22 @@ public enum TJStrings {
         public static let visiblePinsTitle = "Visible Pins"
         public static let searchPlaceholder = "Search places, trips, spots, tags"
         public static let pinsList = "Pins List"
+        public static let yearFilter = "Year"
+        public static let tripFilter = "Trip"
+        public static let tagFilter = "Tag"
+        public static let unknownCountry = "Unknown Country"
+
+        public static func yearFilterTitle(_ value: Int) -> String {
+            "\(yearFilter): \(value)"
+        }
+
+        public static func tripFilterTitle(_ value: String) -> String {
+            "\(tripFilter): \(value)"
+        }
+
+        public static func tagFilterTitle(_ value: String) -> String {
+            "\(tagFilter): \(value)"
+        }
     }
 
     public enum AddVisit {
@@ -112,5 +128,13 @@ public enum TJStrings {
         public static let noSpotsAdded = "No spots added"
         public static let manageSpots = "Manage Spots"
         public static let noRecommendationsYet = "No recommendations yet"
+
+        public static func photosSectionTitle(_ count: Int) -> String {
+            "Photos (\(count))"
+        }
+    }
+
+    public enum Globe {
+        public static let sceneKitUnavailable = "SceneKit unavailable on this platform"
     }
 }

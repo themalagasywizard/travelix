@@ -6,12 +6,18 @@ import TravelJournalDomain
 
 @MainActor
 public final class HomeViewModel: ObservableObject {
-    public enum FilterChip: String, CaseIterable, Identifiable {
-        case year = "Year"
-        case trip = "Trip"
-        case tag = "Tag"
+    public enum FilterChip: CaseIterable, Identifiable {
+        case year
+        case trip
+        case tag
 
-        public var id: String { rawValue }
+        public var id: String {
+            switch self {
+            case .year: return TJStrings.Home.yearFilter
+            case .trip: return TJStrings.Home.tripFilter
+            case .tag: return TJStrings.Home.tagFilter
+            }
+        }
     }
 
     @Published public var searchText: String = "" {
@@ -281,19 +287,20 @@ public final class HomeViewModel: ObservableObject {
         switch filter {
         case .year:
             if let selectedYear {
-                return "Year: \(selectedYear)"
+                return TJStrings.Home.yearFilterTitle(selectedYear)
             }
+            return TJStrings.Home.yearFilter
         case .trip:
             if let selectedTripID {
-                return "Trip: \(selectedTripID)"
+                return TJStrings.Home.tripFilterTitle(selectedTripID)
             }
+            return TJStrings.Home.tripFilter
         case .tag:
             if let selectedTagID {
-                return "Tag: \(selectedTagID)"
+                return TJStrings.Home.tagFilterTitle(selectedTagID)
             }
+            return TJStrings.Home.tagFilter
         }
-
-        return filter.rawValue
     }
 
     private func clearSelection(for filter: FilterChip) {
@@ -412,7 +419,7 @@ public final class HomeViewModel: ObservableObject {
 
         return PlaceStoryViewModel(
             placeName: selectedPlaceID.capitalized,
-            countryName: "Unknown Country",
+            countryName: TJStrings.Home.unknownCountry,
             visits: [
                 .init(
                     id: "sample-\(selectedPlaceID)",
@@ -464,7 +471,7 @@ public final class HomeViewModel: ObservableObject {
 
         return PlaceStoryViewModel(
             placeName: place.name,
-            countryName: place.country ?? "Unknown Country",
+            countryName: place.country ?? TJStrings.Home.unknownCountry,
             visits: rows
         )
     }

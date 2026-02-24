@@ -434,7 +434,7 @@ public struct GlobeSceneView: View {
     ) {}
 
     public var body: some View {
-        Text("SceneKit unavailable on this platform")
+        Text(TJStrings.Globe.sceneKitUnavailable)
     }
 }
 #endif

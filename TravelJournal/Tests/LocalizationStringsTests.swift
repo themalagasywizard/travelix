@@ -6,6 +6,10 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertFalse(TJStrings.Home.searchPlaceholder.isEmpty)
         XCTAssertFalse(TJStrings.Home.visiblePinsTitle.isEmpty)
         XCTAssertFalse(TJStrings.Home.pinsList.isEmpty)
+        XCTAssertFalse(TJStrings.Home.yearFilter.isEmpty)
+        XCTAssertFalse(TJStrings.Home.tripFilter.isEmpty)
+        XCTAssertFalse(TJStrings.Home.tagFilter.isEmpty)
+        XCTAssertFalse(TJStrings.Home.unknownCountry.isEmpty)
     }
 
     func testAddVisitStepCounterFormatsExpectedShape() {
@@ -28,6 +32,13 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertEqual(TJStrings.Settings.syncFailed("network error"), "Sync failed: network error")
     }
 
+    func testHomeAndVisitDetailHelperFormatting() {
+        XCTAssertEqual(TJStrings.Home.yearFilterTitle(2026), "Year: 2026")
+        XCTAssertEqual(TJStrings.Home.tripFilterTitle("japan-2025"), "Trip: japan-2025")
+        XCTAssertEqual(TJStrings.Home.tagFilterTitle("food"), "Tag: food")
+        XCTAssertEqual(TJStrings.VisitDetail.photosSectionTitle(4), "Photos (4)")
+    }
+
     func testEditVisitAndPlaceStoryTokensAreStable() {
         XCTAssertEqual(TJStrings.EditVisit.title, "Edit Visit")
         XCTAssertEqual(TJStrings.EditVisit.save, "Save")
@@ -40,5 +51,9 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertEqual(TJStrings.SpotsEditor.addSpotButton, "Add Spot")
         XCTAssertEqual(TJStrings.DeveloperTools.loadDemoData, "Load Demo Data")
         XCTAssertEqual(TJStrings.DeveloperTools.clearThumbnailCache, "Clear Thumbnail Cache")
+    }
+
+    func testGlobeFallbackTokenIsStable() {
+        XCTAssertEqual(TJStrings.Globe.sceneKitUnavailable, "SceneKit unavailable on this platform")
     }
 }
