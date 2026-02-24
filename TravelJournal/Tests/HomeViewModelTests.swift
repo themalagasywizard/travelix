@@ -107,6 +107,26 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.visiblePins.map(\.id), ["tokyo"])
     }
 
+    func testSearchTextMatchesPinMetadataTitleAndSubtitle() {
+        let pins = [
+            GlobePin(id: "pin-a", latitude: 35.6764, longitude: 139.65),
+            GlobePin(id: "pin-b", latitude: 48.8566, longitude: 2.3522)
+        ]
+        let viewModel = HomeViewModel(
+            pins: pins,
+            placeSearchMetadataByPinID: [
+                "pin-a": .init(title: "Tokyo", subtitle: "Japan"),
+                "pin-b": .init(title: "Paris", subtitle: "France")
+            ]
+        )
+
+        viewModel.searchText = "japan"
+        XCTAssertEqual(viewModel.visiblePins.map(\.id), ["pin-a"])
+
+        viewModel.searchText = "pari"
+        XCTAssertEqual(viewModel.visiblePins.map(\.id), ["pin-b"])
+    }
+
     func testSearchTextCombinesWithActiveFilters() {
         let pins = [
             GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522),
@@ -162,6 +182,22 @@ final class HomeViewModelTests: XCTestCase {
 
         viewModel.searchText = "to"
         XCTAssertEqual(viewModel.pinListItems.map(\.id), ["tokyo"])
+    }
+
+    func testPinListItemsPreferMetadataTitles() {
+        let pins = [
+            GlobePin(id: "pin-1", latitude: 35.6764, longitude: 139.65),
+            GlobePin(id: "pin-2", latitude: 48.8566, longitude: 2.3522)
+        ]
+        let viewModel = HomeViewModel(
+            pins: pins,
+            placeSearchMetadataByPinID: [
+                "pin-1": .init(title: "Tokyo", subtitle: "Japan"),
+                "pin-2": .init(title: "Paris", subtitle: "France")
+            ]
+        )
+
+        XCTAssertEqual(viewModel.pinListItems.map(\.title), ["Paris", "Tokyo"])
     }
 
     func testSelectedPlaceStoryUsesRepositoryBackedPlaceAndVisitsWhenAvailable() {

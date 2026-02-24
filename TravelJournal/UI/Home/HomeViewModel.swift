@@ -38,9 +38,20 @@ public final class HomeViewModel: ObservableObject {
         }
     }
 
+    public struct PlaceSearchMetadata: Equatable {
+        public let title: String
+        public let subtitle: String?
+
+        public init(title: String, subtitle: String? = nil) {
+            self.title = title
+            self.subtitle = subtitle
+        }
+    }
+
     private let placeIDsByTagID: [String: Set<String>]
     private let placeIDsByTripID: [String: Set<String>]
     private let placeIDsByYear: [Int: Set<String>]
+    private let placeSearchMetadataByPinID: [String: PlaceSearchMetadata]
     private let pinIDToPlaceID: [String: UUID]
     private let placeRepository: PlaceRepository?
     private let visitRepository: VisitRepository?
@@ -52,6 +63,7 @@ public final class HomeViewModel: ObservableObject {
         placeIDsByTagID: [String: Set<String>] = [:],
         placeIDsByTripID: [String: Set<String>] = [:],
         placeIDsByYear: [Int: Set<String>] = [:],
+        placeSearchMetadataByPinID: [String: PlaceSearchMetadata] = [:],
         pinIDToPlaceID: [String: UUID] = [:],
         placeRepository: PlaceRepository? = nil,
         visitRepository: VisitRepository? = nil,
@@ -63,6 +75,7 @@ public final class HomeViewModel: ObservableObject {
         self.placeIDsByTagID = placeIDsByTagID
         self.placeIDsByTripID = placeIDsByTripID
         self.placeIDsByYear = placeIDsByYear
+        self.placeSearchMetadataByPinID = placeSearchMetadataByPinID
         self.pinIDToPlaceID = pinIDToPlaceID
         self.placeRepository = placeRepository
         self.visitRepository = visitRepository
@@ -189,7 +202,20 @@ public final class HomeViewModel: ObservableObject {
         visiblePins = pins.filter { pin in
             guard allowedPlaceIDs.contains(pin.id) else { return false }
             guard normalizedSearch.isEmpty == false else { return true }
-            return pin.id.lowercased().contains(normalizedSearch)
+
+            if pin.id.lowercased().contains(normalizedSearch) {
+                return true
+            }
+
+            guard let metadata = placeSearchMetadataByPinID[pin.id] else {
+                return false
+            }
+
+            if metadata.title.lowercased().contains(normalizedSearch) {
+                return true
+            }
+
+            return metadata.subtitle?.lowercased().contains(normalizedSearch) ?? false
         }
     }
 
@@ -307,7 +333,10 @@ public final class HomeViewModel: ObservableObject {
 
     public var pinListItems: [PinListItem] {
         visiblePins
-            .map { PinListItem(id: $0.id, title: $0.id.capitalized) }
+            .map { pin in
+                let title = placeSearchMetadataByPinID[pin.id]?.title ?? pin.id.capitalized
+                return PinListItem(id: pin.id, title: title)
+            }
             .sorted { lhs, rhs in
                 lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
             }

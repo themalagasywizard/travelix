@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 12:09 Europe/Paris
+Last updated: 2026-02-24 12:19 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -39,7 +39,7 @@ Last updated: 2026-02-24 12:09 Europe/Paris
 
 ## Phase 6 — Search & filters
 - [~] Search index (implemented `GRDBSearchRepository` with SQL LIKE-based global search across places, visits, spots, and tags with deterministic ordering and limit; added `SearchRepositoryTests` for entity coverage and result limiting; runtime UI wiring and Swift test execution on a Swift/Xcode runner still pending)
-- [~] Filter chips (extended `HomeViewModel` filter state with explicit year/trip/tag selections and deterministic intersection logic across active chips; disabling a chip now clears its associated selection and recomputes visible pins; enabling an unconfigured chip now seeds deterministic default selections from sorted year/trip/tag option sets; wired `HomeView` chips to surface active selection labels and expanded `HomeViewModelTests` for default-selection seeding + chip-title rendering semantics in addition to search/filter intersection coverage; runtime UI wiring verification pending on Xcode runner)
+- [~] Filter chips (extended `HomeViewModel` filter state with explicit year/trip/tag selections and deterministic intersection logic across active chips; disabling a chip now clears its associated selection and recomputes visible pins; enabling an unconfigured chip now seeds deterministic default selections from sorted year/trip/tag option sets; wired `HomeView` chips to surface active selection labels; expanded Home search semantics so query matching now checks pin identifier plus optional place metadata title/subtitle (`PlaceSearchMetadata`) and pin list labels now prefer metadata titles for better accessibility/search consistency; expanded `HomeViewModelTests` for default-selection seeding, chip-title rendering, metadata-backed search matching, and pin-list title mapping; runtime UI wiring verification pending on Xcode runner)
 
 ## Phase 7 — Premium polish
 - [~] Design system tokens (expanded `DesignTokens.swift` with typography and shadow token families in addition to spacing/radius; added `DesignTokensTests` for token scale/hierarchy/subtle-shadow constraints; Swift test execution and runtime visual verification pending on Xcode runner)
