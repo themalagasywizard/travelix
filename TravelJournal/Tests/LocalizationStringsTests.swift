@@ -62,8 +62,27 @@ final class LocalizationStringsTests: XCTestCase {
     func testSpotsEditorAndDeveloperToolsTokensAreStable() {
         XCTAssertEqual(TJStrings.SpotsEditor.title, "Manage Spots")
         XCTAssertEqual(TJStrings.SpotsEditor.addSpotButton, "Add Spot")
+        XCTAssertEqual(TJStrings.SpotsEditor.defaultCategory, "spot")
+        XCTAssertEqual(TJStrings.SpotsEditor.invalidSpotID, "Invalid spot id")
+        XCTAssertEqual(TJStrings.SpotsEditor.spotReferenceInvalid, "Spot reference is invalid.")
+        XCTAssertEqual(TJStrings.SpotsEditor.spotNotFound, "Spot not found")
+        XCTAssertEqual(TJStrings.SpotsEditor.selectedSpotMissing, "The selected spot no longer exists.")
+        XCTAssertEqual(TJStrings.SpotsEditor.failedToLoadSpots("x"), "Failed to load spots: x")
+        XCTAssertEqual(TJStrings.SpotsEditor.failedToAddSpot("x"), "Failed to add spot: x")
+        XCTAssertEqual(TJStrings.SpotsEditor.failedToUpdateSpot("x"), "Failed to update spot: x")
+        XCTAssertEqual(TJStrings.SpotsEditor.failedToDeleteSpot("x"), "Failed to delete spot: x")
+
         XCTAssertEqual(TJStrings.DeveloperTools.loadDemoData, "Load Demo Data")
         XCTAssertEqual(TJStrings.DeveloperTools.clearThumbnailCache, "Clear Thumbnail Cache")
+        XCTAssertEqual(TJStrings.DeveloperTools.demoDataAlreadyLoaded, "Demo data already loaded")
+        XCTAssertEqual(TJStrings.DeveloperTools.thumbnailCacheUnavailable, "Thumbnail cache unavailable")
+        XCTAssertEqual(TJStrings.DeveloperTools.thumbnailCacheUnavailableSummary, "Thumbnail cache: unavailable")
+        XCTAssertEqual(TJStrings.DeveloperTools.clearedThumbnailCache, "Cleared thumbnail cache")
+        XCTAssertEqual(TJStrings.DeveloperTools.unavailableDemoSeederError, "Demo seeding is unavailable in this build context")
+        XCTAssertEqual(TJStrings.DeveloperTools.loadedDemoData(places: 5, visits: 7), "Loaded 5 places and 7 visits")
+        XCTAssertEqual(TJStrings.DeveloperTools.failedToLoadDemoData("x"), "Failed to load demo data: x")
+        XCTAssertEqual(TJStrings.DeveloperTools.failedToClearThumbnailCache("x"), "Failed to clear thumbnail cache: x")
+        XCTAssertEqual(TJStrings.DeveloperTools.thumbnailCacheSummary(files: 2, bytesText: "2 KB"), "Thumbnail cache: 2 files (2 KB)")
     }
 
     func testGlobeFallbackTokenIsStable() {

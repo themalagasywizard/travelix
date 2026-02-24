@@ -25,7 +25,7 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             errorMessage = nil
             errorBanner = nil
         } catch {
-            setError(message: "Failed to load spots: \(error.localizedDescription)", appError: .databaseFailure)
+            setError(message: TJStrings.SpotsEditor.failedToLoadSpots(error.localizedDescription), appError: .databaseFailure)
         }
     }
 
@@ -49,20 +49,20 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             try repository.addSpot(spot)
             loadSpots()
         } catch {
-            setError(message: "Failed to add spot: \(error.localizedDescription)", appError: .databaseFailure)
+            setError(message: TJStrings.SpotsEditor.failedToAddSpot(error.localizedDescription), appError: .databaseFailure)
         }
     }
 
     public func updateSpot(id: String, name: String, category: String, note: String?) {
         guard let uuid = UUID(uuidString: id) else {
-            setError(message: "Invalid spot id", appError: .invalidInput(message: "Spot reference is invalid."))
+            setError(message: TJStrings.SpotsEditor.invalidSpotID, appError: .invalidInput(message: TJStrings.SpotsEditor.spotReferenceInvalid))
             return
         }
 
         do {
             let existing = try repository.fetchSpots(forVisit: visitID).first(where: { $0.id == uuid })
             guard var spot = existing else {
-                setError(message: "Spot not found", appError: .invalidInput(message: "The selected spot no longer exists."))
+                setError(message: TJStrings.SpotsEditor.spotNotFound, appError: .invalidInput(message: TJStrings.SpotsEditor.selectedSpotMissing))
                 return
             }
 
@@ -74,13 +74,13 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             try repository.updateSpot(spot)
             loadSpots()
         } catch {
-            setError(message: "Failed to update spot: \(error.localizedDescription)", appError: .databaseFailure)
+            setError(message: TJStrings.SpotsEditor.failedToUpdateSpot(error.localizedDescription), appError: .databaseFailure)
         }
     }
 
     public func deleteSpot(id: String) {
         guard let uuid = UUID(uuidString: id) else {
-            setError(message: "Invalid spot id", appError: .invalidInput(message: "Spot reference is invalid."))
+            setError(message: TJStrings.SpotsEditor.invalidSpotID, appError: .invalidInput(message: TJStrings.SpotsEditor.spotReferenceInvalid))
             return
         }
 
@@ -88,7 +88,7 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             try repository.deleteSpot(id: uuid)
             loadSpots()
         } catch {
-            setError(message: "Failed to delete spot: \(error.localizedDescription)", appError: .databaseFailure)
+            setError(message: TJStrings.SpotsEditor.failedToDeleteSpot(error.localizedDescription), appError: .databaseFailure)
         }
     }
 
@@ -101,7 +101,7 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
         VisitSpotRow(
             id: spot.id.uuidString,
             name: spot.name,
-            category: spot.category ?? "spot",
+            category: spot.category ?? TJStrings.SpotsEditor.defaultCategory,
             ratingText: spot.rating.map { "\($0)/5" },
             note: spot.note
         )

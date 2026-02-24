@@ -11,7 +11,7 @@ final class DeveloperToolsViewModelTests: XCTestCase {
 
         viewModel.loadDemoData()
 
-        XCTAssertEqual(viewModel.statusMessage, "Loaded 50 places and 120 visits")
+        XCTAssertEqual(viewModel.statusMessage, TJStrings.DeveloperTools.loadedDemoData(places: 50, visits: 120))
         XCTAssertNil(viewModel.errorBanner)
         XCTAssertFalse(viewModel.isSeeding)
     }
@@ -22,7 +22,7 @@ final class DeveloperToolsViewModelTests: XCTestCase {
 
         viewModel.loadDemoData()
 
-        XCTAssertEqual(viewModel.statusMessage, "Demo data already loaded")
+        XCTAssertEqual(viewModel.statusMessage, TJStrings.DeveloperTools.demoDataAlreadyLoaded)
     }
 
     func testRefreshThumbnailCacheSummaryShowsFileAndSize() {
@@ -30,7 +30,7 @@ final class DeveloperToolsViewModelTests: XCTestCase {
         let cache = ThumbnailCacheStub(stats: ThumbnailCacheStats(entryCount: 2, totalBytes: 2_048))
         let viewModel = DeveloperToolsViewModel(seeder: seeder, thumbnailCache: cache)
 
-        XCTAssertEqual(viewModel.cacheSummary, "Thumbnail cache: 2 files (2 KB)")
+        XCTAssertEqual(viewModel.cacheSummary, TJStrings.DeveloperTools.thumbnailCacheSummary(files: 2, bytesText: "2 KB"))
     }
 
     func testClearThumbnailCacheUpdatesSummaryAndStatus() {
@@ -42,7 +42,7 @@ final class DeveloperToolsViewModelTests: XCTestCase {
 
         XCTAssertEqual(cache.removeAllCallCount, 1)
         XCTAssertEqual(viewModel.cacheSummary?.hasPrefix("Thumbnail cache: 0 files ("), true)
-        XCTAssertEqual(viewModel.statusMessage, "Cleared thumbnail cache")
+        XCTAssertEqual(viewModel.statusMessage, TJStrings.DeveloperTools.clearedThumbnailCache)
     }
 
     func testFallbackInitializerReportsUnavailableSeeding() {
@@ -50,7 +50,10 @@ final class DeveloperToolsViewModelTests: XCTestCase {
 
         viewModel.loadDemoData()
 
-        XCTAssertEqual(viewModel.statusMessage, "Failed to load demo data: Demo seeding is unavailable in this build context")
+        XCTAssertEqual(
+            viewModel.statusMessage,
+            TJStrings.DeveloperTools.failedToLoadDemoData(TJStrings.DeveloperTools.unavailableDemoSeederError)
+        )
         XCTAssertEqual(viewModel.errorBanner, ErrorPresentationMapper.banner(for: .databaseFailure))
     }
 }

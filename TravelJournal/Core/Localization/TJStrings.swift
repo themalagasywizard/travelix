@@ -102,11 +102,53 @@ public enum TJStrings {
         public static let savedSpotsSection = "Saved spots"
         public static let noSpotsYet = "No spots yet"
         public static let errorSection = "Error"
+        public static let defaultCategory = "spot"
+        public static let invalidSpotID = "Invalid spot id"
+        public static let spotReferenceInvalid = "Spot reference is invalid."
+        public static let spotNotFound = "Spot not found"
+        public static let selectedSpotMissing = "The selected spot no longer exists."
+
+        public static func failedToLoadSpots(_ message: String) -> String {
+            "Failed to load spots: \(message)"
+        }
+
+        public static func failedToAddSpot(_ message: String) -> String {
+            "Failed to add spot: \(message)"
+        }
+
+        public static func failedToUpdateSpot(_ message: String) -> String {
+            "Failed to update spot: \(message)"
+        }
+
+        public static func failedToDeleteSpot(_ message: String) -> String {
+            "Failed to delete spot: \(message)"
+        }
     }
 
     public enum DeveloperTools {
         public static let loadDemoData = "Load Demo Data"
         public static let clearThumbnailCache = "Clear Thumbnail Cache"
+        public static let demoDataAlreadyLoaded = "Demo data already loaded"
+        public static let thumbnailCacheUnavailable = "Thumbnail cache unavailable"
+        public static let thumbnailCacheUnavailableSummary = "Thumbnail cache: unavailable"
+        public static let clearedThumbnailCache = "Cleared thumbnail cache"
+        public static let unavailableDemoSeederError = "Demo seeding is unavailable in this build context"
+
+        public static func loadedDemoData(places: Int, visits: Int) -> String {
+            "Loaded \(places) places and \(visits) visits"
+        }
+
+        public static func failedToLoadDemoData(_ message: String) -> String {
+            "Failed to load demo data: \(message)"
+        }
+
+        public static func failedToClearThumbnailCache(_ message: String) -> String {
+            "Failed to clear thumbnail cache: \(message)"
+        }
+
+        public static func thumbnailCacheSummary(files: Int, bytesText: String) -> String {
+            "Thumbnail cache: \(files) files (\(bytesText))"
+        }
     }
 
     public enum Settings {

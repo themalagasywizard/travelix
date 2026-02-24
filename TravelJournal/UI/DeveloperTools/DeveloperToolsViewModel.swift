@@ -32,19 +32,19 @@ public final class DeveloperToolsViewModel: ObservableObject {
             let report = try seeder.seedIfNeeded(targetPlaces: 50, targetVisits: 120)
             errorBanner = nil
             if report.placesInserted == 0, report.visitsInserted == 0 {
-                statusMessage = "Demo data already loaded"
+                statusMessage = TJStrings.DeveloperTools.demoDataAlreadyLoaded
             } else {
-                statusMessage = "Loaded \(report.placesInserted) places and \(report.visitsInserted) visits"
+                statusMessage = TJStrings.DeveloperTools.loadedDemoData(places: report.placesInserted, visits: report.visitsInserted)
             }
         } catch {
-            statusMessage = "Failed to load demo data: \(error.localizedDescription)"
+            statusMessage = TJStrings.DeveloperTools.failedToLoadDemoData(error.localizedDescription)
             errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
         }
     }
 
     public func clearThumbnailCache() {
         guard let thumbnailCache else {
-            cacheSummary = "Thumbnail cache unavailable"
+            cacheSummary = TJStrings.DeveloperTools.thumbnailCacheUnavailable
             return
         }
 
@@ -52,9 +52,9 @@ public final class DeveloperToolsViewModel: ObservableObject {
             try thumbnailCache.removeAll()
             refreshThumbnailCacheSummary()
             errorBanner = nil
-            statusMessage = "Cleared thumbnail cache"
+            statusMessage = TJStrings.DeveloperTools.clearedThumbnailCache
         } catch {
-            statusMessage = "Failed to clear thumbnail cache: \(error.localizedDescription)"
+            statusMessage = TJStrings.DeveloperTools.failedToClearThumbnailCache(error.localizedDescription)
             errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
         }
     }
@@ -72,9 +72,9 @@ public final class DeveloperToolsViewModel: ObservableObject {
             formatter.countStyle = .file
             formatter.includesUnit = true
             let bytesText = formatter.string(fromByteCount: Int64(stats.totalBytes))
-            cacheSummary = "Thumbnail cache: \(stats.entryCount) files (\(bytesText))"
+            cacheSummary = TJStrings.DeveloperTools.thumbnailCacheSummary(files: stats.entryCount, bytesText: bytesText)
         } catch {
-            cacheSummary = "Thumbnail cache: unavailable"
+            cacheSummary = TJStrings.DeveloperTools.thumbnailCacheUnavailableSummary
         }
     }
 }
@@ -84,7 +84,7 @@ private struct UnavailableDemoDataSeeder: DemoDataSeeding {
         throw NSError(
             domain: "DeveloperTools",
             code: 1,
-            userInfo: [NSLocalizedDescriptionKey: "Demo seeding is unavailable in this build context"]
+            userInfo: [NSLocalizedDescriptionKey: TJStrings.DeveloperTools.unavailableDemoSeederError]
         )
     }
 }

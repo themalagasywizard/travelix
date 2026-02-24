@@ -42,10 +42,10 @@ final class VisitSpotsEditorViewModelTests: XCTestCase {
 
         viewModel.deleteSpot(id: "not-a-uuid")
 
-        XCTAssertEqual(viewModel.errorMessage, "Invalid spot id")
+        XCTAssertEqual(viewModel.errorMessage, TJStrings.SpotsEditor.invalidSpotID)
         XCTAssertEqual(
             viewModel.errorBanner,
-            ErrorPresentationMapper.banner(for: .invalidInput(message: "Spot reference is invalid."))
+            ErrorPresentationMapper.banner(for: .invalidInput(message: TJStrings.SpotsEditor.spotReferenceInvalid))
         )
     }
 
