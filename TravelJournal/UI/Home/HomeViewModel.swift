@@ -113,6 +113,7 @@ public final class HomeViewModel: ObservableObject {
         AddVisitFlowViewModel(
             placeRepository: placeRepository,
             visitRepository: visitRepository,
+            mediaRepository: mediaRepository,
             now: now
         )
     }

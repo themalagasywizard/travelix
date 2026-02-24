@@ -330,6 +330,31 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.pinListItems.first?.title, "Berlin")
         XCTAssertEqual(viewModel.selectedPlaceID, placeID.uuidString.lowercased())
     }
+
+    func testMakeAddVisitFlowViewModelForwardsMediaRepositoryForSaveFlow() {
+        let placeRepository = StubPlaceRepository(placeByID: [:])
+        let visitRepository = StubVisitRepository(visitsByPlaceID: [:])
+        let mediaRepository = RecordingMediaRepository(mediaByVisitID: [:])
+        let timestamp = Date(timeIntervalSince1970: 1_700_000_123)
+
+        let homeViewModel = HomeViewModel(
+            placeRepository: placeRepository,
+            visitRepository: visitRepository,
+            mediaRepository: mediaRepository
+        )
+
+        let addVisitViewModel = homeViewModel.makeAddVisitFlowViewModel(now: { timestamp })
+        addVisitViewModel.updateLocationQuery("Kyoto")
+        addVisitViewModel.updateSelectedMediaPayloads([
+            MediaImportPayload(localIdentifier: "ph://asset-1", fileURL: nil, width: nil, height: nil)
+        ])
+
+        let result = addVisitViewModel.saveVisit()
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(mediaRepository.importedPayloads.count, 1)
+        XCTAssertEqual(mediaRepository.importedPayloads.first?.localIdentifier, "ph://asset-1")
+    }
 }
 
 private struct FailingPlaceRepository: PlaceRepository {
@@ -401,6 +426,34 @@ private struct StubMediaRepository: MediaRepository {
 
     func importMedia(from payload: MediaImportPayload, forVisit visitID: UUID, importedAt: Date) throws -> Media {
         Media(id: UUID(), visitID: visitID, localIdentifier: payload.localIdentifier, fileURL: payload.fileURL, width: payload.width, height: payload.height, createdAt: importedAt, updatedAt: importedAt)
+    }
+
+    func updateMedia(_ media: Media) throws {}
+
+    func deleteMedia(id: UUID) throws {}
+
+    func fetchMedia(forVisit visitID: UUID) throws -> [Media] {
+        mediaByVisitID[visitID] ?? []
+    }
+
+    func fetchMedia(id: UUID) throws -> Media? {
+        mediaByVisitID.values.flatMap { $0 }.first(where: { $0.id == id })
+    }
+}
+
+private final class RecordingMediaRepository: MediaRepository {
+    let mediaByVisitID: [UUID: [Media]]
+    private(set) var importedPayloads: [MediaImportPayload] = []
+
+    init(mediaByVisitID: [UUID: [Media]]) {
+        self.mediaByVisitID = mediaByVisitID
+    }
+
+    func addMedia(_ media: Media) throws {}
+
+    func importMedia(from payload: MediaImportPayload, forVisit visitID: UUID, importedAt: Date) throws -> Media {
+        importedPayloads.append(payload)
+        return Media(id: UUID(), visitID: visitID, localIdentifier: payload.localIdentifier, fileURL: payload.fileURL, width: payload.width, height: payload.height, createdAt: importedAt, updatedAt: importedAt)
     }
 
     func updateMedia(_ media: Media) throws {}

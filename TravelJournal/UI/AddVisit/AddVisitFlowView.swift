@@ -1,8 +1,17 @@
 import SwiftUI
+import TravelJournalData
+
+#if canImport(PhotosUI)
+import PhotosUI
+#endif
 
 public struct AddVisitFlowView: View {
     @StateObject private var viewModel: AddVisitFlowViewModel
     private let onSaved: ((AddVisitSaveResult) -> Void)?
+
+    #if canImport(PhotosUI)
+    @State private var selectedPhotoItems: [PhotosPickerItem] = []
+    #endif
 
     public init(
         viewModel: @autoclosure @escaping () -> AddVisitFlowViewModel = AddVisitFlowViewModel(),
@@ -93,15 +102,37 @@ public struct AddVisitFlowView: View {
                 .background(Color.white.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
-                Stepper(
-                    "Photos selected: \(viewModel.draft.photoItemCount)",
-                    value: Binding(
-                        get: { viewModel.draft.photoItemCount },
-                        set: { viewModel.updateContent(note: viewModel.draft.note, photoItemCount: $0) }
-                    ),
-                    in: 0...100
-                )
-                .foregroundStyle(.white)
+                #if canImport(PhotosUI)
+                PhotosPicker(
+                    selection: $selectedPhotoItems,
+                    maxSelectionCount: 100,
+                    matching: .images,
+                    photoLibrary: .shared()
+                ) {
+                    Label("Select photos", systemImage: "photo.on.rectangle")
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.white.opacity(0.14))
+                        .clipShape(Capsule())
+                }
+                .onChange(of: selectedPhotoItems) { _, newItems in
+                    let payloads = newItems.map { item in
+                        MediaImportPayload(
+                            localIdentifier: item.itemIdentifier,
+                            fileURL: nil,
+                            width: nil,
+                            height: nil
+                        )
+                    }
+                    viewModel.updateSelectedMediaPayloads(payloads)
+                }
+                #endif
+
+                Text("Photos selected: \(viewModel.draft.photoItemCount)")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
         }
     }

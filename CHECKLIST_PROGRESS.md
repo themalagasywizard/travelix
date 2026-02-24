@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 13:06 Europe/Paris
+Last updated: 2026-02-24 13:12 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -33,7 +33,7 @@ Last updated: 2026-02-24 13:06 Europe/Paris
 - [~] Tags (implemented `GRDBTagRepository` create/assign/remove/fetch operations, place IDs by tag query for deterministic globe filtering, and tests in `TagRepositoryTests` + `HomeViewModelTests`; runtime verification on Xcode runner and local Swift test execution still pending)
 
 ## Phase 5 — Media pipeline
-- [~] PhotosPicker import (extended Add Visit persistence path so `AddVisitFlowViewModel` now accepts selected `MediaImportPayload` items and imports them via `MediaRepository` during `saveVisit()`, with new `AddVisitFlowViewModelTests` coverage for successful media import and media-import failure banner mapping; end-to-end PhotosPicker UI picker wiring/runtime verification pending on Xcode runner)
+- [~] PhotosPicker import (extended Add Visit persistence path so `AddVisitFlowViewModel` now accepts selected `MediaImportPayload` items and imports them via `MediaRepository` during `saveVisit()`, with new `AddVisitFlowViewModelTests` coverage for successful media import and media-import failure banner mapping; now wired `AddVisitFlowView` content step to `PhotosPicker` (when PhotosUI is available) and map selected assets into `MediaImportPayload` identifiers while keeping selected-count feedback visible; also fixed `HomeViewModel.makeAddVisitFlowViewModel` to forward `mediaRepository` and added `HomeViewModelTests` coverage for end-to-end media forwarding through save flow; runtime picker verification pending on Xcode runner)
 - [~] Thumbnail generator + cache (implemented `DefaultThumbnailCache` with in-memory `NSCache` + on-disk cache file persistence keyed by media ID and pixel size; added `ThumbnailCacheTests` for store/load roundtrip and cache clear behavior; image decode/generation pipeline integration + runtime verification pending on Xcode runner)
 - [~] Offline validation (implemented `OfflineVisitValidator` producing `OfflineVisitValidationReport` by checking required thumbnail sizes per media item against `ThumbnailCache`; added `OfflineVisitValidatorTests` covering missing-thumbnail detection and all-cached success paths; airplane-mode UI/runtime validation still pending on Xcode runner)
 
