@@ -125,6 +125,7 @@ public final class AddVisitFlowViewModel: ObservableObject {
     private let visitRepository: VisitRepository?
     private let mediaRepository: MediaRepository?
     private let locationProvider: AddVisitCurrentLocationProviding?
+    private let hapticsClient: HapticsClient
     private let now: () -> Date
     private var resolvedLocation: AddVisitResolvedLocation?
 
@@ -134,6 +135,7 @@ public final class AddVisitFlowViewModel: ObservableObject {
         visitRepository: VisitRepository? = nil,
         mediaRepository: MediaRepository? = nil,
         locationProvider: AddVisitCurrentLocationProviding? = nil,
+        hapticsClient: HapticsClient = HapticsClient(),
         now: @escaping () -> Date = Date.init
     ) {
         self.draft = draft
@@ -141,6 +143,7 @@ public final class AddVisitFlowViewModel: ObservableObject {
         self.visitRepository = visitRepository
         self.mediaRepository = mediaRepository
         self.locationProvider = locationProvider
+        self.hapticsClient = hapticsClient
         self.now = now
     }
 
@@ -154,6 +157,7 @@ public final class AddVisitFlowViewModel: ObservableObject {
             errorBanner = ErrorPresentationMapper.banner(
                 for: .invalidInput(message: AddVisitCurrentLocationError.unavailable.errorDescription ?? "Current location is unavailable on this device.")
             )
+            hapticsClient.notifyWarning()
             return
         }
 
@@ -169,6 +173,7 @@ public final class AddVisitFlowViewModel: ObservableObject {
             errorBanner = ErrorPresentationMapper.banner(
                 for: .invalidInput(message: error.localizedDescription)
             )
+            hapticsClient.notifyWarning()
         }
     }
 
@@ -207,12 +212,14 @@ public final class AddVisitFlowViewModel: ObservableObject {
         guard trimmedLocation.isEmpty == false else {
             saveError = .missingLocation
             errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: SaveError.missingLocation.errorDescription ?? "Please enter a location before saving."))
+            hapticsClient.notifyWarning()
             return nil
         }
 
         guard draft.endDate >= draft.startDate else {
             saveError = .invalidDateRange
             errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: SaveError.invalidDateRange.errorDescription ?? "End date must be on or after start date."))
+            hapticsClient.notifyWarning()
             return nil
         }
 
@@ -250,10 +257,12 @@ public final class AddVisitFlowViewModel: ObservableObject {
 
             let result = AddVisitSaveResult(place: place, visit: visit)
             saveResult = result
+            hapticsClient.notifySuccess()
             return result
         } catch {
             saveError = .persistenceFailed
             errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
+            hapticsClient.notifyError()
             return nil
         }
     }

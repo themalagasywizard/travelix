@@ -1,5 +1,6 @@
 import XCTest
 @testable import TravelJournalUI
+@testable import TravelJournalCore
 @testable import TravelJournalData
 @testable import TravelJournalDomain
 
@@ -21,6 +22,15 @@ final class HomeViewModelTests: XCTestCase {
         viewModel.handlePinSelected("tokyo")
 
         XCTAssertEqual(viewModel.selectedPlaceID, "tokyo")
+    }
+
+    func testHandlePinSelectedTriggersSelectionHaptic() {
+        let engine = RecordingHapticsEngine()
+        let viewModel = HomeViewModel(hapticsClient: HapticsClient(engine: engine))
+
+        viewModel.handlePinSelected("paris")
+
+        XCTAssertEqual(engine.events, [.selection])
     }
 
     func testSelectedPlaceStoryViewModelBuiltFromSelection() {
@@ -518,5 +528,13 @@ private final class RecordingMediaRepository: MediaRepository {
 
     func fetchMedia(id: UUID) throws -> Media? {
         mediaByVisitID.values.flatMap { $0 }.first(where: { $0.id == id })
+    }
+}
+
+private final class RecordingHapticsEngine: HapticsEngine {
+    private(set) var events: [HapticEvent] = []
+
+    func trigger(_ event: HapticEvent) {
+        events.append(event)
     }
 }

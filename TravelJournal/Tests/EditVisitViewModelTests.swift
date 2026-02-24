@@ -6,6 +6,65 @@ import XCTest
 
 @MainActor
 final class EditVisitViewModelTests: XCTestCase {
+    func testSaveChangesSuccessTriggersSuccessHaptic() {
+        let engine = RecordingHapticsEngine()
+        let repository = RecordingVisitRepository()
+        let visit = Visit(
+            id: UUID(uuidString: "10101010-1010-1010-1010-101010101010")!,
+            placeID: UUID(uuidString: "20202020-2020-2020-2020-202020202020")!,
+            tripID: nil,
+            startDate: Date(timeIntervalSince1970: 1_700_000_000),
+            endDate: Date(timeIntervalSince1970: 1_700_086_400),
+            summary: "Summary",
+            notes: "Notes",
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+            updatedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+        let vm = EditVisitViewModel(visit: visit, locationName: "Paris", repository: repository, hapticsClient: HapticsClient(engine: engine))
+
+        _ = vm.saveChanges()
+
+        XCTAssertEqual(engine.events, [.success])
+    }
+
+    func testSaveChangesInvalidDateRangeTriggersWarningHaptic() {
+        let engine = RecordingHapticsEngine()
+        let vm = EditVisitViewModel(
+            visitID: "visit-3",
+            locationName: "Rome",
+            startDate: Date(timeIntervalSince1970: 200),
+            endDate: Date(timeIntervalSince1970: 100),
+            summary: "",
+            notes: "",
+            hapticsClient: HapticsClient(engine: engine)
+        )
+
+        _ = vm.saveChanges()
+
+        XCTAssertEqual(engine.events, [.warning])
+    }
+
+    func testSaveChangesFailureTriggersErrorHaptic() {
+        let engine = RecordingHapticsEngine()
+        let repository = RecordingVisitRepository(shouldFailOnUpdate: true)
+        let visit = Visit(
+            id: UUID(uuidString: "30303030-3030-3030-3030-303030303030")!,
+            placeID: UUID(uuidString: "40404040-4040-4040-4040-404040404040")!,
+            tripID: nil,
+            startDate: Date(timeIntervalSince1970: 1_700_000_000),
+            endDate: Date(timeIntervalSince1970: 1_700_086_400),
+            summary: "Summary",
+            notes: "Notes",
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+            updatedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+        let vm = EditVisitViewModel(visit: visit, locationName: "Paris", repository: repository, hapticsClient: HapticsClient(engine: engine))
+
+        _ = vm.saveChanges()
+
+        XCTAssertEqual(engine.events, [.error])
+    }
+
     func testApplyEditsUpdatesFields() {
         let originalStart = Date(timeIntervalSince1970: 1_700_000_000)
         let originalEnd = Date(timeIntervalSince1970: 1_700_086_400)
@@ -140,4 +199,12 @@ private final class RecordingVisitRepository: VisitRepository {
     func fetchVisits(forPlace placeID: UUID) throws -> [Visit] { [] }
 
     func fetchVisits(forTrip tripID: UUID) throws -> [Visit] { [] }
+}
+
+private final class RecordingHapticsEngine: HapticsEngine {
+    private(set) var events: [HapticEvent] = []
+
+    func trigger(_ event: HapticEvent) {
+        events.append(event)
+    }
 }

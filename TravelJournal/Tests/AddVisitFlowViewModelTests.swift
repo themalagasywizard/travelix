@@ -78,6 +78,46 @@ final class AddVisitFlowViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isResolvingCurrentLocation)
     }
 
+    func testSaveVisitSuccessTriggersSuccessHaptic() {
+        let engine = RecordingHapticsEngine()
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(locationQuery: "Lisbon"),
+            placeRepository: InMemoryPlaceRepository(),
+            visitRepository: InMemoryVisitRepository(),
+            hapticsClient: HapticsClient(engine: engine)
+        )
+
+        _ = viewModel.saveVisit()
+
+        XCTAssertEqual(engine.events, [.success])
+    }
+
+    func testSaveVisitValidationFailureTriggersWarningHaptic() {
+        let engine = RecordingHapticsEngine()
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(locationQuery: "   "),
+            hapticsClient: HapticsClient(engine: engine)
+        )
+
+        _ = viewModel.saveVisit()
+
+        XCTAssertEqual(engine.events, [.warning])
+    }
+
+    func testSaveVisitPersistenceFailureTriggersErrorHaptic() {
+        let engine = RecordingHapticsEngine()
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(locationQuery: "Rome"),
+            placeRepository: FailingPlaceRepository(),
+            visitRepository: InMemoryVisitRepository(),
+            hapticsClient: HapticsClient(engine: engine)
+        )
+
+        _ = viewModel.saveVisit()
+
+        XCTAssertEqual(engine.events, [.error])
+    }
+
     func testSaveVisitPersistsPlaceAndVisit() {
         let placeRepository = InMemoryPlaceRepository()
         let visitRepository = InMemoryVisitRepository()
@@ -338,4 +378,12 @@ private final class FailingMediaRepository: MediaRepository {
     func fetchMedia(forVisit visitID: UUID) throws -> [Media] { [] }
 
     func fetchMedia(id: UUID) throws -> Media? { nil }
+}
+
+private final class RecordingHapticsEngine: HapticsEngine {
+    private(set) var events: [HapticEvent] = []
+
+    func trigger(_ event: HapticEvent) {
+        events.append(event)
+    }
 }

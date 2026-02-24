@@ -15,6 +15,7 @@ public final class EditVisitViewModel: ObservableObject {
     @Published public private(set) var saveErrorBanner: ErrorBannerModel?
 
     private var persistedVisitContext: PersistedVisitContext?
+    private let hapticsClient: HapticsClient
 
     private struct PersistedVisitContext {
         let visitID: UUID
@@ -30,7 +31,8 @@ public final class EditVisitViewModel: ObservableObject {
         startDate: Date,
         endDate: Date,
         summary: String,
-        notes: String
+        notes: String,
+        hapticsClient: HapticsClient = HapticsClient()
     ) {
         self.visitID = visitID
         self.locationName = locationName
@@ -39,12 +41,14 @@ public final class EditVisitViewModel: ObservableObject {
         self.summary = summary
         self.notes = notes
         self.persistedVisitContext = nil
+        self.hapticsClient = hapticsClient
     }
 
     public convenience init(
         visit: Visit,
         locationName: String,
-        repository: VisitRepository
+        repository: VisitRepository,
+        hapticsClient: HapticsClient = HapticsClient()
     ) {
         self.init(
             visitID: visit.id.uuidString.lowercased(),
@@ -52,7 +56,8 @@ public final class EditVisitViewModel: ObservableObject {
             startDate: visit.startDate,
             endDate: visit.endDate,
             summary: visit.summary ?? "",
-            notes: visit.notes ?? ""
+            notes: visit.notes ?? "",
+            hapticsClient: hapticsClient
         )
 
         self.persistedVisitContext = PersistedVisitContext(
@@ -92,9 +97,13 @@ public final class EditVisitViewModel: ObservableObject {
 
     @discardableResult
     public func saveChanges() -> Bool {
-        guard hasValidDateRange else { return false }
+        guard hasValidDateRange else {
+            hapticsClient.notifyWarning()
+            return false
+        }
         guard let persistedVisitContext else {
             saveErrorBanner = nil
+            hapticsClient.notifySuccess()
             return true
         }
 
@@ -114,9 +123,11 @@ public final class EditVisitViewModel: ObservableObject {
         do {
             try persistedVisitContext.repository.updateVisit(updatedVisit)
             saveErrorBanner = nil
+            hapticsClient.notifySuccess()
             return true
         } catch {
             saveErrorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
+            hapticsClient.notifyError()
             return false
         }
     }

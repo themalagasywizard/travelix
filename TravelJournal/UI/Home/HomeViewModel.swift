@@ -60,6 +60,7 @@ public final class HomeViewModel: ObservableObject {
     private let spotRepository: SpotRepository?
     private let mediaRepository: MediaRepository?
     private let searchRepository: SearchRepository?
+    private let hapticsClient: HapticsClient
 
     public init(
         pins: [GlobePin] = HomeViewModel.defaultPins,
@@ -72,7 +73,8 @@ public final class HomeViewModel: ObservableObject {
         visitRepository: VisitRepository? = nil,
         spotRepository: SpotRepository? = nil,
         mediaRepository: MediaRepository? = nil,
-        searchRepository: SearchRepository? = nil
+        searchRepository: SearchRepository? = nil,
+        hapticsClient: HapticsClient = HapticsClient()
     ) {
         self.pins = pins
         self.visiblePins = pins
@@ -86,6 +88,7 @@ public final class HomeViewModel: ObservableObject {
         self.spotRepository = spotRepository
         self.mediaRepository = mediaRepository
         self.searchRepository = searchRepository
+        self.hapticsClient = hapticsClient
     }
 
     public func toggleFilter(_ filter: FilterChip) {
@@ -104,6 +107,7 @@ public final class HomeViewModel: ObservableObject {
         selectedPlaceID = placeID
         searchResults = []
         errorBanner = nil
+        hapticsClient.selection()
     }
 
     public func handleSearchResultSelected(_ result: SearchResult) {
