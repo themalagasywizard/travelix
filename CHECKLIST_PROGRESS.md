@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 18:02 Europe/Paris
+Last updated: 2026-02-24 18:10 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -62,6 +62,9 @@ Last updated: 2026-02-24 18:02 Europe/Paris
 ## Definition of Done (v1) follow-through
 - [~] Seed data demo mode removed or behind debug flag (wired Developer Tools surface under `#if DEBUG` in Settings so demo-data controls are debug-only; release build keeps these controls hidden)
 - [x] Basic privacy policy text ready (added `PrivacyPolicy.md` draft covering local-first storage, optional iCloud sync, media handling, and deletion semantics)
+
+## PRD non-functional follow-through
+- [~] Localization-ready string externalization (introduced centralized `TJStrings` copy tokens in `TravelJournal/Core/Localization/TJStrings.swift`, migrated key Home + Add Visit UI literals to shared tokens, and added `LocalizationStringsTests` for format/coverage stability; full-app migration to localized resources remains pending)
 
 ## Notes / blockers
 - Per user override, Xcode project creation/tooling steps are intentionally skipped in this environment; manual Xcode import/build will be handled by the user.

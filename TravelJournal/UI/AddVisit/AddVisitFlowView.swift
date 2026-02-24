@@ -1,4 +1,5 @@
 import SwiftUI
+import TravelJournalCore
 import TravelJournalData
 
 #if canImport(PhotosUI)
@@ -33,11 +34,11 @@ public struct AddVisitFlowView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Add Visit")
+            Text(TJStrings.AddVisit.title)
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.white)
 
-            Text("Step \(viewModel.currentStep.rawValue + 1)/3 · \(viewModel.currentStep.title)")
+            Text(TJStrings.AddVisit.stepCounter(stepIndex: viewModel.currentStep.rawValue + 1, total: 3, title: viewModel.currentStep.title))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
@@ -48,10 +49,10 @@ public struct AddVisitFlowView: View {
         switch viewModel.currentStep {
         case .location:
             VStack(alignment: .leading, spacing: 10) {
-                Text("Where did you go?")
+                Text(TJStrings.AddVisit.wherePrompt)
                     .foregroundStyle(.white)
                 TextField(
-                    "Search city or place",
+                    TJStrings.AddVisit.locationPlaceholder,
                     text: Binding(
                         get: { viewModel.draft.locationQuery },
                         set: viewModel.updateLocationQuery
@@ -68,7 +69,7 @@ public struct AddVisitFlowView: View {
                         await viewModel.useCurrentLocation()
                     }
                 } label: {
-                    Label("Use current location", systemImage: "location.fill")
+                    Label(TJStrings.AddVisit.useCurrentLocation, systemImage: "location.fill")
                         .font(.callout.weight(.semibold))
                 }
                 .buttonStyle(.bordered)
@@ -84,7 +85,7 @@ public struct AddVisitFlowView: View {
         case .dates:
             VStack(alignment: .leading, spacing: 10) {
                 DatePicker(
-                    "Start date",
+                    TJStrings.AddVisit.startDate,
                     selection: Binding(
                         get: { viewModel.draft.startDate },
                         set: { viewModel.updateDates(start: $0, end: viewModel.draft.endDate) }
@@ -92,7 +93,7 @@ public struct AddVisitFlowView: View {
                     displayedComponents: .date
                 )
                 DatePicker(
-                    "End date",
+                    TJStrings.AddVisit.endDate,
                     selection: Binding(
                         get: { viewModel.draft.endDate },
                         set: { viewModel.updateDates(start: viewModel.draft.startDate, end: $0) }
@@ -104,7 +105,7 @@ public struct AddVisitFlowView: View {
 
         case .content:
             VStack(alignment: .leading, spacing: 10) {
-                Text("Quick notes")
+                Text(TJStrings.AddVisit.quickNotes)
                     .foregroundStyle(.white)
 
                 TextEditor(
@@ -126,7 +127,7 @@ public struct AddVisitFlowView: View {
                     matching: .images,
                     photoLibrary: .shared()
                 ) {
-                    Label("Select photos", systemImage: "photo.on.rectangle")
+                    Label(TJStrings.AddVisit.selectPhotos, systemImage: "photo.on.rectangle")
                         .font(.callout.weight(.semibold))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 12)
@@ -147,7 +148,7 @@ public struct AddVisitFlowView: View {
                 }
                 #endif
 
-                Text("Photos selected: \(viewModel.draft.photoItemCount)")
+                Text(TJStrings.AddVisit.photosSelectedCount(viewModel.draft.photoItemCount))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -156,13 +157,13 @@ public struct AddVisitFlowView: View {
 
     private var footer: some View {
         HStack(spacing: 12) {
-            Button("Back", action: viewModel.goBack)
+            Button(TJStrings.AddVisit.back, action: viewModel.goBack)
                 .buttonStyle(.bordered)
                 .disabled(!viewModel.canGoBack)
 
             Spacer()
 
-            Button(viewModel.isLastStep ? "Save" : "Next") {
+            Button(viewModel.isLastStep ? TJStrings.AddVisit.save : TJStrings.AddVisit.next) {
                 if viewModel.isLastStep {
                     if let result = viewModel.saveVisit() {
                         onSaved?(result)

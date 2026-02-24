@@ -35,7 +35,7 @@ public struct HomeView: View {
                 pinsListButton
 
                 if let selectedPlaceID = viewModel.selectedPlaceID {
-                    Text("Selected: \(selectedPlaceID)")
+                    Text("\(TJStrings.Home.selectedPrefix): \(selectedPlaceID)")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 12)
@@ -57,7 +57,7 @@ public struct HomeView: View {
 
                         Spacer(minLength: 0)
 
-                        Button("Dismiss") {
+                        Button(TJStrings.Home.dismiss) {
                             viewModel.clearErrorBanner()
                         }
                         .font(.caption.weight(.semibold))
@@ -88,7 +88,7 @@ public struct HomeView: View {
                     .accessibilityLabel(TJAccessibility.Label.pinListRow(item.title))
                 }
                 .accessibilityIdentifier(TJAccessibility.Identifier.homePinsList)
-                .navigationTitle("Visible Pins")
+                .navigationTitle(TJStrings.Home.visiblePinsTitle)
             }
         }
         .sheet(isPresented: $isAddVisitPresented) {
@@ -200,7 +200,7 @@ public struct HomeView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
 
-            TextField("Search places, trips, spots, tags", text: $viewModel.searchText)
+            TextField(TJStrings.Home.searchPlaceholder, text: $viewModel.searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .accessibilityIdentifier(TJAccessibility.Identifier.homeSearchField)
@@ -218,7 +218,7 @@ public struct HomeView: View {
             Button {
                 isPinsListPresented = true
             } label: {
-                Label("Pins List", systemImage: "list.bullet")
+                Label(TJStrings.Home.pinsList, systemImage: "list.bullet")
                     .font(.footnote.weight(.semibold))
             }
             .buttonStyle(.plain)
