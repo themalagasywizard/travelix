@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 12:19 Europe/Paris
+Last updated: 2026-02-24 12:33 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -16,7 +16,7 @@ Last updated: 2026-02-24 12:19 Europe/Paris
 ## Phase 2 — Globe MVP
 - [~] Lat/Lon → 3D conversion utility (implemented `GlobeCoordinateConverter` + sanity unit tests; test execution pending on Swift/Xcode-capable runner)
 - [~] SceneKit globe view wrapper (implemented `GlobeSceneView` with sphere, texture hook, camera, and lighting setup; runtime validation pending on iOS/macOS SceneKit environment)
-- [~] Camera + gestures (added pan rotate, pinch zoom, and inertial deceleration in `GlobeSceneView.Coordinator`; runtime tuning/verification pending on Xcode runner)
+- [~] Camera + gestures (added pan rotate, pinch zoom, inertial deceleration, and new double-tap interactions in `GlobeSceneView.Coordinator`—double-tap on a pin now focuses/zooms camera to that coordinate and triggers selection callback, while background double-tap performs step zoom-in; runtime tuning/verification pending on Xcode runner)
 - [~] Render pins (added `GlobePin` model + pin container rendering pipeline in `GlobeSceneView`, with lat/lon placement via `GlobeCoordinateConverter`; visual/runtime validation pending on SceneKit runner)
 - [~] Pin hit-testing (implemented tap hit-test on SceneKit nodes with `onPinSelected` callback and selected-pin highlight state in `GlobeSceneView`; runtime validation pending on Xcode runner)
 - [~] Performance benchmark (added CPU-side benchmark utility `GlobePinRenderBenchmark` for 200-pin generation path + benchmark tests; Instruments/SceneKit FPS capture still pending on macOS/Xcode)
@@ -38,7 +38,7 @@ Last updated: 2026-02-24 12:19 Europe/Paris
 - [~] Offline validation (implemented `OfflineVisitValidator` producing `OfflineVisitValidationReport` by checking required thumbnail sizes per media item against `ThumbnailCache`; added `OfflineVisitValidatorTests` covering missing-thumbnail detection and all-cached success paths; airplane-mode UI/runtime validation still pending on Xcode runner)
 
 ## Phase 6 — Search & filters
-- [~] Search index (implemented `GRDBSearchRepository` with SQL LIKE-based global search across places, visits, spots, and tags with deterministic ordering and limit; added `SearchRepositoryTests` for entity coverage and result limiting; runtime UI wiring and Swift test execution on a Swift/Xcode runner still pending)
+- [~] Search index (extended `GRDBSearchRepository` SQL LIKE-based global search to also index trips (`SearchResultKind.trip`) alongside places/visits/spots/tags with deterministic priority ordering and limit; expanded `SearchRepositoryTests` to verify trip discoverability and retained deterministic limit behavior; runtime UI wiring and Swift test execution on a Swift/Xcode runner still pending)
 - [~] Filter chips (extended `HomeViewModel` filter state with explicit year/trip/tag selections and deterministic intersection logic across active chips; disabling a chip now clears its associated selection and recomputes visible pins; enabling an unconfigured chip now seeds deterministic default selections from sorted year/trip/tag option sets; wired `HomeView` chips to surface active selection labels; expanded Home search semantics so query matching now checks pin identifier plus optional place metadata title/subtitle (`PlaceSearchMetadata`) and pin list labels now prefer metadata titles for better accessibility/search consistency; expanded `HomeViewModelTests` for default-selection seeding, chip-title rendering, metadata-backed search matching, and pin-list title mapping; runtime UI wiring verification pending on Xcode runner)
 
 ## Phase 7 — Premium polish

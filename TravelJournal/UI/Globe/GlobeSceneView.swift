@@ -169,7 +169,13 @@ public extension GlobeSceneView {
 
             let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
             tap.numberOfTapsRequired = 1
+
+            let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+            doubleTap.numberOfTapsRequired = 2
+
+            tap.require(toFail: doubleTap)
             view.addGestureRecognizer(tap)
+            view.addGestureRecognizer(doubleTap)
         }
 
         func renderPins(_ pins: [GlobePin]) {
@@ -255,6 +261,26 @@ public extension GlobeSceneView {
             onPinSelected?(pinID)
         }
 
+        @objc private func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
+            guard let view = recognizer.view as? SCNView else { return }
+
+            let point = recognizer.location(in: view)
+            let hits = view.hitTest(point, options: [SCNHitTestOption.searchMode: SCNHitTestSearchMode.all.rawValue])
+
+            if let selected = hits.first(where: { ($0.node.name ?? "").hasPrefix("pin-") }),
+               let nodeName = selected.node.name,
+               let pinID = extractPinID(from: nodeName),
+               let pin = configuration.pins.first(where: { $0.id == pinID }) {
+                stopInertia()
+                focusOnPin(pin)
+                highlightSelectedPin(pinID: pinID)
+                onPinSelected?(pinID)
+                return
+            }
+
+            zoomInOneStep()
+        }
+
         @objc private func handlePan(_ recognizer: UIPanGestureRecognizer) {
             guard let view = recognizer.view else { return }
 
@@ -297,6 +323,35 @@ public extension GlobeSceneView {
             default:
                 break
             }
+        }
+
+        private func zoomInOneStep() {
+            let minDistance = configuration.radius * 1.4
+            currentCameraDistance = max(minDistance, currentCameraDistance * 0.8)
+            SCNTransaction.begin()
+            SCNTransaction.animationDuration = 0.28
+            cameraNode?.position.z = Float(currentCameraDistance)
+            SCNTransaction.commit()
+        }
+
+        private func focusOnPin(_ pin: GlobePin) {
+            guard let globeNode else { return }
+
+            let latitude = CGFloat(pin.latitude * .pi / 180)
+            let longitude = CGFloat(pin.longitude * .pi / 180)
+            let targetX = max(-(.pi / 2), min(.pi / 2, -latitude))
+            let targetY = -longitude
+
+            let minDistance = configuration.radius * 1.4
+            currentCameraDistance = max(minDistance, currentCameraDistance * 0.75)
+
+            SCNTransaction.begin()
+            SCNTransaction.animationDuration = 0.45
+            SCNTransaction.animationTimingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            globeNode.eulerAngles.x = Float(targetX)
+            globeNode.eulerAngles.y = Float(targetY)
+            cameraNode?.position.z = Float(currentCameraDistance)
+            SCNTransaction.commit()
         }
 
         private func applyRotation(deltaX: CGFloat, deltaY: CGFloat) {

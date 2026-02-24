@@ -3,6 +3,7 @@ import GRDB
 
 public enum SearchResultKind: String, Codable, Equatable {
     case place
+    case trip
     case visit
     case spot
     case tag
@@ -56,11 +57,22 @@ public final class GRDBSearchRepository: SearchRepository {
                 UNION ALL
 
                 SELECT
+                    'trip' AS kind,
+                    tr.id AS item_id,
+                    tr.name AS title,
+                    NULL AS subtitle,
+                    2 AS priority
+                FROM trips tr
+                WHERE lower(tr.name) LIKE lower(?)
+
+                UNION ALL
+
+                SELECT
                     'visit' AS kind,
                     v.id AS item_id,
                     COALESCE(v.summary, 'Visit') AS title,
                     p.name AS subtitle,
-                    2 AS priority
+                    3 AS priority
                 FROM visits v
                 INNER JOIN places p ON p.id = v.place_id
                 WHERE lower(COALESCE(v.summary, '')) LIKE lower(?)
@@ -73,7 +85,7 @@ public final class GRDBSearchRepository: SearchRepository {
                     s.id AS item_id,
                     s.name AS title,
                     p.name AS subtitle,
-                    3 AS priority
+                    4 AS priority
                 FROM spots s
                 INNER JOIN visits v ON v.id = s.visit_id
                 INNER JOIN places p ON p.id = v.place_id
@@ -88,7 +100,7 @@ public final class GRDBSearchRepository: SearchRepository {
                     t.id AS item_id,
                     t.name AS title,
                     NULL AS subtitle,
-                    4 AS priority
+                    5 AS priority
                 FROM tags t
                 WHERE lower(t.name) LIKE lower(?)
             )
@@ -99,7 +111,7 @@ public final class GRDBSearchRepository: SearchRepository {
             let rows = try Row.fetchAll(
                 db,
                 sql: sql,
-                arguments: [pattern, pattern, pattern, pattern, pattern, pattern, pattern, pattern, limit]
+                arguments: [pattern, pattern, pattern, pattern, pattern, pattern, pattern, pattern, pattern, limit]
             )
 
             return rows.compactMap { row in

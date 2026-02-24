@@ -3,16 +3,18 @@ import XCTest
 @testable import TravelJournalDomain
 
 final class SearchRepositoryTests: XCTestCase {
-    func testSearchFindsPlaceVisitSpotAndTag() throws {
+    func testSearchFindsPlaceTripVisitSpotAndTag() throws {
         let manager = try DatabaseManager(path: ":memory:")
         let placeRepository = GRDBPlaceRepository(dbQueue: manager.dbQueue)
         let visitRepository = GRDBVisitRepository(dbQueue: manager.dbQueue)
         let spotRepository = GRDBSpotRepository(dbQueue: manager.dbQueue)
         let tagRepository = GRDBTagRepository(dbQueue: manager.dbQueue)
+        let tripRepository = GRDBTripRepository(dbQueue: manager.dbQueue)
         let searchRepository = GRDBSearchRepository(dbQueue: manager.dbQueue)
 
         let now = Date(timeIntervalSince1970: 1_707_500_000)
         let placeID = UUID()
+        let tripID = UUID()
         let visitID = UUID()
 
         try placeRepository.upsertPlace(
@@ -27,11 +29,23 @@ final class SearchRepositoryTests: XCTestCase {
             )
         )
 
+        try tripRepository.createTrip(
+            Trip(
+                id: tripID,
+                name: "Japan Spring 2024",
+                startDate: now,
+                endDate: now.addingTimeInterval(5 * 86_400),
+                coverMediaID: nil,
+                createdAt: now,
+                updatedAt: now
+            )
+        )
+
         try visitRepository.createVisit(
             Visit(
                 id: visitID,
                 placeID: placeID,
-                tripID: nil,
+                tripID: tripID,
                 startDate: now,
                 endDate: now.addingTimeInterval(86_400),
                 summary: "Sushi night",
@@ -61,6 +75,7 @@ final class SearchRepositoryTests: XCTestCase {
         try tagRepository.assignTag(tagID: tag.id, toVisit: visitID)
 
         XCTAssertEqual(try searchRepository.search("tok", limit: 10).first?.kind, .place)
+        XCTAssertEqual(try searchRepository.search("spring", limit: 10).first?.kind, .trip)
         XCTAssertEqual(try searchRepository.search("sushi", limit: 10).first?.kind, .visit)
         XCTAssertEqual(try searchRepository.search("stalls", limit: 10).first?.kind, .spot)
         XCTAssertEqual(try searchRepository.search("foodie", limit: 10).first?.kind, .tag)
