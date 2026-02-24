@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 03:40 Europe/Paris
+Last updated: 2026-02-24 03:50 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -28,7 +28,7 @@ Last updated: 2026-02-24 03:40 Europe/Paris
 
 ## Phase 4 — Create/Edit content
 - [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content and step-navigation tests; persistence + globe refresh wiring pending)
-- [ ] Edit Visit
+- [~] Edit Visit (implemented `EditVisitView` + `EditVisitViewModel` edit form and date-range validation with tests; persistence/relaunch verification pending)
 - [ ] Spots CRUD
 - [ ] Tags
 
