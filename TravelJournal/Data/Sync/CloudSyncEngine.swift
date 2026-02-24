@@ -49,6 +49,10 @@ public enum CloudSyncEngineFactory {
     public static func makeInMemoryShared() -> CloudSyncEngine {
         InMemoryCloudSyncEngine()
     }
+
+    public static func makeCloudKitBacked(transport: CloudKitRecordTransport) -> CloudSyncEngine {
+        CloudKitBackedSyncEngine(transport: transport)
+    }
 }
 
 public struct NoopCloudSyncEngine: CloudSyncEngine {
@@ -131,5 +135,35 @@ public struct InMemoryCloudSyncEngine: CloudSyncEngine {
 
     public func pullChanges(since: Date?) async throws -> SyncBatch {
         await storage.changes(since: since)
+    }
+}
+
+public protocol CloudKitRecordTransport: Sendable {
+    func upload(records: [CloudKitSyncRecordCodec.EncodedRecord]) async throws
+    func fetchChanges(since: Date?) async throws -> [CloudKitSyncRecordCodec.EncodedRecord]
+}
+
+public struct CloudKitBackedSyncEngine: CloudSyncEngine {
+    private let transport: CloudKitRecordTransport
+    private let codec: CloudKitSyncRecordCodec
+
+    public init(
+        transport: CloudKitRecordTransport,
+        codec: CloudKitSyncRecordCodec = CloudKitSyncRecordCodec()
+    ) {
+        self.transport = transport
+        self.codec = codec
+    }
+
+    public func push(localChanges: SyncBatch) async throws {
+        let encoded = localChanges.records.map(codec.encode)
+        guard encoded.isEmpty == false else { return }
+        try await transport.upload(records: encoded)
+    }
+
+    public func pullChanges(since: Date?) async throws -> SyncBatch {
+        let encoded = try await transport.fetchChanges(since: since)
+        let decoded = encoded.compactMap(codec.decode)
+        return SyncBatch(records: decoded)
     }
 }

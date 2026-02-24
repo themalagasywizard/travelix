@@ -109,6 +109,86 @@ final class CloudSyncEngineTests: XCTestCase {
 
         XCTAssertEqual(pulled.records, [tombstoneRecord])
     }
+
+    func testCloudKitBackedEngineEncodesUploadsAndPassesCursorOnPull() async throws {
+        let transport = RecordingCloudKitRecordTransport()
+        let engine = CloudKitBackedSyncEngine(transport: transport)
+
+        let record = SyncRecordEnvelope(
+            kind: .trip,
+            id: UUID(),
+            updatedAt: Date(timeIntervalSince1970: 500),
+            payload: Data("rome".utf8)
+        )
+
+        try await engine.push(localChanges: SyncBatch(records: [record]))
+        _ = try await engine.pullChanges(since: Date(timeIntervalSince1970: 222))
+
+        let uploads = await transport.uploadedRecords()
+        XCTAssertEqual(uploads.count, 1)
+        XCTAssertEqual(uploads.first?.recordType, CloudKitSyncSchema.recordType(for: .trip))
+        XCTAssertEqual(uploads.first?.recordName, CloudKitSyncSchema.recordName(for: .trip, id: record.id))
+
+        let requestedCursor = await transport.lastRequestedCursor()
+        XCTAssertEqual(requestedCursor, Date(timeIntervalSince1970: 222))
+    }
+
+    func testCloudKitBackedEngineDecodesPulledRecordsAndDropsUnknownOnes() async throws {
+        let knownID = UUID()
+        let transport = RecordingCloudKitRecordTransport(
+            fetchedRecords: [
+                .init(
+                    recordType: CloudKitSyncSchema.recordType(for: .place),
+                    recordName: CloudKitSyncSchema.recordName(for: .place, id: knownID),
+                    updatedAt: Date(timeIntervalSince1970: 700),
+                    payload: Data("paris".utf8),
+                    isDeleted: false
+                ),
+                .init(
+                    recordType: "UnknownType",
+                    recordName: "not-a-uuid",
+                    updatedAt: Date(timeIntervalSince1970: 710),
+                    payload: Data(),
+                    isDeleted: false
+                )
+            ]
+        )
+
+        let engine = CloudKitBackedSyncEngine(transport: transport)
+        let pulled = try await engine.pullChanges(since: nil)
+
+        XCTAssertEqual(pulled.records.count, 1)
+        XCTAssertEqual(pulled.records.first?.kind, .place)
+        XCTAssertEqual(pulled.records.first?.id, knownID)
+        XCTAssertEqual(pulled.records.first?.payload, Data("paris".utf8))
+    }
+}
+
+private actor RecordingCloudKitRecordTransport: CloudKitRecordTransport {
+    private var uploaded: [CloudKitSyncRecordCodec.EncodedRecord] = []
+    private var requestedCursors: [Date?] = []
+    private let fetchedRecords: [CloudKitSyncRecordCodec.EncodedRecord]
+
+    init(fetchedRecords: [CloudKitSyncRecordCodec.EncodedRecord] = []) {
+        self.fetchedRecords = fetchedRecords
+    }
+
+    func upload(records: [CloudKitSyncRecordCodec.EncodedRecord]) async throws {
+        uploaded.append(contentsOf: records)
+    }
+
+    func fetchChanges(since: Date?) async throws -> [CloudKitSyncRecordCodec.EncodedRecord] {
+        requestedCursors.append(since)
+        return fetchedRecords
+    }
+
+    func uploadedRecords() -> [CloudKitSyncRecordCodec.EncodedRecord] {
+        uploaded
+    }
+
+    func lastRequestedCursor() -> Date? {
+        requestedCursors.last ?? nil
+    }
 }
 
 private final class TestClock: @unchecked Sendable {
