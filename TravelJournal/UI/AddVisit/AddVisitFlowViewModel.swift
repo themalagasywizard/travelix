@@ -1,5 +1,7 @@
 import Foundation
 import Combine
+import TravelJournalData
+import TravelJournalDomain
 
 public struct AddVisitDraft: Equatable {
     public var locationQuery: String
@@ -23,6 +25,16 @@ public struct AddVisitDraft: Equatable {
     }
 }
 
+public struct AddVisitSaveResult: Equatable {
+    public let place: Place
+    public let visit: Visit
+
+    public init(place: Place, visit: Visit) {
+        self.place = place
+        self.visit = visit
+    }
+}
+
 @MainActor
 public final class AddVisitFlowViewModel: ObservableObject {
     public enum Step: Int, CaseIterable {
@@ -39,11 +51,42 @@ public final class AddVisitFlowViewModel: ObservableObject {
         }
     }
 
+    public enum SaveError: LocalizedError, Equatable {
+        case missingLocation
+        case invalidDateRange
+        case persistenceFailed
+
+        public var errorDescription: String? {
+            switch self {
+            case .missingLocation:
+                return "Please enter a location before saving."
+            case .invalidDateRange:
+                return "End date must be on or after start date."
+            case .persistenceFailed:
+                return "We couldn't save this visit. Please try again."
+            }
+        }
+    }
+
     @Published public private(set) var currentStep: Step = .location
     @Published public private(set) var draft: AddVisitDraft
+    @Published public private(set) var saveResult: AddVisitSaveResult?
+    @Published public private(set) var saveError: SaveError?
 
-    public init(draft: AddVisitDraft = .init()) {
+    private let placeRepository: PlaceRepository?
+    private let visitRepository: VisitRepository?
+    private let now: () -> Date
+
+    public init(
+        draft: AddVisitDraft = .init(),
+        placeRepository: PlaceRepository? = nil,
+        visitRepository: VisitRepository? = nil,
+        now: @escaping () -> Date = Date.init
+    ) {
         self.draft = draft
+        self.placeRepository = placeRepository
+        self.visitRepository = visitRepository
+        self.now = now
     }
 
     public func updateLocationQuery(_ query: String) {
@@ -68,6 +111,59 @@ public final class AddVisitFlowViewModel: ObservableObject {
     public func goBack() {
         guard let previous = Step(rawValue: currentStep.rawValue - 1) else { return }
         currentStep = previous
+    }
+
+    @discardableResult
+    public func saveVisit() -> AddVisitSaveResult? {
+        saveError = nil
+        saveResult = nil
+
+        let trimmedLocation = draft.locationQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedLocation.isEmpty == false else {
+            saveError = .missingLocation
+            return nil
+        }
+
+        guard draft.endDate >= draft.startDate else {
+            saveError = .invalidDateRange
+            return nil
+        }
+
+        let timestamp = now()
+        let place = Place(
+            id: UUID(),
+            name: trimmedLocation,
+            country: nil,
+            latitude: 0,
+            longitude: 0,
+            createdAt: timestamp,
+            updatedAt: timestamp
+        )
+
+        let trimmedNotes = draft.note.trimmingCharacters(in: .whitespacesAndNewlines)
+        let summary = trimmedNotes.isEmpty ? nil : String(trimmedNotes.prefix(120))
+        let visit = Visit(
+            id: UUID(),
+            placeID: place.id,
+            tripID: nil,
+            startDate: draft.startDate,
+            endDate: draft.endDate,
+            summary: summary,
+            notes: trimmedNotes.isEmpty ? nil : trimmedNotes,
+            createdAt: timestamp,
+            updatedAt: timestamp
+        )
+
+        do {
+            try placeRepository?.upsertPlace(place)
+            try visitRepository?.createVisit(visit)
+            let result = AddVisitSaveResult(place: place, visit: visit)
+            saveResult = result
+            return result
+        } catch {
+            saveError = .persistenceFailed
+            return nil
+        }
     }
 
     public var canGoBack: Bool {

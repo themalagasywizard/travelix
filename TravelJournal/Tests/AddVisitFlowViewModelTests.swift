@@ -1,5 +1,7 @@
 import XCTest
 @testable import TravelJournalUI
+@testable import TravelJournalData
+@testable import TravelJournalDomain
 
 @MainActor
 final class AddVisitFlowViewModelTests: XCTestCase {
@@ -38,5 +40,90 @@ final class AddVisitFlowViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.draft.endDate, end)
         XCTAssertEqual(viewModel.draft.note, "Sakura everywhere")
         XCTAssertEqual(viewModel.draft.photoItemCount, 12)
+    }
+
+    func testSaveVisitPersistsPlaceAndVisit() {
+        let placeRepository = InMemoryPlaceRepository()
+        let visitRepository = InMemoryVisitRepository()
+        let timestamp = Date(timeIntervalSince1970: 1_700_000_111)
+
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(
+                locationQuery: "Lisbon",
+                startDate: Date(timeIntervalSince1970: 1_700_010_000),
+                endDate: Date(timeIntervalSince1970: 1_700_020_000),
+                note: "Pastéis every morning"
+            ),
+            placeRepository: placeRepository,
+            visitRepository: visitRepository,
+            now: { timestamp }
+        )
+
+        let result = viewModel.saveVisit()
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(placeRepository.upsertedPlaces.count, 1)
+        XCTAssertEqual(visitRepository.createdVisits.count, 1)
+        XCTAssertEqual(result?.place.name, "Lisbon")
+        XCTAssertEqual(result?.visit.notes, "Pastéis every morning")
+        XCTAssertEqual(result?.visit.placeID, result?.place.id)
+        XCTAssertEqual(result?.visit.createdAt, timestamp)
+        XCTAssertNil(viewModel.saveError)
+    }
+
+    func testSaveVisitValidationErrors() {
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(locationQuery: "   ")
+        )
+
+        XCTAssertNil(viewModel.saveVisit())
+        XCTAssertEqual(viewModel.saveError, .missingLocation)
+
+        let invalidDates = AddVisitFlowViewModel(
+            draft: AddVisitDraft(
+                locationQuery: "Paris",
+                startDate: Date(timeIntervalSince1970: 500),
+                endDate: Date(timeIntervalSince1970: 100)
+            )
+        )
+
+        XCTAssertNil(invalidDates.saveVisit())
+        XCTAssertEqual(invalidDates.saveError, .invalidDateRange)
+    }
+}
+
+private final class InMemoryPlaceRepository: PlaceRepository {
+    private(set) var upsertedPlaces: [Place] = []
+
+    func upsertPlace(_ place: Place) throws {
+        upsertedPlaces.append(place)
+    }
+
+    func fetchPlacesWithVisitCounts() throws -> [(place: Place, visitCount: Int)] {
+        upsertedPlaces.map { ($0, 0) }
+    }
+
+    func fetchPlace(id: UUID) throws -> Place? {
+        upsertedPlaces.first { $0.id == id }
+    }
+}
+
+private final class InMemoryVisitRepository: VisitRepository {
+    private(set) var createdVisits: [Visit] = []
+
+    func createVisit(_ visit: Visit) throws {
+        createdVisits.append(visit)
+    }
+
+    func updateVisit(_ visit: Visit) throws {}
+
+    func deleteVisit(id: UUID) throws {}
+
+    func fetchVisits(forPlace placeID: UUID) throws -> [Visit] {
+        createdVisits.filter { $0.placeID == placeID }
+    }
+
+    func fetchVisits(forTrip tripID: UUID) throws -> [Visit] {
+        []
     }
 }

@@ -109,8 +109,22 @@ public struct AddVisitFlowView: View {
 
             Spacer()
 
-            Button(viewModel.isLastStep ? "Save" : "Next", action: viewModel.goNext)
-                .buttonStyle(.borderedProminent)
+            Button(viewModel.isLastStep ? "Save" : "Next") {
+                if viewModel.isLastStep {
+                    _ = viewModel.saveVisit()
+                } else {
+                    viewModel.goNext()
+                }
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .overlay(alignment: .bottomLeading) {
+            if let saveError = viewModel.saveError {
+                Text(saveError.localizedDescription)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .padding(.top, 8)
+            }
         }
     }
 }
