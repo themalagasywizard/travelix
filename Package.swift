@@ -20,6 +20,6 @@ let package = Package(
         .target(name: "TravelJournalDomain", dependencies: ["TravelJournalCore"], path: "TravelJournal/Domain"),
         .target(name: "TravelJournalData", dependencies: ["TravelJournalCore", "TravelJournalDomain", .product(name: "GRDB", package: "GRDB.swift")], path: "TravelJournal/Data"),
         .target(name: "TravelJournalUI", dependencies: ["TravelJournalCore", "TravelJournalDomain", "TravelJournalData"], path: "TravelJournal/UI"),
-        .testTarget(name: "TravelJournalTests", dependencies: ["TravelJournalData", "TravelJournalDomain"], path: "TravelJournal/Tests")
+        .testTarget(name: "TravelJournalTests", dependencies: ["TravelJournalData", "TravelJournalDomain", "TravelJournalUI"], path: "TravelJournal/Tests")
     ]
 )

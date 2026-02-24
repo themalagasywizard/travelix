@@ -1,12 +1,17 @@
 import Foundation
 import GRDB
 
+public protocol DemoDataSeeding {
+    @discardableResult
+    func seedIfNeeded(targetPlaces: Int, targetVisits: Int) throws -> DemoSeedReport
+}
+
 public struct DemoSeedReport: Equatable {
     public let placesInserted: Int
     public let visitsInserted: Int
 }
 
-public final class DemoDataSeeder {
+public final class DemoDataSeeder: DemoDataSeeding {
     private let dbQueue: DatabaseQueue
 
     public init(dbQueue: DatabaseQueue) {
