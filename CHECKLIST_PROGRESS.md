@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 06:41 Europe/Paris
+Last updated: 2026-02-24 06:51 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -53,6 +53,6 @@ Last updated: 2026-02-24 06:41 Europe/Paris
 - [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; added `DatabasePerformanceBenchmarkTests` for non-negative timing assertions and operation identity; Instruments traces for cold start + globe interaction still pending on macOS/Xcode)
 
 ## Notes / blockers
-- `Create Xcode project` remains open: re-verified this run (2026-02-24 06:39 Europe/Paris) that Xcode tooling is unavailable in this Linux environment (`xcodebuild: not found`), so iOS project creation/build/run validation cannot be performed here.
+- `Create Xcode project` remains open: re-verified this run (2026-02-24 06:49 Europe/Paris) that Xcode tooling is unavailable in this Linux environment (`xcodebuild: not found`), so iOS project creation/build/run validation cannot be performed here.
 - Swift toolchain is unavailable in this environment (`swift: not found`), so unit tests could not be executed here.
 - We can continue autonomous code implementation and git pushes; runtime iOS verification must be done on a macOS/Xcode runner.
