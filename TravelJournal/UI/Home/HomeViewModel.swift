@@ -120,7 +120,17 @@ public final class HomeViewModel: ObservableObject {
                 handlePinSelected(pinID)
                 return
             }
-        default:
+        case .trip:
+            selectTrip(result.id.uuidString.lowercased())
+            searchResults = []
+            errorBanner = nil
+            return
+        case .tag:
+            selectTag(result.id.uuidString.lowercased())
+            searchResults = []
+            errorBanner = nil
+            return
+        case .visit, .spot:
             break
         }
 

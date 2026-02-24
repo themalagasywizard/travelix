@@ -368,6 +368,44 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.searchResults.isEmpty)
     }
 
+    func testSelectingTripSearchResultAppliesTripFilterAndClearsSearchResults() {
+        let tripID = UUID(uuidString: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")!
+        let viewModel = HomeViewModel(
+            pins: [
+                GlobePin(id: "tokyo", latitude: 35.6764, longitude: 139.65),
+                GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522)
+            ],
+            placeIDsByTripID: [tripID.uuidString.lowercased(): ["tokyo"]]
+        )
+
+        viewModel.searchText = "japan"
+        viewModel.handleSearchResultSelected(.init(kind: .trip, id: tripID, title: "Japan 2025", subtitle: nil))
+
+        XCTAssertEqual(viewModel.selectedTripID, tripID.uuidString.lowercased())
+        XCTAssertTrue(viewModel.selectedFilters.contains(.trip))
+        XCTAssertEqual(viewModel.visiblePins.map(\.id), ["tokyo"])
+        XCTAssertTrue(viewModel.searchResults.isEmpty)
+    }
+
+    func testSelectingTagSearchResultAppliesTagFilterAndClearsSearchResults() {
+        let tagID = UUID(uuidString: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")!
+        let viewModel = HomeViewModel(
+            pins: [
+                GlobePin(id: "tokyo", latitude: 35.6764, longitude: 139.65),
+                GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522)
+            ],
+            placeIDsByTagID: [tagID.uuidString.lowercased(): ["paris"]]
+        )
+
+        viewModel.searchText = "city"
+        viewModel.handleSearchResultSelected(.init(kind: .tag, id: tagID, title: "City", subtitle: nil))
+
+        XCTAssertEqual(viewModel.selectedTagID, tagID.uuidString.lowercased())
+        XCTAssertTrue(viewModel.selectedFilters.contains(.tag))
+        XCTAssertEqual(viewModel.visiblePins.map(\.id), ["paris"])
+        XCTAssertTrue(viewModel.searchResults.isEmpty)
+    }
+
     func testSearchRepositoryFailureSetsErrorBanner() {
         let viewModel = HomeViewModel(searchRepository: FailingSearchRepository())
 
