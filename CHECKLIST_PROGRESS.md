@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 04:12 Europe/Paris
+Last updated: 2026-02-24 04:21 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -31,6 +31,11 @@ Last updated: 2026-02-24 04:12 Europe/Paris
 - [~] Edit Visit (implemented `EditVisitView` + `EditVisitViewModel` edit form and date-range validation with tests; persistence/relaunch verification pending)
 - [~] Spots CRUD (implemented repository-backed `VisitSpotsEditorViewModel` add/update/delete/load operations and unit tests with in-memory repository; Visit Detail UI action wiring pending)
 - [~] Tags (implemented `GRDBTagRepository` create/assign/remove/fetch operations, place IDs by tag query for deterministic globe filtering, and tests in `TagRepositoryTests` + `HomeViewModelTests`; runtime verification on Xcode runner and local Swift test execution still pending)
+
+## Phase 5 — Media pipeline
+- [~] PhotosPicker import (implemented repository-level import entry point `importMedia(from:forVisit:importedAt:)` with `MediaImportPayload` mapping to persisted `Media` records; added `testImportMediaCreatesRecordFromPayload`; real PhotosPicker UI integration/runtime verification pending on Xcode runner)
+- [ ] Thumbnail generator + cache
+- [ ] Offline validation
 
 ## Notes / blockers
 - `Create Xcode project` remains open: this Linux environment cannot generate/validate an iOS Xcode project build/run lifecycle (simulator/device) directly.

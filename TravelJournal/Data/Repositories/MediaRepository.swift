@@ -2,8 +2,24 @@ import Foundation
 import GRDB
 import TravelJournalDomain
 
+public struct MediaImportPayload: Equatable {
+    public let localIdentifier: String?
+    public let fileURL: String?
+    public let width: Int?
+    public let height: Int?
+
+    public init(localIdentifier: String?, fileURL: String?, width: Int?, height: Int?) {
+        self.localIdentifier = localIdentifier
+        self.fileURL = fileURL
+        self.width = width
+        self.height = height
+    }
+}
+
 public protocol MediaRepository {
     func addMedia(_ media: Media) throws
+    @discardableResult
+    func importMedia(from payload: MediaImportPayload, forVisit visitID: UUID, importedAt: Date) throws -> Media
     func updateMedia(_ media: Media) throws
     func deleteMedia(id: UUID) throws
     func fetchMedia(forVisit visitID: UUID) throws -> [Media]
@@ -21,6 +37,23 @@ public final class GRDBMediaRepository: MediaRepository {
         try dbQueue.write { db in
             try MediaRecord(media: media).insert(db)
         }
+    }
+
+    @discardableResult
+    public func importMedia(from payload: MediaImportPayload, forVisit visitID: UUID, importedAt: Date) throws -> Media {
+        let media = Media(
+            id: UUID(),
+            visitID: visitID,
+            localIdentifier: payload.localIdentifier,
+            fileURL: payload.fileURL,
+            width: payload.width,
+            height: payload.height,
+            createdAt: importedAt,
+            updatedAt: importedAt
+        )
+
+        try addMedia(media)
+        return media
     }
 
     public func updateMedia(_ media: Media) throws {
