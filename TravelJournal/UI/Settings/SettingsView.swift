@@ -20,6 +20,27 @@ public struct SettingsView: View {
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier(TJAccessibility.Identifier.settingsSyncDescription)
                         .accessibilityLabel(TJAccessibility.Label.settingsSyncDescription)
+
+                    if viewModel.canRunSyncNow {
+                        Button(action: { Task { await viewModel.runSyncNow() } }) {
+                            if viewModel.isRunningSyncNow {
+                                ProgressView()
+                            } else {
+                                Text("Sync Now")
+                            }
+                        }
+                        .disabled(viewModel.isRunningSyncNow)
+                        .accessibilityIdentifier(TJAccessibility.Identifier.settingsSyncNowButton)
+                        .accessibilityLabel(TJAccessibility.Label.settingsSyncNowButton)
+
+                        if let syncStatusMessage = viewModel.syncStatusMessage {
+                            Text(syncStatusMessage)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .accessibilityIdentifier(TJAccessibility.Identifier.settingsSyncNowStatus)
+                                .accessibilityLabel(TJAccessibility.Label.settingsSyncNowStatus)
+                        }
+                    }
                 }
             }
             .navigationTitle("Settings")

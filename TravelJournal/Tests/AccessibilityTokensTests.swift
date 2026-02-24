@@ -17,6 +17,8 @@ final class AccessibilityTokensTests: XCTestCase {
         XCTAssertFalse(TJAccessibility.Identifier.tripsErrorBanner.isEmpty)
         XCTAssertFalse(TJAccessibility.Identifier.settingsSyncToggle.isEmpty)
         XCTAssertFalse(TJAccessibility.Identifier.settingsSyncDescription.isEmpty)
+        XCTAssertFalse(TJAccessibility.Identifier.settingsSyncNowButton.isEmpty)
+        XCTAssertFalse(TJAccessibility.Identifier.settingsSyncNowStatus.isEmpty)
         XCTAssertFalse(TJAccessibility.Identifier.visitSummarySection.isEmpty)
         XCTAssertFalse(TJAccessibility.Identifier.visitRecommendationsSection.isEmpty)
     }
@@ -46,5 +48,7 @@ final class AccessibilityTokensTests: XCTestCase {
         XCTAssertEqual(TJAccessibility.Label.tripsErrorBanner, "Trips loading error")
         XCTAssertEqual(TJAccessibility.Label.settingsSyncToggle, "Enable iCloud sync")
         XCTAssertEqual(TJAccessibility.Label.settingsSyncDescription, "Sync feature description")
+        XCTAssertEqual(TJAccessibility.Label.settingsSyncNowButton, "Run sync now")
+        XCTAssertEqual(TJAccessibility.Label.settingsSyncNowStatus, "Latest sync status")
     }
 }

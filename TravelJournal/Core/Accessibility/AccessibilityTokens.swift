@@ -20,6 +20,8 @@ public enum TJAccessibility {
 
         public static let settingsSyncToggle = "settings.sync.toggle"
         public static let settingsSyncDescription = "settings.sync.description"
+        public static let settingsSyncNowButton = "settings.sync.now.button"
+        public static let settingsSyncNowStatus = "settings.sync.now.status"
 
         public static let visitHeader = "visit.header"
         public static let visitSummarySection = "visit.summary.section"
@@ -45,6 +47,8 @@ public enum TJAccessibility {
 
         public static let settingsSyncToggle = "Enable iCloud sync"
         public static let settingsSyncDescription = "Sync feature description"
+        public static let settingsSyncNowButton = "Run sync now"
+        public static let settingsSyncNowStatus = "Latest sync status"
 
         public static func pinListRow(_ placeID: String) -> String {
             "Select place \(placeID)"
