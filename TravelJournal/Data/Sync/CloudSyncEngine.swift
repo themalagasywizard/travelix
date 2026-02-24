@@ -1,8 +1,11 @@
 import Foundation
+#if canImport(CloudKit)
+import CloudKit
+#endif
 import TravelJournalCore
 
 public struct SyncRecordEnvelope: Equatable, Sendable {
-    public enum Kind: String, Equatable, Sendable {
+    public enum Kind: String, Equatable, Sendable, CaseIterable {
         case place
         case trip
         case visit
@@ -53,6 +56,14 @@ public enum CloudSyncEngineFactory {
     public static func makeCloudKitBacked(transport: CloudKitRecordTransport) -> CloudSyncEngine {
         CloudKitBackedSyncEngine(transport: transport)
     }
+
+    #if canImport(CloudKit)
+    public static func makeCloudKitPrivateDatabase(containerIdentifier: String? = nil) -> CloudSyncEngine {
+        let container = containerIdentifier.map(CKContainer.init(identifier:)) ?? CKContainer.default()
+        let transport = CloudKitDatabaseRecordTransport(database: container.privateCloudDatabase)
+        return CloudKitBackedSyncEngine(transport: transport)
+    }
+    #endif
 }
 
 public struct NoopCloudSyncEngine: CloudSyncEngine {
