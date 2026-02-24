@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 12:33 Europe/Paris
+Last updated: 2026-02-24 12:39 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -50,8 +50,9 @@ Last updated: 2026-02-24 12:33 Europe/Paris
 ## Phase 8 — Hardening
 - [~] Error handling (added `TJAppError` + `ErrorPresentationMapper` to produce user-facing non-crashing banner models for database/media/input/unknown failures; wired `VisitSpotsEditorViewModel` failure paths to emit mapped `errorBanner` values alongside error text, then extended the same banner mapping to `AddVisitFlowViewModel`, `EditVisitViewModel`, and now `HomeViewModel` repository-hydration failures (with dismissible Home banner UI + new tests); broader runtime banner presentation/validation across all UI flows still pending on Xcode runner)
 - [~] Migrations + version bump (added `v2_add_visits_mood` migration in `DatabaseManager.makeMigrator()` introducing a dummy `visits.mood` column with default `""`; expanded `MigrationsTests` to assert latest schema column presence and to simulate v1→v2 upgrade path via migration table priming; Swift test execution still blocked in this environment)
-- [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; added `DatabasePerformanceBenchmarkTests` for non-negative timing assertions and operation identity; Instruments traces for cold start + globe interaction still pending on macOS/Xcode)
+- [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; introduced `PerformanceBudgetEvaluator` (median + p95 budget gating) and expanded `DatabasePerformanceBenchmarkTests` with configurable p95 performance budgets (`TJ_DB_COLD_START_BUDGET_MS`, `TJ_DB_VISIT_READ_BUDGET_MS`), plus new `PerformanceBudgetEvaluatorTests`; Instruments traces for cold start + globe interaction still pending on macOS/Xcode, and benchmark execution remains pending on a Swift-capable runner in this container)
 
 ## Notes / blockers
 - Per user override, Xcode project creation/tooling steps are intentionally skipped in this environment; manual Xcode import/build will be handled by the user.
 - Runtime iOS/SceneKit verification and Swift test execution remain pending on a macOS/Xcode-capable runner.
+- New environment blocker observed this run: `swift` CLI is not installed in the container (`swift: not found`), so local SwiftPM test execution could not be run here.
