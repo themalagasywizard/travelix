@@ -48,6 +48,36 @@ final class AddVisitFlowViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.draft.mediaImportPayloads.count, 2)
     }
 
+    func testUseCurrentLocationUpdatesDraftQuery() async {
+        let provider = SuccessfulCurrentLocationProvider(
+            resolvedLocation: AddVisitResolvedLocation(
+                displayName: "Lisbon",
+                country: "Portugal",
+                latitude: 38.7223,
+                longitude: -9.1393
+            )
+        )
+
+        let viewModel = AddVisitFlowViewModel(locationProvider: provider)
+        await viewModel.useCurrentLocation()
+
+        XCTAssertEqual(viewModel.draft.locationQuery, "Lisbon")
+        XCTAssertNil(viewModel.errorBanner)
+        XCTAssertFalse(viewModel.isResolvingCurrentLocation)
+    }
+
+    func testUseCurrentLocationFailureMapsBanner() async {
+        let viewModel = AddVisitFlowViewModel(locationProvider: FailingCurrentLocationProvider())
+
+        await viewModel.useCurrentLocation()
+
+        XCTAssertEqual(
+            viewModel.errorBanner,
+            ErrorPresentationMapper.banner(for: .invalidInput(message: "Location permission denied."))
+        )
+        XCTAssertFalse(viewModel.isResolvingCurrentLocation)
+    }
+
     func testSaveVisitPersistsPlaceAndVisit() {
         let placeRepository = InMemoryPlaceRepository()
         let visitRepository = InMemoryVisitRepository()
@@ -76,6 +106,37 @@ final class AddVisitFlowViewModelTests: XCTestCase {
         XCTAssertEqual(result?.visit.createdAt, timestamp)
         XCTAssertNil(viewModel.saveError)
         XCTAssertNil(viewModel.errorBanner)
+    }
+
+    func testSaveVisitUsesResolvedCurrentLocationCoordinates() async {
+        let placeRepository = InMemoryPlaceRepository()
+        let visitRepository = InMemoryVisitRepository()
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(
+                locationQuery: "",
+                startDate: Date(timeIntervalSince1970: 1_700_010_000),
+                endDate: Date(timeIntervalSince1970: 1_700_020_000),
+                note: "Ride tram 28"
+            ),
+            placeRepository: placeRepository,
+            visitRepository: visitRepository,
+            locationProvider: SuccessfulCurrentLocationProvider(
+                resolvedLocation: AddVisitResolvedLocation(
+                    displayName: "Lisbon",
+                    country: "Portugal",
+                    latitude: 38.7223,
+                    longitude: -9.1393
+                )
+            )
+        )
+
+        await viewModel.useCurrentLocation()
+        _ = viewModel.saveVisit()
+
+        XCTAssertEqual(placeRepository.upsertedPlaces.first?.name, "Lisbon")
+        XCTAssertEqual(placeRepository.upsertedPlaces.first?.country, "Portugal")
+        XCTAssertEqual(placeRepository.upsertedPlaces.first?.latitude, 38.7223)
+        XCTAssertEqual(placeRepository.upsertedPlaces.first?.longitude, -9.1393)
     }
 
     func testSaveVisitImportsSelectedMediaPayloads() {
@@ -246,6 +307,20 @@ private final class InMemoryMediaRepository: MediaRepository {
     func fetchMedia(forVisit visitID: UUID) throws -> [Media] { [] }
 
     func fetchMedia(id: UUID) throws -> Media? { nil }
+}
+
+private struct SuccessfulCurrentLocationProvider: AddVisitCurrentLocationProviding {
+    let resolvedLocation: AddVisitResolvedLocation
+
+    func resolveCurrentLocation() async throws -> AddVisitResolvedLocation {
+        resolvedLocation
+    }
+}
+
+private struct FailingCurrentLocationProvider: AddVisitCurrentLocationProviding {
+    func resolveCurrentLocation() async throws -> AddVisitResolvedLocation {
+        throw NSError(domain: "AddVisitFlowViewModelTests", code: 42, userInfo: [NSLocalizedDescriptionKey: "Location permission denied."])
+    }
 }
 
 private final class FailingMediaRepository: MediaRepository {

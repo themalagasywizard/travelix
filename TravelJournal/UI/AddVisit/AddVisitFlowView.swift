@@ -62,6 +62,23 @@ public struct AddVisitFlowView: View {
                 .padding(10)
                 .background(Color.white.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                Button {
+                    Task {
+                        await viewModel.useCurrentLocation()
+                    }
+                } label: {
+                    Label("Use current location", systemImage: "location.fill")
+                        .font(.callout.weight(.semibold))
+                }
+                .buttonStyle(.bordered)
+                .disabled(viewModel.isResolvingCurrentLocation)
+
+                if viewModel.isResolvingCurrentLocation {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.white)
+                }
             }
 
         case .dates:

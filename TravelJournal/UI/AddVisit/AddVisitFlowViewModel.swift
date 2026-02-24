@@ -4,6 +4,48 @@ import TravelJournalCore
 import TravelJournalData
 import TravelJournalDomain
 
+public struct AddVisitResolvedLocation: Equatable {
+    public let displayName: String
+    public let country: String?
+    public let latitude: Double
+    public let longitude: Double
+
+    public init(
+        displayName: String,
+        country: String? = nil,
+        latitude: Double,
+        longitude: Double
+    ) {
+        self.displayName = displayName
+        self.country = country
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+}
+
+public protocol AddVisitCurrentLocationProviding {
+    func resolveCurrentLocation() async throws -> AddVisitResolvedLocation
+}
+
+public enum AddVisitCurrentLocationError: LocalizedError {
+    case unavailable
+
+    public var errorDescription: String? {
+        switch self {
+        case .unavailable:
+            return "Current location is unavailable on this device."
+        }
+    }
+}
+
+public struct AddVisitNoopCurrentLocationProvider: AddVisitCurrentLocationProviding {
+    public init() {}
+
+    public func resolveCurrentLocation() async throws -> AddVisitResolvedLocation {
+        throw AddVisitCurrentLocationError.unavailable
+    }
+}
+
 public struct AddVisitDraft: Equatable {
     public var locationQuery: String
     public var startDate: Date
@@ -77,28 +119,57 @@ public final class AddVisitFlowViewModel: ObservableObject {
     @Published public private(set) var saveResult: AddVisitSaveResult?
     @Published public private(set) var saveError: SaveError?
     @Published public private(set) var errorBanner: ErrorBannerModel?
+    @Published public private(set) var isResolvingCurrentLocation: Bool = false
 
     private let placeRepository: PlaceRepository?
     private let visitRepository: VisitRepository?
     private let mediaRepository: MediaRepository?
+    private let locationProvider: AddVisitCurrentLocationProviding?
     private let now: () -> Date
+    private var resolvedLocation: AddVisitResolvedLocation?
 
     public init(
         draft: AddVisitDraft = .init(),
         placeRepository: PlaceRepository? = nil,
         visitRepository: VisitRepository? = nil,
         mediaRepository: MediaRepository? = nil,
+        locationProvider: AddVisitCurrentLocationProviding? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.draft = draft
         self.placeRepository = placeRepository
         self.visitRepository = visitRepository
         self.mediaRepository = mediaRepository
+        self.locationProvider = locationProvider
         self.now = now
     }
 
     public func updateLocationQuery(_ query: String) {
         draft.locationQuery = query
+        resolvedLocation = nil
+    }
+
+    public func useCurrentLocation() async {
+        guard let locationProvider else {
+            errorBanner = ErrorPresentationMapper.banner(
+                for: .invalidInput(message: AddVisitCurrentLocationError.unavailable.errorDescription ?? "Current location is unavailable on this device.")
+            )
+            return
+        }
+
+        isResolvingCurrentLocation = true
+        defer { isResolvingCurrentLocation = false }
+
+        do {
+            let location = try await locationProvider.resolveCurrentLocation()
+            resolvedLocation = location
+            draft.locationQuery = location.displayName
+            errorBanner = nil
+        } catch {
+            errorBanner = ErrorPresentationMapper.banner(
+                for: .invalidInput(message: error.localizedDescription)
+            )
+        }
     }
 
     public func updateDates(start: Date, end: Date) {
@@ -149,9 +220,9 @@ public final class AddVisitFlowViewModel: ObservableObject {
         let place = Place(
             id: UUID(),
             name: trimmedLocation,
-            country: nil,
-            latitude: 0,
-            longitude: 0,
+            country: resolvedLocation?.country,
+            latitude: resolvedLocation?.latitude ?? 0,
+            longitude: resolvedLocation?.longitude ?? 0,
             createdAt: timestamp,
             updatedAt: timestamp
         )
