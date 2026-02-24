@@ -35,7 +35,7 @@ public struct HomeView: View {
                 pinsListButton
 
                 if let selectedPlaceID = viewModel.selectedPlaceID {
-                    Text("\(TJStrings.Home.selectedPrefix): \(selectedPlaceID)")
+                    Text(TJStrings.Home.selectedPlaceBadge(selectedPlaceID))
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 12)

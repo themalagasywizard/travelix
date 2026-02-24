@@ -41,6 +41,14 @@ public enum TJStrings {
             }
             return "\(title), \(subtitle)"
         }
+
+        public static func selectedPlaceBadge(_ placeID: String) -> String {
+            "\(selectedPrefix): \(placeID)"
+        }
+
+        public static func ratingOutOfFive(_ rating: Int) -> String {
+            "\(rating)/5"
+        }
     }
 
     public enum AddVisit {

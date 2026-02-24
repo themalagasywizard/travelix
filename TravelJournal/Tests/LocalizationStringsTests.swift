@@ -54,6 +54,8 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertEqual(TJStrings.Home.tagFilterTitle("food"), "Tag: food")
         XCTAssertEqual(TJStrings.Home.searchResultAccessibilityLabel(title: "Tokyo", subtitle: "Japan"), "Tokyo, Japan")
         XCTAssertEqual(TJStrings.Home.searchResultAccessibilityLabel(title: "Tokyo", subtitle: nil), "Tokyo")
+        XCTAssertEqual(TJStrings.Home.selectedPlaceBadge("paris"), "Selected: paris")
+        XCTAssertEqual(TJStrings.Home.ratingOutOfFive(4), "4/5")
         XCTAssertEqual(TJStrings.VisitDetail.photosSectionTitle(4), "Photos (4)")
     }
 

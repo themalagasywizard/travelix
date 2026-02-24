@@ -485,7 +485,7 @@ public final class HomeViewModel: ObservableObject {
 
     private static func ratingText(for rating: Int?) -> String? {
         guard let rating else { return nil }
-        return "\(rating)/5"
+        return TJStrings.Home.ratingOutOfFive(rating)
     }
 
     private static func recommendations(from notes: String?) -> [String] {
