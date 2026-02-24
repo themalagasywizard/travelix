@@ -3,9 +3,20 @@ import TravelJournalCore
 
 public struct SettingsView: View {
     @StateObject private var viewModel: SettingsViewModel
+    #if DEBUG
+    @StateObject private var developerToolsViewModel: DeveloperToolsViewModel
+    #endif
 
-    public init(viewModel: @autoclosure @escaping () -> SettingsViewModel) {
+    public init(
+        viewModel: @autoclosure @escaping () -> SettingsViewModel
+        #if DEBUG
+        , developerToolsViewModel: @autoclosure @escaping () -> DeveloperToolsViewModel
+        #endif
+    ) {
         _viewModel = StateObject(wrappedValue: viewModel())
+        #if DEBUG
+        _developerToolsViewModel = StateObject(wrappedValue: developerToolsViewModel())
+        #endif
     }
 
     public var body: some View {
@@ -42,6 +53,12 @@ public struct SettingsView: View {
                         }
                     }
                 }
+
+                #if DEBUG
+                Section("Developer") {
+                    DeveloperToolsView(viewModel: developerToolsViewModel)
+                }
+                #endif
             }
             .navigationTitle("Settings")
         }

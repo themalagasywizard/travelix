@@ -36,6 +36,5 @@ public struct DeveloperToolsView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .padding()
     }
 }

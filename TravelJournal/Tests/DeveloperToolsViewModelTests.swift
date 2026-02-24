@@ -43,6 +43,14 @@ final class DeveloperToolsViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.cacheSummary?.hasPrefix("Thumbnail cache: 0 files ("), true)
         XCTAssertEqual(viewModel.statusMessage, "Cleared thumbnail cache")
     }
+
+    func testFallbackInitializerReportsUnavailableSeeding() {
+        let viewModel = DeveloperToolsViewModel()
+
+        viewModel.loadDemoData()
+
+        XCTAssertEqual(viewModel.statusMessage, "Failed to load demo data: Demo seeding is unavailable in this build context")
+    }
 }
 
 private struct SeederStub: DemoDataSeeding {

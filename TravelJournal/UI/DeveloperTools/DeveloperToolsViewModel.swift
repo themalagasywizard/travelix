@@ -18,6 +18,10 @@ public final class DeveloperToolsViewModel: ObservableObject {
         refreshThumbnailCacheSummary()
     }
 
+    public convenience init(thumbnailCache: ThumbnailCache? = nil) {
+        self.init(seeder: UnavailableDemoDataSeeder(), thumbnailCache: thumbnailCache)
+    }
+
     public func loadDemoData() {
         guard !isSeeding else { return }
         isSeeding = true
@@ -67,5 +71,15 @@ public final class DeveloperToolsViewModel: ObservableObject {
         } catch {
             cacheSummary = "Thumbnail cache: unavailable"
         }
+    }
+}
+
+private struct UnavailableDemoDataSeeder: DemoDataSeeding {
+    func seedIfNeeded(targetPlaces: Int, targetVisits: Int) throws -> DemoSeedReport {
+        throw NSError(
+            domain: "DeveloperTools",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "Demo seeding is unavailable in this build context"]
+        )
     }
 }

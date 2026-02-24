@@ -98,7 +98,14 @@ public struct HomeView: View {
             }
         }
         .sheet(isPresented: $isSettingsPresented) {
+            #if DEBUG
+            SettingsView(
+                viewModel: SettingsViewModel(syncFeatureFlags: UserDefaultsSyncFeatureFlagStore()),
+                developerToolsViewModel: DeveloperToolsViewModel()
+            )
+            #else
             SettingsView(viewModel: SettingsViewModel(syncFeatureFlags: UserDefaultsSyncFeatureFlagStore()))
+            #endif
         }
         .sheet(isPresented: $isTripsPresented) {
             if let tripsListViewModel {
