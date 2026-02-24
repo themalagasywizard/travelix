@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 04:51 Europe/Paris
+Last updated: 2026-02-24 05:01 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -39,7 +39,7 @@ Last updated: 2026-02-24 04:51 Europe/Paris
 
 ## Phase 6 — Search & filters
 - [~] Search index (implemented `GRDBSearchRepository` with SQL LIKE-based global search across places, visits, spots, and tags with deterministic ordering and limit; added `SearchRepositoryTests` for entity coverage and result limiting; runtime UI wiring and Swift test execution on a Swift/Xcode runner still pending)
-- [ ] Filter chips
+- [~] Filter chips (extended `HomeViewModel` filter state with explicit year/trip/tag selections and deterministic intersection logic across active chips; disabling a chip now clears its associated selection and recomputes visible pins; expanded `HomeViewModelTests` for multi-chip intersection and filter-disable behavior; runtime UI wiring verification pending on Xcode runner)
 
 ## Notes / blockers
 - `Create Xcode project` remains open: this Linux environment cannot generate/validate an iOS Xcode project build/run lifecycle (simulator/device) directly.
