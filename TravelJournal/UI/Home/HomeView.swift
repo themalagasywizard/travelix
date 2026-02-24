@@ -1,5 +1,6 @@
 import SwiftUI
 import TravelJournalCore
+import TravelJournalData
 
 public struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
@@ -23,6 +24,10 @@ public struct HomeView: View {
             VStack(spacing: 10) {
                 searchBar
                 filtersRow
+                if viewModel.searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false,
+                   viewModel.searchResults.isEmpty == false {
+                    searchResultsCard
+                }
                 pinsListButton
 
                 if let selectedPlaceID = viewModel.selectedPlaceID {
@@ -144,6 +149,56 @@ public struct HomeView: View {
             .clipShape(Capsule())
             .accessibilityIdentifier(TJAccessibility.Identifier.homePinsListButton)
             .accessibilityLabel(TJAccessibility.Label.homePinsListButton)
+        }
+    }
+
+    private var searchResultsCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(viewModel.searchResults, id: \.id) { result in
+                Button {
+                    viewModel.handleSearchResultSelected(result)
+                } label: {
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: iconName(for: result.kind))
+                            .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(result.title)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.primary)
+                            if let subtitle = result.subtitle, subtitle.isEmpty == false {
+                                Text(subtitle)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                }
+                .buttonStyle(.plain)
+
+                if result.id != viewModel.searchResults.last?.id {
+                    Divider()
+                }
+            }
+        }
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private func iconName(for kind: SearchResultKind) -> String {
+        switch kind {
+        case .place:
+            return "mappin.and.ellipse"
+        case .trip:
+            return "suitcase"
+        case .visit:
+            return "calendar"
+        case .spot:
+            return "fork.knife"
+        case .tag:
+            return "tag"
         }
     }
 

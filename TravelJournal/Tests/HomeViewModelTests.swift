@@ -331,6 +331,42 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedPlaceID, placeID.uuidString.lowercased())
     }
 
+    func testSearchTextPopulatesSearchResultsFromRepository() {
+        let placeID = UUID(uuidString: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee")!
+        let viewModel = HomeViewModel(
+            searchRepository: StubSearchRepository(resultsByQuery: [
+                "tokyo": [SearchResult(kind: .place, id: placeID, title: "Tokyo", subtitle: "Japan")]
+            ])
+        )
+
+        viewModel.searchText = "tokyo"
+
+        XCTAssertEqual(viewModel.searchResults.count, 1)
+        XCTAssertEqual(viewModel.searchResults.first?.title, "Tokyo")
+    }
+
+    func testSelectingPlaceSearchResultFocusesMappedPin() {
+        let placeID = UUID(uuidString: "ffffffff-ffff-ffff-ffff-ffffffffffff")!
+        let viewModel = HomeViewModel(
+            pins: [GlobePin(id: "tokyo-pin", latitude: 35.6764, longitude: 139.65)],
+            pinIDToPlaceID: ["tokyo-pin": placeID]
+        )
+
+        viewModel.handleSearchResultSelected(.init(kind: .place, id: placeID, title: "Tokyo", subtitle: "Japan"))
+
+        XCTAssertEqual(viewModel.selectedPlaceID, "tokyo-pin")
+        XCTAssertTrue(viewModel.searchResults.isEmpty)
+    }
+
+    func testSearchRepositoryFailureSetsErrorBanner() {
+        let viewModel = HomeViewModel(searchRepository: FailingSearchRepository())
+
+        viewModel.searchText = "tokyo"
+
+        XCTAssertEqual(viewModel.searchResults, [])
+        XCTAssertEqual(viewModel.errorBanner?.title, "Something went wrong")
+    }
+
     func testMakeAddVisitFlowViewModelForwardsMediaRepositoryForSaveFlow() {
         let placeRepository = StubPlaceRepository(placeByID: [:])
         let visitRepository = StubVisitRepository(visitsByPlaceID: [:])
@@ -438,6 +474,22 @@ private struct StubMediaRepository: MediaRepository {
 
     func fetchMedia(id: UUID) throws -> Media? {
         mediaByVisitID.values.flatMap { $0 }.first(where: { $0.id == id })
+    }
+}
+
+private struct StubSearchRepository: SearchRepository {
+    let resultsByQuery: [String: [SearchResult]]
+
+    func search(_ query: String, limit: Int) throws -> [SearchResult] {
+        Array((resultsByQuery[query] ?? []).prefix(limit))
+    }
+}
+
+private struct FailingSearchRepository: SearchRepository {
+    struct SearchFailure: Error {}
+
+    func search(_ query: String, limit: Int) throws -> [SearchResult] {
+        throw SearchFailure()
     }
 }
 

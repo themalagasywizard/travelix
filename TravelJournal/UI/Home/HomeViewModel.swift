@@ -17,6 +17,7 @@ public final class HomeViewModel: ObservableObject {
     @Published public var searchText: String = "" {
         didSet {
             applyFilters()
+            refreshSearchResults()
         }
     }
     @Published public private(set) var selectedFilters: Set<FilterChip> = []
@@ -27,6 +28,7 @@ public final class HomeViewModel: ObservableObject {
     @Published public private(set) var selectedYear: Int?
     @Published public private(set) var visiblePins: [GlobePin]
     @Published public private(set) var errorBanner: ErrorBannerModel?
+    @Published public private(set) var searchResults: [SearchResult] = []
 
     public struct PinListItem: Identifiable, Equatable {
         public let id: String
@@ -57,6 +59,7 @@ public final class HomeViewModel: ObservableObject {
     private let visitRepository: VisitRepository?
     private let spotRepository: SpotRepository?
     private let mediaRepository: MediaRepository?
+    private let searchRepository: SearchRepository?
 
     public init(
         pins: [GlobePin] = HomeViewModel.defaultPins,
@@ -68,7 +71,8 @@ public final class HomeViewModel: ObservableObject {
         placeRepository: PlaceRepository? = nil,
         visitRepository: VisitRepository? = nil,
         spotRepository: SpotRepository? = nil,
-        mediaRepository: MediaRepository? = nil
+        mediaRepository: MediaRepository? = nil,
+        searchRepository: SearchRepository? = nil
     ) {
         self.pins = pins
         self.visiblePins = pins
@@ -81,6 +85,7 @@ public final class HomeViewModel: ObservableObject {
         self.visitRepository = visitRepository
         self.spotRepository = spotRepository
         self.mediaRepository = mediaRepository
+        self.searchRepository = searchRepository
     }
 
     public func toggleFilter(_ filter: FilterChip) {
@@ -97,7 +102,24 @@ public final class HomeViewModel: ObservableObject {
 
     public func handlePinSelected(_ placeID: String) {
         selectedPlaceID = placeID
+        searchResults = []
         errorBanner = nil
+    }
+
+    public func handleSearchResultSelected(_ result: SearchResult) {
+        switch result.kind {
+        case .place:
+            if let pinID = pinIDToPlaceID.first(where: { $0.value == result.id })?.key {
+                handlePinSelected(pinID)
+                return
+            }
+        default:
+            break
+        }
+
+        if searchText.localizedCaseInsensitiveContains(result.title) == false {
+            searchText = result.title
+        }
     }
 
     public func clearSelectedPlace() {
@@ -205,6 +227,27 @@ public final class HomeViewModel: ObservableObject {
             if selectedTagID == nil {
                 selectedTagID = placeIDsByTagID.keys.sorted().first
             }
+        }
+    }
+
+    private func refreshSearchResults() {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard query.isEmpty == false else {
+            searchResults = []
+            return
+        }
+
+        guard let searchRepository else {
+            searchResults = []
+            return
+        }
+
+        do {
+            searchResults = try searchRepository.search(query, limit: 8)
+            errorBanner = nil
+        } catch {
+            searchResults = []
+            errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
         }
     }
 
