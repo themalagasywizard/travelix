@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 05:11 Europe/Paris
+Last updated: 2026-02-24 05:21 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -43,7 +43,7 @@ Last updated: 2026-02-24 05:11 Europe/Paris
 
 ## Phase 7 — Premium polish
 - [~] Design system tokens (expanded `DesignTokens.swift` with typography and shadow token families in addition to spacing/radius; added `DesignTokensTests` for token scale/hierarchy/subtle-shadow constraints; Swift test execution and runtime visual verification pending on Xcode runner)
-- [ ] Haptics
+- [~] Haptics (added `HapticsClient` with injectable `HapticsEngine` and default UIKit-backed implementation using `UISelectionFeedbackGenerator`/`UINotificationFeedbackGenerator`, plus non-UIKit no-op fallback; added `HapticsClientTests` to verify event routing for selection/success/warning/error; runtime tactile verification pending on iOS device/simulator via Xcode)
 - [ ] Motion
 - [ ] Accessibility pass
 
