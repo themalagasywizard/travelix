@@ -22,11 +22,11 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack {
             Form {
-                Section("Sync") {
-                    Toggle("Enable iCloud Sync", isOn: syncBinding)
+                Section(TJStrings.Settings.syncSectionTitle) {
+                    Toggle(TJStrings.Settings.enableICloudSync, isOn: syncBinding)
                         .accessibilityIdentifier(TJAccessibility.Identifier.settingsSyncToggle)
                         .accessibilityLabel(TJAccessibility.Label.settingsSyncToggle)
-                    Text("Off by default. When enabled, Travel Journal will sync records using your private iCloud database.")
+                    Text(TJStrings.Settings.syncDescription)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .accessibilityIdentifier(TJAccessibility.Identifier.settingsSyncDescription)
@@ -37,7 +37,7 @@ public struct SettingsView: View {
                             if viewModel.isRunningSyncNow {
                                 ProgressView()
                             } else {
-                                Text("Sync Now")
+                                Text(TJStrings.Settings.syncNow)
                             }
                         }
                         .disabled(viewModel.isRunningSyncNow)
@@ -71,12 +71,12 @@ public struct SettingsView: View {
                 }
 
                 #if DEBUG
-                Section("Developer") {
+                Section(TJStrings.Settings.developerSectionTitle) {
                     DeveloperToolsView(viewModel: developerToolsViewModel)
                 }
                 #endif
             }
-            .navigationTitle("Settings")
+            .navigationTitle(TJStrings.Settings.title)
         }
     }
 

@@ -35,4 +35,46 @@ public enum TJStrings {
             "\(photosSelectedPrefix): \(count)"
         }
     }
+
+    public enum Trips {
+        public static let title = "Trips"
+        public static let datesTBD = "Dates TBD"
+
+        public static func visitCount(_ count: Int) -> String {
+            "\(count) visit\(count == 1 ? "" : "s")"
+        }
+    }
+
+    public enum Settings {
+        public static let title = "Settings"
+        public static let syncSectionTitle = "Sync"
+        public static let developerSectionTitle = "Developer"
+        public static let enableICloudSync = "Enable iCloud Sync"
+        public static let syncDescription = "Off by default. When enabled, Travel Journal will sync records using your private iCloud database."
+        public static let syncNow = "Sync Now"
+        public static let syncFinished = "Sync finished"
+        public static let enableSyncToRunNow = "Enable iCloud Sync to run a sync now"
+        public static let syncFailedPrefix = "Sync failed"
+        public static let lastSuccessfulPrefix = "Last successful sync"
+
+        public static func syncFailed(_ message: String) -> String {
+            "\(syncFailedPrefix): \(message)"
+        }
+
+        public static func lastSuccessfulSync(_ value: String) -> String {
+            "\(lastSuccessfulPrefix): \(value)"
+        }
+    }
+
+    public enum VisitDetail {
+        public static let summary = "Summary"
+        public static let notes = "Notes"
+        public static let spots = "Spots"
+        public static let recommendations = "Recommendations"
+        public static let noSummaryYet = "No summary yet"
+        public static let noNotesYet = "No notes yet"
+        public static let noSpotsAdded = "No spots added"
+        public static let manageSpots = "Manage Spots"
+        public static let noRecommendationsYet = "No recommendations yet"
+    }
 }

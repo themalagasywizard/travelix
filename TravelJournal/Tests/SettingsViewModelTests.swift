@@ -50,10 +50,10 @@ final class SettingsViewModelTests: XCTestCase {
         await viewModel.runSyncNow()
 
         XCTAssertEqual(recorder.callCount, 0)
-        XCTAssertEqual(viewModel.syncStatusMessage, "Enable iCloud Sync to run a sync now")
+        XCTAssertEqual(viewModel.syncStatusMessage, TJStrings.Settings.enableSyncToRunNow)
         XCTAssertEqual(
             viewModel.syncErrorBanner,
-            ErrorPresentationMapper.banner(for: .invalidInput(message: "Enable iCloud Sync to run a sync now"))
+            ErrorPresentationMapper.banner(for: .invalidInput(message: TJStrings.Settings.enableSyncToRunNow))
         )
         XCTAssertFalse(viewModel.isRunningSyncNow)
     }
@@ -75,7 +75,7 @@ final class SettingsViewModelTests: XCTestCase {
 
         XCTAssertEqual(recorder.callCount, 1)
         XCTAssertEqual(viewModel.syncStatusMessage, "Sync finished: pushed 2, pulled 1, applied 1")
-        XCTAssertEqual(viewModel.lastSuccessfulSyncDescription, "Last successful sync: formatted-now")
+        XCTAssertEqual(viewModel.lastSuccessfulSyncDescription, TJStrings.Settings.lastSuccessfulSync("formatted-now"))
         XCTAssertEqual(statusStore.savedCalls, [now])
         XCTAssertNil(viewModel.syncErrorBanner)
         XCTAssertFalse(viewModel.isRunningSyncNow)
@@ -90,7 +90,7 @@ final class SettingsViewModelTests: XCTestCase {
         await viewModel.runSyncNow()
 
         XCTAssertEqual(recorder.callCount, 1)
-        XCTAssertEqual(viewModel.syncStatusMessage, "Sync failed: The operation could not be completed. (SettingsViewModelTests.SyncNowActionRecorder.TestError error 0.)")
+        XCTAssertEqual(viewModel.syncStatusMessage, TJStrings.Settings.syncFailed("The operation could not be completed. (SettingsViewModelTests.SyncNowActionRecorder.TestError error 0.)"))
         XCTAssertEqual(viewModel.syncErrorBanner, ErrorPresentationMapper.banner(for: .databaseFailure))
         XCTAssertEqual(statusStore.savedCalls, [])
         XCTAssertFalse(viewModel.isRunningSyncNow)
@@ -106,7 +106,7 @@ final class SettingsViewModelTests: XCTestCase {
             dateString: { _ in "formatted-321" }
         )
 
-        XCTAssertEqual(viewModel.lastSuccessfulSyncDescription, "Last successful sync: formatted-321")
+        XCTAssertEqual(viewModel.lastSuccessfulSyncDescription, TJStrings.Settings.lastSuccessfulSync("formatted-321"))
     }
 }
 

@@ -1,4 +1,5 @@
 import XCTest
+@testable import TravelJournalCore
 @testable import TravelJournalData
 @testable import TravelJournalDomain
 @testable import TravelJournalUI
@@ -25,10 +26,10 @@ final class TripsListViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.rows.count, 2)
         XCTAssertEqual(viewModel.rows[0].title, "Japan 2025")
-        XCTAssertEqual(viewModel.rows[0].visitCountText, "2 visits")
+        XCTAssertEqual(viewModel.rows[0].visitCountText, TJStrings.Trips.visitCount(2))
         XCTAssertEqual(viewModel.rows[1].title, "Lisbon Weekend")
-        XCTAssertEqual(viewModel.rows[1].visitCountText, "1 visit")
-        XCTAssertEqual(viewModel.rows[1].dateRangeText, "Dates TBD")
+        XCTAssertEqual(viewModel.rows[1].visitCountText, TJStrings.Trips.visitCount(1))
+        XCTAssertEqual(viewModel.rows[1].dateRangeText, TJStrings.Trips.datesTBD)
         XCTAssertNil(viewModel.errorBanner)
     }
 

@@ -29,7 +29,7 @@ public struct TripsListView: View {
         .accessibilityIdentifier(TJAccessibility.Identifier.tripsList)
         .accessibilityLabel(TJAccessibility.Label.tripsList)
         .listStyle(.insetGrouped)
-        .navigationTitle("Trips")
+        .navigationTitle(TJStrings.Trips.title)
         .task {
             viewModel.loadTrips()
         }

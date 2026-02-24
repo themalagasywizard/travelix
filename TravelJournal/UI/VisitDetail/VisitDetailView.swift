@@ -42,8 +42,8 @@ public struct VisitDetailView: View {
     }
 
     private var summarySection: some View {
-        sectionCard(title: "Summary") {
-            Text(viewModel.summary ?? "No summary yet")
+        sectionCard(title: TJStrings.VisitDetail.summary) {
+            Text(viewModel.summary ?? TJStrings.VisitDetail.noSummaryYet)
                 .font(.body)
                 .foregroundStyle(.white.opacity(0.92))
         }
@@ -66,8 +66,8 @@ public struct VisitDetailView: View {
     }
 
     private var notesSection: some View {
-        sectionCard(title: "Notes") {
-            Text(viewModel.notes ?? "No notes yet")
+        sectionCard(title: TJStrings.VisitDetail.notes) {
+            Text(viewModel.notes ?? TJStrings.VisitDetail.noNotesYet)
                 .font(.body)
                 .foregroundStyle(.white.opacity(0.9))
         }
@@ -76,10 +76,10 @@ public struct VisitDetailView: View {
     }
 
     private var spotsSection: some View {
-        sectionCard(title: "Spots") {
+        sectionCard(title: TJStrings.VisitDetail.spots) {
             VStack(alignment: .leading, spacing: 10) {
                 if viewModel.spots.isEmpty {
-                    Text("No spots added")
+                    Text(TJStrings.VisitDetail.noSpotsAdded)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 } else {
@@ -109,7 +109,7 @@ public struct VisitDetailView: View {
                 }
 
                 if viewModel.canManageSpots {
-                    Button("Manage Spots") {
+                    Button(TJStrings.VisitDetail.manageSpots) {
                         viewModel.presentSpotsEditor()
                     }
                     .buttonStyle(.borderedProminent)
@@ -122,10 +122,10 @@ public struct VisitDetailView: View {
     }
 
     private var recommendationsSection: some View {
-        sectionCard(title: "Recommendations") {
+        sectionCard(title: TJStrings.VisitDetail.recommendations) {
             VStack(alignment: .leading, spacing: 6) {
                 if viewModel.recommendations.isEmpty {
-                    Text("No recommendations yet")
+                    Text(TJStrings.VisitDetail.noRecommendationsYet)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 } else {

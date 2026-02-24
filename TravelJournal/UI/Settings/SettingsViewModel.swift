@@ -34,7 +34,7 @@ public final class SettingsViewModel: ObservableObject {
         self.isSyncEnabled = syncFeatureFlags.isSyncEnabled
 
         if let lastSuccessful = syncRunStatusStore?.lastSuccessfulSyncAt() {
-            lastSuccessfulSyncDescription = "Last successful sync: \(dateString(lastSuccessful))"
+            lastSuccessfulSyncDescription = TJStrings.Settings.lastSuccessfulSync(dateString(lastSuccessful))
         }
     }
 
@@ -47,9 +47,9 @@ public final class SettingsViewModel: ObservableObject {
     public func runSyncNow() async {
         guard let runSyncNowAction else { return }
         guard isSyncEnabled else {
-            syncStatusMessage = "Enable iCloud Sync to run a sync now"
+            syncStatusMessage = TJStrings.Settings.enableSyncToRunNow
             syncErrorBanner = ErrorPresentationMapper.banner(
-                for: .invalidInput(message: "Enable iCloud Sync to run a sync now")
+                for: .invalidInput(message: TJStrings.Settings.enableSyncToRunNow)
             )
             return
         }
@@ -59,12 +59,12 @@ public final class SettingsViewModel: ObservableObject {
 
         do {
             syncErrorBanner = nil
-            syncStatusMessage = try await runSyncNowAction() ?? "Sync finished"
+            syncStatusMessage = try await runSyncNowAction() ?? TJStrings.Settings.syncFinished
             let timestamp = now()
             syncRunStatusStore?.saveLastSuccessfulSync(at: timestamp)
-            lastSuccessfulSyncDescription = "Last successful sync: \(dateString(timestamp))"
+            lastSuccessfulSyncDescription = TJStrings.Settings.lastSuccessfulSync(dateString(timestamp))
         } catch {
-            syncStatusMessage = "Sync failed: \(error.localizedDescription)"
+            syncStatusMessage = TJStrings.Settings.syncFailed(error.localizedDescription)
             syncErrorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
         }
     }

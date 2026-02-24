@@ -39,7 +39,7 @@ public final class TripsListViewModel: ObservableObject {
                     id: trip.id,
                     title: trip.name,
                     dateRangeText: Self.dateRangeText(startDate: trip.startDate, endDate: trip.endDate),
-                    visitCountText: "\(visitCount) visit\(visitCount == 1 ? "" : "s")"
+                    visitCountText: TJStrings.Trips.visitCount(visitCount)
                 )
             }
             errorBanner = nil
@@ -58,7 +58,7 @@ public final class TripsListViewModel: ObservableObject {
         case let (nil, end?):
             return singleDateFormatter.string(from: end)
         case (nil, nil):
-            return "Dates TBD"
+            return TJStrings.Trips.datesTBD
         }
     }
 
