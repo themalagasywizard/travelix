@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 11:29 Europe/Paris
+Last updated: 2026-02-24 11:39 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -48,7 +48,7 @@ Last updated: 2026-02-24 11:29 Europe/Paris
 - [~] Accessibility pass (added centralized accessibility tokens in `TJAccessibility` and applied identifiers/labels to key Home and Visit Detail UI elements: search field, filter chips, selected-place badge, and visit detail sections/header; added `AccessibilityTokensTests` for token stability and label semantics; VoiceOver/dynamic-type runtime validation still pending on Xcode runner)
 
 ## Phase 8 — Hardening
-- [~] Error handling (added `TJAppError` + `ErrorPresentationMapper` to produce user-facing non-crashing banner models for database/media/input/unknown failures; wired `VisitSpotsEditorViewModel` failure paths to emit mapped `errorBanner` values alongside error text, then extended the same banner mapping to `AddVisitFlowViewModel` and `EditVisitViewModel` date/input/persistence states with additional tests; broader runtime banner presentation across all UI flows still pending on Xcode runner)
+- [~] Error handling (added `TJAppError` + `ErrorPresentationMapper` to produce user-facing non-crashing banner models for database/media/input/unknown failures; wired `VisitSpotsEditorViewModel` failure paths to emit mapped `errorBanner` values alongside error text, then extended the same banner mapping to `AddVisitFlowViewModel`, `EditVisitViewModel`, and now `HomeViewModel` repository-hydration failures (with dismissible Home banner UI + new tests); broader runtime banner presentation/validation across all UI flows still pending on Xcode runner)
 - [~] Migrations + version bump (added `v2_add_visits_mood` migration in `DatabaseManager.makeMigrator()` introducing a dummy `visits.mood` column with default `""`; expanded `MigrationsTests` to assert latest schema column presence and to simulate v1→v2 upgrade path via migration table priming; Swift test execution still blocked in this environment)
 - [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; added `DatabasePerformanceBenchmarkTests` for non-negative timing assertions and operation identity; Instruments traces for cold start + globe interaction still pending on macOS/Xcode)
 

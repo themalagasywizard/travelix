@@ -186,6 +186,55 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(row?.spots.first?.name, "Sushi Dai")
         XCTAssertEqual(row?.spots.first?.ratingText, "5/5")
         XCTAssertEqual(row?.recommendations, ["Book TeamLab early", "Try omakase in Ginza"])
+        XCTAssertNil(viewModel.errorBanner)
+    }
+
+    func testSelectedPlaceStoryFailureSetsErrorBannerWhenRepositoryThrows() {
+        let placeID = UUID(uuidString: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")!
+        let viewModel = HomeViewModel(
+            pins: [GlobePin(id: "paris-pin", latitude: 48.8566, longitude: 2.3522)],
+            pinIDToPlaceID: ["paris-pin": placeID],
+            placeRepository: FailingPlaceRepository(),
+            visitRepository: StubVisitRepository(visitsByPlaceID: [:])
+        )
+
+        viewModel.handlePinSelected("paris-pin")
+
+        XCTAssertNil(viewModel.selectedPlaceStoryViewModel)
+        XCTAssertEqual(viewModel.errorBanner?.title, "Something went wrong")
+    }
+
+    func testHandlePinSelectedClearsExistingErrorBanner() {
+        let placeID = UUID(uuidString: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")!
+        let viewModel = HomeViewModel(
+            pins: [GlobePin(id: "pin", latitude: 0, longitude: 0)],
+            pinIDToPlaceID: ["pin": placeID],
+            placeRepository: FailingPlaceRepository(),
+            visitRepository: StubVisitRepository(visitsByPlaceID: [:])
+        )
+
+        viewModel.handlePinSelected("pin")
+        _ = viewModel.selectedPlaceStoryViewModel
+        XCTAssertNotNil(viewModel.errorBanner)
+
+        viewModel.handlePinSelected("pin")
+        XCTAssertNil(viewModel.errorBanner)
+    }
+}
+
+private struct FailingPlaceRepository: PlaceRepository {
+    struct FailingError: Error {}
+
+    func upsertPlace(_ place: Place) throws {
+        throw FailingError()
+    }
+
+    func fetchPlacesWithVisitCounts() throws -> [(place: Place, visitCount: Int)] {
+        throw FailingError()
+    }
+
+    func fetchPlace(id: UUID) throws -> Place? {
+        throw FailingError()
     }
 }
 

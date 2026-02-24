@@ -5,6 +5,7 @@ final class AccessibilityTokensTests: XCTestCase {
     func testAccessibilityIdentifiersAreStableAndNonEmpty() {
         XCTAssertFalse(TJAccessibility.Identifier.homeSearchField.isEmpty)
         XCTAssertTrue(TJAccessibility.Identifier.homeFilterChipPrefix.hasPrefix("home.filter.chip"))
+        XCTAssertFalse(TJAccessibility.Identifier.homeErrorBanner.isEmpty)
         XCTAssertFalse(TJAccessibility.Identifier.visitSummarySection.isEmpty)
         XCTAssertFalse(TJAccessibility.Identifier.visitRecommendationsSection.isEmpty)
     }

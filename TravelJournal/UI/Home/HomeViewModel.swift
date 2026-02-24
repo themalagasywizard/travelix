@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import TravelJournalCore
 import TravelJournalData
 import TravelJournalDomain
 
@@ -25,6 +26,7 @@ public final class HomeViewModel: ObservableObject {
     @Published public private(set) var selectedTripID: String?
     @Published public private(set) var selectedYear: Int?
     @Published public private(set) var visiblePins: [GlobePin]
+    @Published public private(set) var errorBanner: ErrorBannerModel?
 
     private let placeIDsByTagID: [String: Set<String>]
     private let placeIDsByTripID: [String: Set<String>]
@@ -71,10 +73,16 @@ public final class HomeViewModel: ObservableObject {
 
     public func handlePinSelected(_ placeID: String) {
         selectedPlaceID = placeID
+        errorBanner = nil
     }
 
     public func clearSelectedPlace() {
         selectedPlaceID = nil
+        errorBanner = nil
+    }
+
+    public func clearErrorBanner() {
+        errorBanner = nil
     }
 
     public func selectTag(_ tagID: String?) {
@@ -141,8 +149,21 @@ public final class HomeViewModel: ObservableObject {
     public var selectedPlaceStoryViewModel: PlaceStoryViewModel? {
         guard let selectedPlaceID else { return nil }
 
-        if let model = repositoryBackedPlaceStory(for: selectedPlaceID) {
+        if let model = try? repositoryBackedPlaceStory(for: selectedPlaceID) {
+            errorBanner = nil
             return model
+        } else if let model = fallbackPlaceStory(for: selectedPlaceID) {
+            errorBanner = nil
+            return model
+        } else {
+            errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
+            return nil
+        }
+    }
+
+    private func fallbackPlaceStory(for selectedPlaceID: String) -> PlaceStoryViewModel? {
+        guard pinIDToPlaceID[selectedPlaceID] == nil || placeRepository == nil || visitRepository == nil else {
+            return nil
         }
 
         return PlaceStoryViewModel(
@@ -159,20 +180,22 @@ public final class HomeViewModel: ObservableObject {
         )
     }
 
-    private func repositoryBackedPlaceStory(for pinID: String) -> PlaceStoryViewModel? {
+    private func repositoryBackedPlaceStory(for pinID: String) throws -> PlaceStoryViewModel {
         guard
             let placeRepository,
             let visitRepository,
-            let placeID = pinIDToPlaceID[pinID],
-            let place = try? placeRepository.fetchPlace(id: placeID),
-            let place
+            let placeID = pinIDToPlaceID[pinID]
         else {
-            return nil
+            throw TJAppError.invalidInput(message: "Missing place mapping for selected pin.")
         }
 
-        let visits = (try? visitRepository.fetchVisits(forPlace: place.id)) ?? []
-        let rows = visits.map { visit in
-            let spots = ((try? spotRepository?.fetchSpots(forVisit: visit.id)) ?? [])
+        guard let place = try placeRepository.fetchPlace(id: placeID) else {
+            throw TJAppError.invalidInput(message: "Selected place no longer exists.")
+        }
+
+        let visits = try visitRepository.fetchVisits(forPlace: place.id)
+        let rows = try visits.map { visit in
+            let spots = try (spotRepository?.fetchSpots(forVisit: visit.id) ?? [])
                 .map { spot in
                     VisitSpotRow(
                         id: spot.id.uuidString.lowercased(),
@@ -182,7 +205,7 @@ public final class HomeViewModel: ObservableObject {
                         note: spot.note
                     )
                 }
-            let photoCount = (try? mediaRepository?.fetchMedia(forVisit: visit.id).count) ?? 0
+            let photoCount = try mediaRepository?.fetchMedia(forVisit: visit.id).count ?? 0
             return PlaceStoryVisitRow(
                 id: visit.id.uuidString.lowercased(),
                 title: visit.summary?.isEmpty == false ? (visit.summary ?? "") : "Visit",

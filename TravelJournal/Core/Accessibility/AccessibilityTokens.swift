@@ -5,6 +5,7 @@ public enum TJAccessibility {
         public static let homeSearchField = "home.search.field"
         public static let homeFilterChipPrefix = "home.filter.chip."
         public static let homeSelectedPlaceBadge = "home.selected.place.badge"
+        public static let homeErrorBanner = "home.error.banner"
 
         public static let visitHeader = "visit.header"
         public static let visitSummarySection = "visit.summary.section"

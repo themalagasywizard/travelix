@@ -32,6 +32,30 @@ public struct HomeView: View {
                         .accessibilityIdentifier(TJAccessibility.Identifier.homeSelectedPlaceBadge)
                         .accessibilityLabel(TJAccessibility.Label.selectedPlace(selectedPlaceID))
                 }
+
+                if let banner = viewModel.errorBanner {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(banner.title)
+                                .font(.caption.weight(.semibold))
+                            Text(banner.message)
+                                .font(.caption2)
+                        }
+
+                        Spacer(minLength: 0)
+
+                        Button("Dismiss") {
+                            viewModel.clearErrorBanner()
+                        }
+                        .font(.caption.weight(.semibold))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+                    .background(Color.red.opacity(0.75))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .accessibilityIdentifier(TJAccessibility.Identifier.homeErrorBanner)
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 14)
