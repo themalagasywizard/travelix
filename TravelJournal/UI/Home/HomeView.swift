@@ -121,7 +121,8 @@ public struct HomeView: View {
                 .buttonStyle(.plain)
                 .padding(.leading, 16)
                 .padding(.bottom, 8)
-                .accessibilityLabel("Settings")
+                .accessibilityIdentifier(TJAccessibility.Identifier.homeSettingsButton)
+                .accessibilityLabel(TJAccessibility.Label.homeSettingsButton)
 
                 Button {
                     do {
@@ -140,7 +141,8 @@ public struct HomeView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.bottom, 8)
-                .accessibilityLabel("Trips")
+                .accessibilityIdentifier(TJAccessibility.Identifier.homeTripsButton)
+                .accessibilityLabel(TJAccessibility.Label.homeTripsButton)
 
                 Spacer()
 
@@ -158,7 +160,8 @@ public struct HomeView: View {
                 .buttonStyle(.plain)
                 .padding(.trailing, 16)
                 .padding(.bottom, 8)
-                .accessibilityLabel("Add visit")
+                .accessibilityIdentifier(TJAccessibility.Identifier.homeAddVisitButton)
+                .accessibilityLabel(TJAccessibility.Label.homeAddVisitButton)
             }
         }
     }
@@ -225,6 +228,8 @@ public struct HomeView: View {
                     .padding(.vertical, 10)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier(TJAccessibility.Identifier.homeSearchResultRowPrefix + result.id)
+                .accessibilityLabel(result.subtitle.map { "\(result.title), \($0)" } ?? result.title)
 
                 if result.id != viewModel.searchResults.last?.id {
                     Divider()

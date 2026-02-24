@@ -9,6 +9,10 @@ public enum TJAccessibility {
         public static let homePinsListButton = "home.pins.list.button"
         public static let homePinsList = "home.pins.list"
         public static let homePinsListRowPrefix = "home.pins.list.row."
+        public static let homeSettingsButton = "home.settings.button"
+        public static let homeTripsButton = "home.trips.button"
+        public static let homeAddVisitButton = "home.add.visit.button"
+        public static let homeSearchResultRowPrefix = "home.search.result.row."
 
         public static let visitHeader = "visit.header"
         public static let visitSummarySection = "visit.summary.section"
@@ -22,6 +26,9 @@ public enum TJAccessibility {
         public static let homeSearchField = "Search places, trips, spots, or tags"
         public static let homeGlobe = "Travel globe with visited place pins"
         public static let homePinsListButton = "Open list of visible pins"
+        public static let homeSettingsButton = "Open settings"
+        public static let homeTripsButton = "Open trips list"
+        public static let homeAddVisitButton = "Add a new visit"
 
         public static func pinListRow(_ placeID: String) -> String {
             "Select place \(placeID)"
