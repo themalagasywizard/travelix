@@ -26,6 +26,9 @@ public final class VisitDetailViewModel: ObservableObject {
     @Published public private(set) var photoCount: Int
     @Published public private(set) var spots: [VisitSpotRow]
     @Published public private(set) var recommendations: [String]
+    @Published public var isSpotsEditorPresented = false
+
+    public let spotsEditorViewModel: VisitSpotsEditorViewModel?
 
     public init(
         title: String,
@@ -34,7 +37,8 @@ public final class VisitDetailViewModel: ObservableObject {
         notes: String?,
         photoCount: Int,
         spots: [VisitSpotRow],
-        recommendations: [String]
+        recommendations: [String],
+        spotsEditorViewModel: VisitSpotsEditorViewModel? = nil
     ) {
         self.title = title
         self.dateRangeText = dateRangeText
@@ -43,9 +47,25 @@ public final class VisitDetailViewModel: ObservableObject {
         self.photoCount = photoCount
         self.spots = spots
         self.recommendations = recommendations
+        self.spotsEditorViewModel = spotsEditorViewModel
     }
 
     public var photoSectionTitle: String {
         "Photos (\(photoCount))"
+    }
+
+    public var canManageSpots: Bool {
+        spotsEditorViewModel != nil
+    }
+
+    public func presentSpotsEditor() {
+        guard canManageSpots else { return }
+        spotsEditorViewModel?.loadSpots()
+        isSpotsEditorPresented = true
+    }
+
+    public func refreshSpotsFromEditor() {
+        guard let spotsEditorViewModel else { return }
+        spots = spotsEditorViewModel.spots
     }
 }

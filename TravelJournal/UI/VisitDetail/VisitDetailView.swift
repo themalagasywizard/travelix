@@ -21,6 +21,11 @@ public struct VisitDetailView: View {
             .padding(16)
         }
         .background(Color.black.ignoresSafeArea())
+        .sheet(isPresented: $viewModel.isSpotsEditorPresented, onDismiss: viewModel.refreshSpotsFromEditor) {
+            if let spotsEditorViewModel = viewModel.spotsEditorViewModel {
+                VisitSpotsEditorSheetView(viewModel: spotsEditorViewModel)
+            }
+        }
     }
 
     private var header: some View {
@@ -101,6 +106,14 @@ public struct VisitDetailView: View {
                             }
                         }
                     }
+                }
+
+                if viewModel.canManageSpots {
+                    Button("Manage Spots") {
+                        viewModel.presentSpotsEditor()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.white.opacity(0.2))
                 }
             }
         }
