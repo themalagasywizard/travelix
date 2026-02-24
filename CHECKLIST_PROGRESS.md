@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 04:00 Europe/Paris
+Last updated: 2026-02-24 04:12 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -30,9 +30,9 @@ Last updated: 2026-02-24 04:00 Europe/Paris
 - [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content and step-navigation tests; persistence + globe refresh wiring pending)
 - [~] Edit Visit (implemented `EditVisitView` + `EditVisitViewModel` edit form and date-range validation with tests; persistence/relaunch verification pending)
 - [~] Spots CRUD (implemented repository-backed `VisitSpotsEditorViewModel` add/update/delete/load operations and unit tests with in-memory repository; Visit Detail UI action wiring pending)
-- [ ] Tags
+- [~] Tags (implemented `GRDBTagRepository` create/assign/remove/fetch operations, place IDs by tag query for deterministic globe filtering, and tests in `TagRepositoryTests` + `HomeViewModelTests`; runtime verification on Xcode runner and local Swift test execution still pending)
 
 ## Notes / blockers
-- This environment cannot run Xcode simulator/device verification directly.
+- `Create Xcode project` remains open: this Linux environment cannot generate/validate an iOS Xcode project build/run lifecycle (simulator/device) directly.
 - Swift toolchain is unavailable in this environment (`swift: not found`), so unit tests could not be executed here.
 - We can continue autonomous code implementation and git pushes; runtime iOS verification must be done on a macOS/Xcode runner.

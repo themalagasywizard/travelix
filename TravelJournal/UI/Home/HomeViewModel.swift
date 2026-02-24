@@ -15,9 +15,18 @@ public final class HomeViewModel: ObservableObject {
     @Published public private(set) var selectedFilters: Set<FilterChip> = []
     @Published public private(set) var selectedPlaceID: String?
     @Published public private(set) var pins: [GlobePin]
+    @Published public private(set) var selectedTagID: String?
+    @Published public private(set) var visiblePins: [GlobePin]
 
-    public init(pins: [GlobePin] = HomeViewModel.defaultPins) {
+    private let placeIDsByTagID: [String: Set<String>]
+
+    public init(
+        pins: [GlobePin] = HomeViewModel.defaultPins,
+        placeIDsByTagID: [String: Set<String>] = [:]
+    ) {
         self.pins = pins
+        self.visiblePins = pins
+        self.placeIDsByTagID = placeIDsByTagID
     }
 
     public func toggleFilter(_ filter: FilterChip) {
@@ -34,6 +43,22 @@ public final class HomeViewModel: ObservableObject {
 
     public func clearSelectedPlace() {
         selectedPlaceID = nil
+    }
+
+    public func selectTag(_ tagID: String?) {
+        selectedTagID = tagID
+        applyFilters()
+    }
+
+    private func applyFilters() {
+        guard let selectedTagID,
+              let placeIDs = placeIDsByTagID[selectedTagID]
+        else {
+            visiblePins = pins
+            return
+        }
+
+        visiblePins = pins.filter { placeIDs.contains($0.id) }
     }
 
     public var selectedPlaceStoryViewModel: PlaceStoryViewModel? {

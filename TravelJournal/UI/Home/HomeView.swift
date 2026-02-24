@@ -10,7 +10,7 @@ public struct HomeView: View {
     public var body: some View {
         ZStack(alignment: .top) {
             GlobeSceneView(
-                configuration: .init(radius: 1.0, earthTextureName: nil, pins: viewModel.pins),
+                configuration: .init(radius: 1.0, earthTextureName: nil, pins: viewModel.visiblePins),
                 onPinSelected: viewModel.handlePinSelected
             )
             .ignoresSafeArea()

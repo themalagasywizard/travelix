@@ -29,4 +29,24 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedPlaceStoryViewModel?.placeName, "Paris")
         XCTAssertEqual(viewModel.selectedPlaceStoryViewModel?.visits.count, 1)
     }
+
+    func testSelectTagFiltersPinsDeterministically() {
+        let pins = [
+            GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522),
+            GlobePin(id: "tokyo", latitude: 35.6764, longitude: 139.65),
+            GlobePin(id: "lisbon", latitude: 38.7223, longitude: -9.1393)
+        ]
+        let viewModel = HomeViewModel(
+            pins: pins,
+            placeIDsByTagID: [
+                "food": ["tokyo", "lisbon"]
+            ]
+        )
+
+        viewModel.selectTag("food")
+        XCTAssertEqual(viewModel.visiblePins.map(\.id), ["tokyo", "lisbon"])
+
+        viewModel.selectTag(nil)
+        XCTAssertEqual(viewModel.visiblePins.map(\.id), ["paris", "tokyo", "lisbon"])
+    }
 }
