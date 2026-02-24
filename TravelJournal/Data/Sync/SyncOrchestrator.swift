@@ -50,7 +50,8 @@ public struct SyncOrchestrator: Sendable {
 
         let currentCursor = cursorStore.lastPulledAt()
         let pulled = try await cloudSyncEngine.pullChanges(since: currentCursor)
-        let applyableRecords = stripEchoedPushes(from: pulled.records, pendingPushRecords: pending.records)
+        let normalizedPulledRecords = normalizePulledRecordsByIdentity(pulled.records)
+        let applyableRecords = stripEchoedPushes(from: normalizedPulledRecords, pendingPushRecords: pending.records)
         if applyableRecords.isEmpty == false {
             try await localStore.applyPulledBatch(SyncBatch(records: applyableRecords))
         }
@@ -65,6 +66,42 @@ public struct SyncOrchestrator: Sendable {
             appliedCount: applyableRecords.count,
             updatedCursor: pulled.records.isEmpty ? currentCursor : (latestTimestamp(in: pulled.records) ?? currentCursor)
         )
+    }
+
+    private func normalizePulledRecordsByIdentity(
+        _ records: [SyncRecordEnvelope]
+    ) -> [SyncRecordEnvelope] {
+        guard records.count > 1 else {
+            return records
+        }
+
+        var latestByIdentity: [String: SyncRecordEnvelope] = [:]
+        latestByIdentity.reserveCapacity(records.count)
+
+        for record in records {
+            let identity = "\(record.kind.rawValue)::\(record.id.uuidString)"
+            if let existing = latestByIdentity[identity] {
+                let resolved = SyncConflictResolver.resolveLastWriteWins(
+                    local: SyncConflictValue(value: existing, updatedAt: existing.updatedAt),
+                    remote: SyncConflictValue(value: record, updatedAt: record.updatedAt)
+                )
+                latestByIdentity[identity] = resolved.value
+            } else {
+                latestByIdentity[identity] = record
+            }
+        }
+
+        return latestByIdentity.values.sorted { lhs, rhs in
+            if lhs.updatedAt != rhs.updatedAt {
+                return lhs.updatedAt < rhs.updatedAt
+            }
+
+            if lhs.kind != rhs.kind {
+                return lhs.kind.rawValue < rhs.kind.rawValue
+            }
+
+            return lhs.id.uuidString < rhs.id.uuidString
+        }
     }
 
     private func stripEchoedPushes(

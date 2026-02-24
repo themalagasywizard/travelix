@@ -167,6 +167,63 @@ final class SyncOrchestratorTests: XCTestCase {
         XCTAssertEqual(report.appliedCount, 1)
         XCTAssertEqual(cursor.lastPulledAt(), timestamp)
     }
+
+    func testRunOnceNormalizesPulledDuplicatesByIdentityKeepingLatestTimestamp() async throws {
+        let sharedID = UUID()
+        let older = SyncRecordEnvelope(
+            kind: .visit,
+            id: sharedID,
+            updatedAt: Date(timeIntervalSince1970: 100),
+            payload: Data("older".utf8)
+        )
+        let newer = SyncRecordEnvelope(
+            kind: .visit,
+            id: sharedID,
+            updatedAt: Date(timeIntervalSince1970: 150),
+            payload: Data("newer".utf8)
+        )
+
+        let pulled = SyncBatch(records: [older, newer])
+        let cloud = CloudSyncEngineSpy(pullResult: pulled)
+        let local = LocalSyncStoreSpy(pending: .empty)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: nil)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        let report = try await orchestrator.runOnce()
+
+        XCTAssertEqual(local.appliedPulledBatches, [SyncBatch(records: [newer])])
+        XCTAssertEqual(report.pulledCount, 2)
+        XCTAssertEqual(report.appliedCount, 1)
+        XCTAssertEqual(cursor.lastPulledAt(), Date(timeIntervalSince1970: 150))
+    }
+
+    func testRunOnceNormalizesPulledDuplicatesOnTimestampTieByKeepingLaterRecord() async throws {
+        let sharedID = UUID()
+        let timestamp = Date(timeIntervalSince1970: 220)
+        let first = SyncRecordEnvelope(
+            kind: .trip,
+            id: sharedID,
+            updatedAt: timestamp,
+            payload: Data("first".utf8)
+        )
+        let second = SyncRecordEnvelope(
+            kind: .trip,
+            id: sharedID,
+            updatedAt: timestamp,
+            payload: Data("second".utf8)
+        )
+
+        let pulled = SyncBatch(records: [first, second])
+        let cloud = CloudSyncEngineSpy(pullResult: pulled)
+        let local = LocalSyncStoreSpy(pending: .empty)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: nil)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        _ = try await orchestrator.runOnce()
+
+        XCTAssertEqual(local.appliedPulledBatches, [SyncBatch(records: [second])])
+        XCTAssertEqual(cursor.lastPulledAt(), timestamp)
+    }
 }
 
 private final class CloudSyncEngineSpy: CloudSyncEngine, @unchecked Sendable {
