@@ -5,15 +5,15 @@ final class ErrorPresentationTests: XCTestCase {
     func testDatabaseFailureMapsToRetryBanner() {
         let banner = ErrorPresentationMapper.banner(for: .databaseFailure)
 
-        XCTAssertEqual(banner.title, "Something went wrong")
-        XCTAssertEqual(banner.message, "We couldn’t save your data. Please try again.")
-        XCTAssertEqual(banner.actionTitle, "Retry")
+        XCTAssertEqual(banner.title, TJStrings.ErrorPresentation.databaseTitle)
+        XCTAssertEqual(banner.message, TJStrings.ErrorPresentation.databaseMessage)
+        XCTAssertEqual(banner.actionTitle, TJStrings.ErrorPresentation.databaseAction)
     }
 
     func testInvalidInputKeepsProvidedMessage() {
         let banner = ErrorPresentationMapper.banner(for: .invalidInput(message: "End date must be after start date"))
 
-        XCTAssertEqual(banner.title, "Check your input")
+        XCTAssertEqual(banner.title, TJStrings.ErrorPresentation.invalidInputTitle)
         XCTAssertEqual(banner.message, "End date must be after start date")
         XCTAssertNil(banner.actionTitle)
     }
@@ -21,7 +21,7 @@ final class ErrorPresentationTests: XCTestCase {
     func testUnknownMapsToSafeFallbackBanner() {
         let banner = ErrorPresentationMapper.banner(for: .unknown)
 
-        XCTAssertEqual(banner.title, "Unexpected error")
-        XCTAssertEqual(banner.actionTitle, "Dismiss")
+        XCTAssertEqual(banner.title, TJStrings.ErrorPresentation.unknownTitle)
+        XCTAssertEqual(banner.actionTitle, TJStrings.ErrorPresentation.unknownAction)
     }
 }

@@ -24,27 +24,27 @@ public enum ErrorPresentationMapper {
         switch error {
         case .databaseFailure:
             return ErrorBannerModel(
-                title: "Something went wrong",
-                message: "We couldn’t save your data. Please try again.",
-                actionTitle: "Retry"
+                title: TJStrings.ErrorPresentation.databaseTitle,
+                message: TJStrings.ErrorPresentation.databaseMessage,
+                actionTitle: TJStrings.ErrorPresentation.databaseAction
             )
         case .mediaImportFailed:
             return ErrorBannerModel(
-                title: "Import failed",
-                message: "We couldn’t import one or more photos.",
-                actionTitle: "Try Again"
+                title: TJStrings.ErrorPresentation.mediaImportTitle,
+                message: TJStrings.ErrorPresentation.mediaImportMessage,
+                actionTitle: TJStrings.ErrorPresentation.mediaImportAction
             )
         case .invalidInput(let message):
             return ErrorBannerModel(
-                title: "Check your input",
+                title: TJStrings.ErrorPresentation.invalidInputTitle,
                 message: message,
                 actionTitle: nil
             )
         case .unknown:
             return ErrorBannerModel(
-                title: "Unexpected error",
-                message: "Please try again in a moment.",
-                actionTitle: "Dismiss"
+                title: TJStrings.ErrorPresentation.unknownTitle,
+                message: TJStrings.ErrorPresentation.unknownMessage,
+                actionTitle: TJStrings.ErrorPresentation.unknownAction
             )
         }
     }

@@ -515,7 +515,7 @@ final class HomeViewModelTests: XCTestCase {
         let viewModel = HomeViewModel(visitRepository: StubVisitRepository(visitsByPlaceID: [:]))
 
         XCTAssertThrowsError(try viewModel.makeTripsListViewModel()) { error in
-            XCTAssertEqual(error as? TJAppError, .invalidInput(message: "Trips are unavailable until repositories are connected."))
+            XCTAssertEqual(error as? TJAppError, .invalidInput(message: TJStrings.Home.tripsUnavailableMessage))
         }
     }
 
@@ -525,7 +525,7 @@ final class HomeViewModelTests: XCTestCase {
         viewModel.handleTripsUnavailable()
 
         XCTAssertEqual(viewModel.errorBanner?.title, "Check your input")
-        XCTAssertEqual(viewModel.errorBanner?.message, "Trips are unavailable until repositories are connected.")
+        XCTAssertEqual(viewModel.errorBanner?.message, TJStrings.Home.tripsUnavailableMessage)
     }
 
     func testMakeAddVisitFlowViewModelForwardsMediaRepositoryForSaveFlow() {

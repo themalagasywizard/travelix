@@ -10,6 +10,11 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertFalse(TJStrings.Home.tripFilter.isEmpty)
         XCTAssertFalse(TJStrings.Home.tagFilter.isEmpty)
         XCTAssertFalse(TJStrings.Home.unknownCountry.isEmpty)
+        XCTAssertFalse(TJStrings.Home.defaultSpotCategory.isEmpty)
+        XCTAssertFalse(TJStrings.Home.visitTitle.isEmpty)
+        XCTAssertFalse(TJStrings.Home.fallbackRecentVisitTitle.isEmpty)
+        XCTAssertFalse(TJStrings.Home.fallbackPlaceStorySummary.isEmpty)
+        XCTAssertFalse(TJStrings.Home.tripsUnavailableMessage.isEmpty)
     }
 
     func testAddVisitStepCounterFormatsExpectedShape() {
@@ -83,6 +88,19 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertEqual(TJStrings.DeveloperTools.failedToLoadDemoData("x"), "Failed to load demo data: x")
         XCTAssertEqual(TJStrings.DeveloperTools.failedToClearThumbnailCache("x"), "Failed to clear thumbnail cache: x")
         XCTAssertEqual(TJStrings.DeveloperTools.thumbnailCacheSummary(files: 2, bytesText: "2 KB"), "Thumbnail cache: 2 files (2 KB)")
+    }
+
+    func testErrorPresentationTokensAreStable() {
+        XCTAssertEqual(TJStrings.ErrorPresentation.databaseTitle, "Something went wrong")
+        XCTAssertEqual(TJStrings.ErrorPresentation.databaseMessage, "We couldn’t save your data. Please try again.")
+        XCTAssertEqual(TJStrings.ErrorPresentation.databaseAction, "Retry")
+        XCTAssertEqual(TJStrings.ErrorPresentation.mediaImportTitle, "Import failed")
+        XCTAssertEqual(TJStrings.ErrorPresentation.mediaImportMessage, "We couldn’t import one or more photos.")
+        XCTAssertEqual(TJStrings.ErrorPresentation.mediaImportAction, "Try Again")
+        XCTAssertEqual(TJStrings.ErrorPresentation.invalidInputTitle, "Check your input")
+        XCTAssertEqual(TJStrings.ErrorPresentation.unknownTitle, "Unexpected error")
+        XCTAssertEqual(TJStrings.ErrorPresentation.unknownMessage, "Please try again in a moment.")
+        XCTAssertEqual(TJStrings.ErrorPresentation.unknownAction, "Dismiss")
     }
 
     func testGlobeFallbackTokenIsStable() {

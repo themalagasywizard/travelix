@@ -15,6 +15,13 @@ public enum TJStrings {
         public static let tripFilter = "Trip"
         public static let tagFilter = "Tag"
         public static let unknownCountry = "Unknown Country"
+        public static let defaultSpotCategory = "Spot"
+        public static let visitTitle = "Visit"
+        public static let fallbackRecentVisitTitle = "Recent Visit"
+        public static let fallbackPlaceStorySummary = "Seeded summary placeholder until repository wiring is connected."
+        public static let tripsUnavailableMessage = "Trips are unavailable until repositories are connected."
+        public static let missingPlaceMappingError = "Missing place mapping for selected pin."
+        public static let selectedPlaceMissingError = "Selected place no longer exists."
 
         public static func yearFilterTitle(_ value: Int) -> String {
             "\(yearFilter): \(value)"
@@ -186,6 +193,19 @@ public enum TJStrings {
         public static func photosSectionTitle(_ count: Int) -> String {
             "Photos (\(count))"
         }
+    }
+
+    public enum ErrorPresentation {
+        public static let databaseTitle = "Something went wrong"
+        public static let databaseMessage = "We couldn’t save your data. Please try again."
+        public static let databaseAction = "Retry"
+        public static let mediaImportTitle = "Import failed"
+        public static let mediaImportMessage = "We couldn’t import one or more photos."
+        public static let mediaImportAction = "Try Again"
+        public static let invalidInputTitle = "Check your input"
+        public static let unknownTitle = "Unexpected error"
+        public static let unknownMessage = "Please try again in a moment."
+        public static let unknownAction = "Dismiss"
     }
 
     public enum Globe {

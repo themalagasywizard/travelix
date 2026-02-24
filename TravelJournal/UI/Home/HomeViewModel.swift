@@ -187,7 +187,7 @@ public final class HomeViewModel: ObservableObject {
                     VisitSpotRow(
                         id: spot.id.uuidString.lowercased(),
                         name: spot.name,
-                        category: spot.category ?? "Spot",
+                        category: spot.category ?? TJStrings.Home.defaultSpotCategory,
                         ratingText: Self.ratingText(for: spot.rating),
                         note: spot.note
                     )
@@ -220,7 +220,7 @@ public final class HomeViewModel: ObservableObject {
     }
 
     public func handleTripsUnavailable() {
-        errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: "Trips are unavailable until repositories are connected."))
+        errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: TJStrings.Home.tripsUnavailableMessage))
     }
 
     public func makeAddVisitFlowViewModel(now: @escaping () -> Date = Date.init) -> AddVisitFlowViewModel {
@@ -234,7 +234,7 @@ public final class HomeViewModel: ObservableObject {
 
     public func makeTripsListViewModel() throws -> TripsListViewModel {
         guard let tripRepository, let visitRepository else {
-            throw TJAppError.invalidInput(message: "Trips are unavailable until repositories are connected.")
+            throw TJAppError.invalidInput(message: TJStrings.Home.tripsUnavailableMessage)
         }
 
         return TripsListViewModel(tripRepository: tripRepository, visitRepository: visitRepository)
@@ -423,9 +423,9 @@ public final class HomeViewModel: ObservableObject {
             visits: [
                 .init(
                     id: "sample-\(selectedPlaceID)",
-                    title: "Recent Visit",
-                    dateRangeText: "Dates TBD",
-                    summary: "Seeded summary placeholder until repository wiring is connected."
+                    title: TJStrings.Home.fallbackRecentVisitTitle,
+                    dateRangeText: TJStrings.Trips.datesTBD,
+                    summary: TJStrings.Home.fallbackPlaceStorySummary
                 )
             ]
         )
@@ -437,11 +437,11 @@ public final class HomeViewModel: ObservableObject {
             let visitRepository,
             let placeID = pinIDToPlaceID[pinID]
         else {
-            throw TJAppError.invalidInput(message: "Missing place mapping for selected pin.")
+            throw TJAppError.invalidInput(message: TJStrings.Home.missingPlaceMappingError)
         }
 
         guard let place = try placeRepository.fetchPlace(id: placeID) else {
-            throw TJAppError.invalidInput(message: "Selected place no longer exists.")
+            throw TJAppError.invalidInput(message: TJStrings.Home.selectedPlaceMissingError)
         }
 
         let visits = try visitRepository.fetchVisits(forPlace: place.id)
@@ -451,7 +451,7 @@ public final class HomeViewModel: ObservableObject {
                     VisitSpotRow(
                         id: spot.id.uuidString.lowercased(),
                         name: spot.name,
-                        category: spot.category ?? "Spot",
+                        category: spot.category ?? TJStrings.Home.defaultSpotCategory,
                         ratingText: Self.ratingText(for: spot.rating),
                         note: spot.note
                     )
@@ -459,7 +459,7 @@ public final class HomeViewModel: ObservableObject {
             let photoCount = try mediaRepository?.fetchMedia(forVisit: visit.id).count ?? 0
             return PlaceStoryVisitRow(
                 id: visit.id.uuidString.lowercased(),
-                title: visit.summary?.isEmpty == false ? (visit.summary ?? "") : "Visit",
+                title: visit.summary?.isEmpty == false ? (visit.summary ?? "") : TJStrings.Home.visitTitle,
                 dateRangeText: Self.dateRangeFormatter.string(from: visit.startDate, to: visit.endDate),
                 summary: visit.summary,
                 notes: visit.notes,
