@@ -160,6 +160,50 @@ public final class HomeViewModel: ObservableObject {
         return pendingVisitDeepLinkID
     }
 
+    public func consumePendingVisitDeepLinkDetailViewModel() -> VisitDetailViewModel? {
+        guard let rawID = consumePendingVisitDeepLinkID(),
+              let visitID = UUID(uuidString: rawID),
+              let visitRepository,
+              let placeRepository
+        else {
+            return nil
+        }
+
+        do {
+            guard let visit = try visitRepository.fetchVisit(id: visitID),
+                  let place = try placeRepository.fetchPlace(id: visit.placeID)
+            else {
+                return nil
+            }
+
+            let spots = try (spotRepository?.fetchSpots(forVisit: visit.id) ?? [])
+                .map { spot in
+                    VisitSpotRow(
+                        id: spot.id.uuidString.lowercased(),
+                        name: spot.name,
+                        category: spot.category ?? "Spot",
+                        ratingText: Self.ratingText(for: spot.rating),
+                        note: spot.note
+                    )
+                }
+            let photoCount = try mediaRepository?.fetchMedia(forVisit: visit.id).count ?? 0
+
+            return VisitDetailViewModel(
+                title: visit.summary?.isEmpty == false ? (visit.summary ?? "") : place.name,
+                dateRangeText: Self.dateRangeFormatter.string(from: visit.startDate, to: visit.endDate),
+                summary: visit.summary,
+                notes: visit.notes,
+                photoCount: photoCount,
+                spots: spots,
+                recommendations: Self.recommendations(from: visit.notes),
+                spotsEditorViewModel: spotRepository.map { VisitSpotsEditorViewModel(visitID: visit.id, spotRepository: $0) }
+            )
+        } catch {
+            errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
+            return nil
+        }
+    }
+
     public func clearSelectedPlace() {
         selectedPlaceID = nil
         errorBanner = nil

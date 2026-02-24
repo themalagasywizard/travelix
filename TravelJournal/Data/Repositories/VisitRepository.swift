@@ -6,8 +6,13 @@ public protocol VisitRepository {
     func createVisit(_ visit: Visit) throws
     func updateVisit(_ visit: Visit) throws
     func deleteVisit(id: UUID) throws
+    func fetchVisit(id: UUID) throws -> Visit?
     func fetchVisits(forPlace placeID: UUID) throws -> [Visit]
     func fetchVisits(forTrip tripID: UUID) throws -> [Visit]
+}
+
+public extension VisitRepository {
+    func fetchVisit(id: UUID) throws -> Visit? { nil }
 }
 
 public final class GRDBVisitRepository: VisitRepository {
@@ -32,6 +37,12 @@ public final class GRDBVisitRepository: VisitRepository {
     public func deleteVisit(id: UUID) throws {
         try dbQueue.write { db in
             _ = try VisitRecord.deleteOne(db, key: id.uuidString.lowercased())
+        }
+    }
+
+    public func fetchVisit(id: UUID) throws -> Visit? {
+        try dbQueue.read { db in
+            try VisitRecord.fetchOne(db, key: id.uuidString.lowercased())?.toDomain()
         }
     }
 

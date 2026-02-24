@@ -10,6 +10,7 @@ public struct HomeView: View {
     @State private var isTripsPresented = false
     @State private var addVisitViewModel = AddVisitFlowViewModel()
     @State private var tripsListViewModel: TripsListViewModel?
+    @State private var deepLinkedVisitDetailViewModel: VisitDetailViewModel?
 
     public init(viewModel: @autoclosure @escaping () -> HomeViewModel = HomeViewModel()) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -104,6 +105,19 @@ public struct HomeView: View {
                 NavigationStack {
                     TripsListView(viewModel: tripsListViewModel)
                 }
+            }
+        }
+        .onOpenURL { url in
+            guard let deepLink = AppDeepLink(url: url) else { return }
+            viewModel.handleDeepLink(deepLink)
+            deepLinkedVisitDetailViewModel = viewModel.consumePendingVisitDeepLinkDetailViewModel()
+        }
+        .onChange(of: viewModel.pendingVisitDeepLinkID) { _, _ in
+            deepLinkedVisitDetailViewModel = viewModel.consumePendingVisitDeepLinkDetailViewModel()
+        }
+        .sheet(item: deepLinkedVisitDetailSheetItem) { item in
+            NavigationStack {
+                VisitDetailView(viewModel: item.viewModel)
             }
         }
         .safeAreaInset(edge: .bottom) {
@@ -264,6 +278,12 @@ public struct HomeView: View {
         return PlaceStorySheetItem(id: selectedID, viewModel: viewModel)
     }
 
+
+    private var deepLinkedVisitDetailSheetItem: VisitDetailSheetItem? {
+        guard let deepLinkedVisitDetailViewModel else { return nil }
+        return VisitDetailSheetItem(viewModel: deepLinkedVisitDetailViewModel)
+    }
+
     private var filtersRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -291,4 +311,10 @@ public struct HomeView: View {
 private struct PlaceStorySheetItem: Identifiable {
     let id: String
     let viewModel: PlaceStoryViewModel
+}
+
+
+private struct VisitDetailSheetItem: Identifiable {
+    let id = UUID()
+    let viewModel: VisitDetailViewModel
 }

@@ -448,6 +448,58 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertNil(viewModel.consumePendingVisitDeepLinkID())
     }
 
+    func testConsumePendingVisitDeepLinkDetailViewModelBuildsRepositoryBackedDetail() {
+        let placeID = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+        let visitID = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
+        let place = Place(
+            id: placeID,
+            name: "Kyoto",
+            country: "Japan",
+            latitude: 35.0116,
+            longitude: 135.7681,
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+            updatedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+        let visit = Visit(
+            id: visitID,
+            placeID: placeID,
+            tripID: nil,
+            startDate: Date(timeIntervalSince1970: 1_700_010_000),
+            endDate: Date(timeIntervalSince1970: 1_700_020_000),
+            summary: nil,
+            notes: "Try Nishiki Market",
+            createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+            updatedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+
+        let viewModel = HomeViewModel(
+            placeRepository: StubPlaceRepository(placeByID: [placeID: place]),
+            visitRepository: StubVisitRepository(visitsByPlaceID: [placeID: [visit]], visitsByID: [visitID: visit])
+        )
+
+        viewModel.handleDeepLink(.visit(id: visitID.uuidString))
+        let detail = viewModel.consumePendingVisitDeepLinkDetailViewModel()
+
+        XCTAssertEqual(detail?.title, "Kyoto")
+        XCTAssertEqual(detail?.summary, nil)
+        XCTAssertEqual(detail?.notes, "Try Nishiki Market")
+        XCTAssertNil(viewModel.consumePendingVisitDeepLinkDetailViewModel())
+    }
+
+    func testConsumePendingVisitDeepLinkDetailViewModelSetsBannerOnRepositoryFailure() {
+        let visitID = UUID(uuidString: "33333333-3333-3333-3333-333333333333")!
+        let viewModel = HomeViewModel(
+            placeRepository: FailingPlaceRepository(),
+            visitRepository: StubVisitRepository(visitsByPlaceID: [:], visitsByID: [visitID: Visit(id: visitID, placeID: UUID(), tripID: nil, startDate: Date(), endDate: Date(), summary: nil, notes: nil, createdAt: Date(), updatedAt: Date())])
+        )
+
+        viewModel.handleDeepLink(.visit(id: visitID.uuidString))
+        let detail = viewModel.consumePendingVisitDeepLinkDetailViewModel()
+
+        XCTAssertNil(detail)
+        XCTAssertEqual(viewModel.errorBanner?.title, "Something went wrong")
+    }
+
     func testMakeTripsListViewModelReturnsRepositoryBackedViewModelWhenDependenciesExist() throws {
         let viewModel = HomeViewModel(
             tripRepository: StubTripRepository(trips: []),
@@ -534,12 +586,22 @@ private struct StubPlaceRepository: PlaceRepository {
 
 private struct StubVisitRepository: VisitRepository {
     let visitsByPlaceID: [UUID: [Visit]]
+    let visitsByID: [UUID: Visit]
+
+    init(visitsByPlaceID: [UUID: [Visit]], visitsByID: [UUID: Visit] = [:]) {
+        self.visitsByPlaceID = visitsByPlaceID
+        self.visitsByID = visitsByID
+    }
 
     func createVisit(_ visit: Visit) throws {}
 
     func updateVisit(_ visit: Visit) throws {}
 
     func deleteVisit(id: UUID) throws {}
+
+    func fetchVisit(id: UUID) throws -> Visit? {
+        visitsByID[id]
+    }
 
     func fetchVisits(forPlace placeID: UUID) throws -> [Visit] {
         visitsByPlaceID[placeID] ?? []

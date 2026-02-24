@@ -68,6 +68,10 @@ final class RepositoryCRUDTests: XCTestCase {
         )
 
         try visitRepository.createVisit(visit)
+        let fetchedByID = try visitRepository.fetchVisit(id: visitID)
+        XCTAssertEqual(fetchedByID?.id, visitID)
+        XCTAssertEqual(fetchedByID?.summary, "Initial")
+
         var visits = try visitRepository.fetchVisits(forPlace: placeID)
         XCTAssertEqual(visits.count, 1)
         XCTAssertEqual(visits.first?.summary, "Initial")
