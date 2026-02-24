@@ -14,6 +14,13 @@ public enum TJAccessibility {
         public static let homeAddVisitButton = "home.add.visit.button"
         public static let homeSearchResultRowPrefix = "home.search.result.row."
 
+        public static let tripsList = "trips.list"
+        public static let tripsRowPrefix = "trips.row."
+        public static let tripsErrorBanner = "trips.error.banner"
+
+        public static let settingsSyncToggle = "settings.sync.toggle"
+        public static let settingsSyncDescription = "settings.sync.description"
+
         public static let visitHeader = "visit.header"
         public static let visitSummarySection = "visit.summary.section"
         public static let visitPhotosSection = "visit.photos.section"
@@ -29,6 +36,15 @@ public enum TJAccessibility {
         public static let homeSettingsButton = "Open settings"
         public static let homeTripsButton = "Open trips list"
         public static let homeAddVisitButton = "Add a new visit"
+
+        public static let tripsList = "Trips list"
+        public static func tripsRow(title: String, dateRange: String, visitCount: String) -> String {
+            "Trip \(title), \(dateRange), \(visitCount)"
+        }
+        public static let tripsErrorBanner = "Trips loading error"
+
+        public static let settingsSyncToggle = "Enable iCloud sync"
+        public static let settingsSyncDescription = "Sync feature description"
 
         public static func pinListRow(_ placeID: String) -> String {
             "Select place \(placeID)"

@@ -22,8 +22,12 @@ public struct TripsListView: View {
                         .foregroundStyle(.secondary)
                 }
                 .padding(.vertical, 4)
+                .accessibilityIdentifier(TJAccessibility.Identifier.tripsRowPrefix + row.id.uuidString.lowercased())
+                .accessibilityLabel(TJAccessibility.Label.tripsRow(title: row.title, dateRange: row.dateRangeText, visitCount: row.visitCountText))
             }
         }
+        .accessibilityIdentifier(TJAccessibility.Identifier.tripsList)
+        .accessibilityLabel(TJAccessibility.Label.tripsList)
         .listStyle(.insetGrouped)
         .navigationTitle("Trips")
         .task {
@@ -39,6 +43,8 @@ public struct TripsListView: View {
                     .background(Color.red.opacity(0.88))
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     .padding(.top, 8)
+                    .accessibilityIdentifier(TJAccessibility.Identifier.tripsErrorBanner)
+                    .accessibilityLabel(TJAccessibility.Label.tripsErrorBanner)
             }
         }
     }
