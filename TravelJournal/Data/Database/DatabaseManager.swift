@@ -6,10 +6,10 @@ public final class DatabaseManager {
 
     public init(path: String) throws {
         dbQueue = try DatabaseQueue(path: path)
-        try migrator.migrate(dbQueue)
+        try Self.makeMigrator().migrate(dbQueue)
     }
 
-    private var migrator: DatabaseMigrator {
+    public static func makeMigrator() -> DatabaseMigrator {
         var migrator = DatabaseMigrator()
 
         migrator.registerMigration("v1_create_schema") { db in
@@ -85,6 +85,12 @@ public final class DatabaseManager {
             try db.create(index: "idx_visits_trip", on: "visits", columns: ["trip_id"])
             try db.create(index: "idx_spots_visit", on: "spots", columns: ["visit_id"])
             try db.create(index: "idx_media_visit", on: "media", columns: ["visit_id"])
+        }
+
+        migrator.registerMigration("v2_add_visits_mood") { db in
+            try db.alter(table: "visits") { table in
+                table.add(column: "mood", .text).notNull().defaults(to: "")
+            }
         }
 
         return migrator
