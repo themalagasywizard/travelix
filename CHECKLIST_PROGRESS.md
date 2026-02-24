@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 02:50 Europe/Paris
+Last updated: 2026-02-24 03:00 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -19,7 +19,7 @@ Last updated: 2026-02-24 02:50 Europe/Paris
 - [~] Camera + gestures (added pan rotate, pinch zoom, and inertial deceleration in `GlobeSceneView.Coordinator`; runtime tuning/verification pending on Xcode runner)
 - [~] Render pins (added `GlobePin` model + pin container rendering pipeline in `GlobeSceneView`, with lat/lon placement via `GlobeCoordinateConverter`; visual/runtime validation pending on SceneKit runner)
 - [~] Pin hit-testing (implemented tap hit-test on SceneKit nodes with `onPinSelected` callback and selected-pin highlight state in `GlobeSceneView`; runtime validation pending on Xcode runner)
-- [ ] Performance benchmark
+- [~] Performance benchmark (added CPU-side benchmark utility `GlobePinRenderBenchmark` for 200-pin generation path + benchmark tests; Instruments/SceneKit FPS capture still pending on macOS/Xcode)
 
 ## Notes / blockers
 - This environment cannot run Xcode simulator/device verification directly.
