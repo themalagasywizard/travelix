@@ -1,6 +1,8 @@
 import Foundation
 import Combine
 import TravelJournalCore
+import TravelJournalData
+import TravelJournalDomain
 
 @MainActor
 public final class EditVisitViewModel: ObservableObject {
@@ -10,6 +12,17 @@ public final class EditVisitViewModel: ObservableObject {
     @Published public var endDate: Date
     @Published public var summary: String
     @Published public var notes: String
+    @Published public private(set) var saveErrorBanner: ErrorBannerModel?
+
+    private var persistedVisitContext: PersistedVisitContext?
+
+    private struct PersistedVisitContext {
+        let visitID: UUID
+        let placeID: UUID
+        let tripID: UUID?
+        let createdAt: Date
+        let repository: VisitRepository
+    }
 
     public init(
         visitID: String,
@@ -25,6 +38,30 @@ public final class EditVisitViewModel: ObservableObject {
         self.endDate = endDate
         self.summary = summary
         self.notes = notes
+        self.persistedVisitContext = nil
+    }
+
+    public convenience init(
+        visit: Visit,
+        locationName: String,
+        repository: VisitRepository
+    ) {
+        self.init(
+            visitID: visit.id.uuidString.lowercased(),
+            locationName: locationName,
+            startDate: visit.startDate,
+            endDate: visit.endDate,
+            summary: visit.summary ?? "",
+            notes: visit.notes ?? ""
+        )
+
+        self.persistedVisitContext = PersistedVisitContext(
+            visitID: visit.id,
+            placeID: visit.placeID,
+            tripID: visit.tripID,
+            createdAt: visit.createdAt,
+            repository: repository
+        )
     }
 
     public func applyEdits(
@@ -39,6 +76,7 @@ public final class EditVisitViewModel: ObservableObject {
         self.endDate = endDate
         self.summary = summary
         self.notes = notes
+        saveErrorBanner = nil
     }
 
     public var hasValidDateRange: Bool {
@@ -50,5 +88,36 @@ public final class EditVisitViewModel: ObservableObject {
         return ErrorPresentationMapper.banner(
             for: .invalidInput(message: "End date must be on or after start date.")
         )
+    }
+
+    @discardableResult
+    public func saveChanges() -> Bool {
+        guard hasValidDateRange else { return false }
+        guard let persistedVisitContext else {
+            saveErrorBanner = nil
+            return true
+        }
+
+        let now = Date()
+        let updatedVisit = Visit(
+            id: persistedVisitContext.visitID,
+            placeID: persistedVisitContext.placeID,
+            tripID: persistedVisitContext.tripID,
+            startDate: startDate,
+            endDate: endDate,
+            summary: summary.isEmpty ? nil : summary,
+            notes: notes.isEmpty ? nil : notes,
+            createdAt: persistedVisitContext.createdAt,
+            updatedAt: now
+        )
+
+        do {
+            try persistedVisitContext.repository.updateVisit(updatedVisit)
+            saveErrorBanner = nil
+            return true
+        } catch {
+            saveErrorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
+            return false
+        }
     }
 }

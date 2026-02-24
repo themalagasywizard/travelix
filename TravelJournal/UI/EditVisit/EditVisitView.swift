@@ -20,7 +20,7 @@ public struct EditVisitView: View {
                     DatePicker("Start", selection: $viewModel.startDate, displayedComponents: .date)
                     DatePicker("End", selection: $viewModel.endDate, displayedComponents: .date)
 
-                    if let banner = viewModel.dateValidationBanner {
+                    if let banner = viewModel.dateValidationBanner ?? viewModel.saveErrorBanner {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(banner.title)
                                 .font(.footnote.weight(.semibold))
@@ -47,7 +47,9 @@ public struct EditVisitView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        dismiss()
+                        if viewModel.saveChanges() {
+                            dismiss()
+                        }
                     }
                     .disabled(!viewModel.hasValidDateRange)
                 }
