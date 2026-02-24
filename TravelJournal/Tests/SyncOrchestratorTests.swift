@@ -55,6 +55,58 @@ final class SyncOrchestratorTests: XCTestCase {
         XCTAssertEqual(cursor.lastPulledAt(), initialCursor)
         XCTAssertEqual(local.appliedPulledBatches.count, 0)
     }
+
+    func testRunOnceDoesNotApplyEchoedRecordsThatWereJustPushed() async throws {
+        let echoedRecord = SyncRecordEnvelope(
+            kind: .visit,
+            id: UUID(),
+            updatedAt: Date(timeIntervalSince1970: 10),
+            payload: Data("self".utf8)
+        )
+
+        let pending = SyncBatch(records: [echoedRecord])
+        let cloud = CloudSyncEngineSpy(pullResult: pending)
+        let local = LocalSyncStoreSpy(pending: pending)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: nil)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        let report = try await orchestrator.runOnce()
+
+        XCTAssertEqual(local.appliedPulledBatches.count, 0)
+        XCTAssertEqual(report.pulledCount, 1)
+        XCTAssertEqual(report.appliedCount, 0)
+        XCTAssertEqual(cursor.lastPulledAt(), Date(timeIntervalSince1970: 10))
+    }
+
+    func testRunOnceAppliesOnlyNonEchoedSubsetWhenPullContainsMixedRecords() async throws {
+        let sharedID = UUID()
+        let pushedRecord = SyncRecordEnvelope(
+            kind: .trip,
+            id: sharedID,
+            updatedAt: Date(timeIntervalSince1970: 100),
+            payload: Data("mine".utf8)
+        )
+        let remoteRecord = SyncRecordEnvelope(
+            kind: .trip,
+            id: sharedID,
+            updatedAt: Date(timeIntervalSince1970: 101),
+            payload: Data("remote".utf8)
+        )
+
+        let pending = SyncBatch(records: [pushedRecord])
+        let pulled = SyncBatch(records: [pushedRecord, remoteRecord])
+        let cloud = CloudSyncEngineSpy(pullResult: pulled)
+        let local = LocalSyncStoreSpy(pending: pending)
+        let cursor = InMemorySyncCursorStore(lastPulledAt: nil)
+        let orchestrator = SyncOrchestrator(cloudSyncEngine: cloud, localStore: local, cursorStore: cursor)
+
+        let report = try await orchestrator.runOnce()
+
+        XCTAssertEqual(local.appliedPulledBatches, [SyncBatch(records: [remoteRecord])])
+        XCTAssertEqual(report.pulledCount, 2)
+        XCTAssertEqual(report.appliedCount, 1)
+        XCTAssertEqual(cursor.lastPulledAt(), Date(timeIntervalSince1970: 101))
+    }
 }
 
 private final class CloudSyncEngineSpy: CloudSyncEngine, @unchecked Sendable {

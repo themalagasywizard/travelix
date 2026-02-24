@@ -50,17 +50,45 @@ public struct SyncOrchestrator: Sendable {
 
         let currentCursor = cursorStore.lastPulledAt()
         let pulled = try await cloudSyncEngine.pullChanges(since: currentCursor)
+        let applyableRecords = stripEchoedPushes(from: pulled.records, pendingPushRecords: pending.records)
+        if applyableRecords.isEmpty == false {
+            try await localStore.applyPulledBatch(SyncBatch(records: applyableRecords))
+        }
+
         if pulled.records.isEmpty == false {
-            try await localStore.applyPulledBatch(pulled)
             cursorStore.save(lastPulledAt: latestTimestamp(in: pulled.records) ?? currentCursor)
         }
 
         return SyncRunReport(
             pushedCount: pending.records.count,
             pulledCount: pulled.records.count,
-            appliedCount: pulled.records.count,
+            appliedCount: applyableRecords.count,
             updatedCursor: pulled.records.isEmpty ? currentCursor : (latestTimestamp(in: pulled.records) ?? currentCursor)
         )
+    }
+
+    private func stripEchoedPushes(
+        from pulledRecords: [SyncRecordEnvelope],
+        pendingPushRecords: [SyncRecordEnvelope]
+    ) -> [SyncRecordEnvelope] {
+        guard pendingPushRecords.isEmpty == false, pulledRecords.isEmpty == false else {
+            return pulledRecords
+        }
+
+        var unmatchedPending = pendingPushRecords
+        var filtered: [SyncRecordEnvelope] = []
+        filtered.reserveCapacity(pulledRecords.count)
+
+        for pulled in pulledRecords {
+            if let index = unmatchedPending.firstIndex(where: { $0 == pulled }) {
+                unmatchedPending.remove(at: index)
+                continue
+            }
+
+            filtered.append(pulled)
+        }
+
+        return filtered
     }
 
     private func latestTimestamp(in records: [SyncRecordEnvelope]) -> Date? {
