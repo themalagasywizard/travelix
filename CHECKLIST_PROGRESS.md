@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 11:28 Europe/Paris
+Last updated: 2026-02-24 11:29 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -27,8 +27,8 @@ Last updated: 2026-02-24 11:28 Europe/Paris
 - [~] Visit Detail screen (wired Place Story visit-row selection to present `VisitDetailView` sheet via `selectedVisitDetailViewModel`; completed repository-backed detail hydration for notes/photo counts/spots/recommendations via `HomeViewModel` + `PlaceStoryVisitRow`, and expanded `PlaceStoryViewModelTests`/`HomeViewModelTests` coverage; runtime UI validation pending on Xcode)
 
 ## Phase 4 — Create/Edit content
-- [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content, plus `saveVisit()` persistence wiring to `PlaceRepository`/`VisitRepository` with input validation and error states; updated save CTA to persist on final step and surfaced inline validation/persistence errors; expanded `AddVisitFlowViewModelTests` for persistence + validation coverage; globe refresh wiring + runtime end-to-end verification pending on Xcode)
-- [~] Edit Visit (implemented `EditVisitView` + `EditVisitViewModel` edit form and date-range validation with tests; persistence/relaunch verification pending)
+- [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content, plus `saveVisit()` persistence wiring to `PlaceRepository`/`VisitRepository` with input validation and error states; updated save CTA to persist on final step, standardized validation/persistence failures through `ErrorPresentationMapper` banner models, and expanded `AddVisitFlowViewModelTests` for persistence + banner mapping coverage; globe refresh wiring + runtime end-to-end verification pending on Xcode)
+- [~] Edit Visit (implemented `EditVisitView` + `EditVisitViewModel` edit form and date-range validation with tests; date-range failures now emit shared `ErrorPresentationMapper` banner content via `dateValidationBanner`; persistence/relaunch verification pending)
 - [~] Spots CRUD (implemented repository-backed `VisitSpotsEditorViewModel` add/update/delete/load operations and unit tests with in-memory repository; wired Visit Detail to present a new `VisitSpotsEditorSheetView` via “Manage Spots” action and refresh displayed spots from repository-backed editor state; runtime UI verification pending on Xcode)
 - [~] Tags (implemented `GRDBTagRepository` create/assign/remove/fetch operations, place IDs by tag query for deterministic globe filtering, and tests in `TagRepositoryTests` + `HomeViewModelTests`; runtime verification on Xcode runner and local Swift test execution still pending)
 
@@ -48,11 +48,10 @@ Last updated: 2026-02-24 11:28 Europe/Paris
 - [~] Accessibility pass (added centralized accessibility tokens in `TJAccessibility` and applied identifiers/labels to key Home and Visit Detail UI elements: search field, filter chips, selected-place badge, and visit detail sections/header; added `AccessibilityTokensTests` for token stability and label semantics; VoiceOver/dynamic-type runtime validation still pending on Xcode runner)
 
 ## Phase 8 — Hardening
-- [~] Error handling (added `TJAppError` + `ErrorPresentationMapper` to produce user-facing non-crashing banner models for database/media/input/unknown failures; wired `VisitSpotsEditorViewModel` failure paths to emit mapped `errorBanner` values alongside error text, and added `VisitSpotsEditorViewModelTests` coverage for invalid-input and repository-failure banner mapping; broader runtime banner presentation across all UI flows still pending on Xcode runner)
+- [~] Error handling (added `TJAppError` + `ErrorPresentationMapper` to produce user-facing non-crashing banner models for database/media/input/unknown failures; wired `VisitSpotsEditorViewModel` failure paths to emit mapped `errorBanner` values alongside error text, then extended the same banner mapping to `AddVisitFlowViewModel` and `EditVisitViewModel` date/input/persistence states with additional tests; broader runtime banner presentation across all UI flows still pending on Xcode runner)
 - [~] Migrations + version bump (added `v2_add_visits_mood` migration in `DatabaseManager.makeMigrator()` introducing a dummy `visits.mood` column with default `""`; expanded `MigrationsTests` to assert latest schema column presence and to simulate v1→v2 upgrade path via migration table priming; Swift test execution still blocked in this environment)
 - [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; added `DatabasePerformanceBenchmarkTests` for non-negative timing assertions and operation identity; Instruments traces for cold start + globe interaction still pending on macOS/Xcode)
 
 ## Notes / blockers
 - Per user override, Xcode project creation/tooling steps are intentionally skipped in this environment; manual Xcode import/build will be handled by the user.
 - Runtime iOS/SceneKit verification and Swift test execution remain pending on a macOS/Xcode-capable runner.
-- Local verification attempt: `swift test --filter HomeViewModelTests` failed in this environment because `swift` CLI is not installed (`sh: 1: swift: not found`).

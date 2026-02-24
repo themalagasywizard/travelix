@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import TravelJournalCore
 import TravelJournalData
 import TravelJournalDomain
 
@@ -72,6 +73,7 @@ public final class AddVisitFlowViewModel: ObservableObject {
     @Published public private(set) var draft: AddVisitDraft
     @Published public private(set) var saveResult: AddVisitSaveResult?
     @Published public private(set) var saveError: SaveError?
+    @Published public private(set) var errorBanner: ErrorBannerModel?
 
     private let placeRepository: PlaceRepository?
     private let visitRepository: VisitRepository?
@@ -117,15 +119,18 @@ public final class AddVisitFlowViewModel: ObservableObject {
     public func saveVisit() -> AddVisitSaveResult? {
         saveError = nil
         saveResult = nil
+        errorBanner = nil
 
         let trimmedLocation = draft.locationQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedLocation.isEmpty == false else {
             saveError = .missingLocation
+            errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: SaveError.missingLocation.errorDescription ?? "Please enter a location before saving."))
             return nil
         }
 
         guard draft.endDate >= draft.startDate else {
             saveError = .invalidDateRange
+            errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: SaveError.invalidDateRange.errorDescription ?? "End date must be on or after start date."))
             return nil
         }
 
@@ -162,6 +167,7 @@ public final class AddVisitFlowViewModel: ObservableObject {
             return result
         } catch {
             saveError = .persistenceFailed
+            errorBanner = ErrorPresentationMapper.banner(for: .databaseFailure)
             return nil
         }
     }

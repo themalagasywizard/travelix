@@ -119,11 +119,15 @@ public struct AddVisitFlowView: View {
             .buttonStyle(.borderedProminent)
         }
         .overlay(alignment: .bottomLeading) {
-            if let saveError = viewModel.saveError {
-                Text(saveError.localizedDescription)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
-                    .padding(.top, 8)
+            if let banner = viewModel.errorBanner {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(banner.title)
+                        .font(.footnote.weight(.semibold))
+                    Text(banner.message)
+                        .font(.footnote)
+                }
+                .foregroundStyle(.red)
+                .padding(.top, 8)
             }
         }
     }

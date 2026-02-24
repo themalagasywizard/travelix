@@ -1,5 +1,6 @@
 import XCTest
 @testable import TravelJournalUI
+@testable import TravelJournalCore
 @testable import TravelJournalData
 @testable import TravelJournalDomain
 
@@ -69,6 +70,7 @@ final class AddVisitFlowViewModelTests: XCTestCase {
         XCTAssertEqual(result?.visit.placeID, result?.place.id)
         XCTAssertEqual(result?.visit.createdAt, timestamp)
         XCTAssertNil(viewModel.saveError)
+        XCTAssertNil(viewModel.errorBanner)
     }
 
     func testSaveVisitValidationErrors() {
@@ -78,6 +80,10 @@ final class AddVisitFlowViewModelTests: XCTestCase {
 
         XCTAssertNil(viewModel.saveVisit())
         XCTAssertEqual(viewModel.saveError, .missingLocation)
+        XCTAssertEqual(
+            viewModel.errorBanner,
+            ErrorPresentationMapper.banner(for: .invalidInput(message: AddVisitFlowViewModel.SaveError.missingLocation.errorDescription ?? "Please enter a location before saving."))
+        )
 
         let invalidDates = AddVisitFlowViewModel(
             draft: AddVisitDraft(
@@ -89,6 +95,22 @@ final class AddVisitFlowViewModelTests: XCTestCase {
 
         XCTAssertNil(invalidDates.saveVisit())
         XCTAssertEqual(invalidDates.saveError, .invalidDateRange)
+        XCTAssertEqual(
+            invalidDates.errorBanner,
+            ErrorPresentationMapper.banner(for: .invalidInput(message: AddVisitFlowViewModel.SaveError.invalidDateRange.errorDescription ?? "End date must be on or after start date."))
+        )
+    }
+
+    func testSaveVisitPersistenceFailureMapsDatabaseBanner() {
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(locationQuery: "Rome"),
+            placeRepository: FailingPlaceRepository(),
+            visitRepository: InMemoryVisitRepository()
+        )
+
+        XCTAssertNil(viewModel.saveVisit())
+        XCTAssertEqual(viewModel.saveError, .persistenceFailed)
+        XCTAssertEqual(viewModel.errorBanner, ErrorPresentationMapper.banner(for: .databaseFailure))
     }
 }
 
@@ -105,6 +127,20 @@ private final class InMemoryPlaceRepository: PlaceRepository {
 
     func fetchPlace(id: UUID) throws -> Place? {
         upsertedPlaces.first { $0.id == id }
+    }
+}
+
+private final class FailingPlaceRepository: PlaceRepository {
+    func upsertPlace(_ place: Place) throws {
+        throw NSError(domain: "AddVisitFlowViewModelTests", code: 1)
+    }
+
+    func fetchPlacesWithVisitCounts() throws -> [(place: Place, visitCount: Int)] {
+        []
+    }
+
+    func fetchPlace(id: UUID) throws -> Place? {
+        nil
     }
 }
 

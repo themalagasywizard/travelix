@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import TravelJournalCore
 
 @MainActor
 public final class EditVisitViewModel: ObservableObject {
@@ -42,5 +43,12 @@ public final class EditVisitViewModel: ObservableObject {
 
     public var hasValidDateRange: Bool {
         endDate >= startDate
+    }
+
+    public var dateValidationBanner: ErrorBannerModel? {
+        guard hasValidDateRange == false else { return nil }
+        return ErrorPresentationMapper.banner(
+            for: .invalidInput(message: "End date must be on or after start date.")
+        )
     }
 }

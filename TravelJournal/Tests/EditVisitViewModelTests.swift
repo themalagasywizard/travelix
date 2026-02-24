@@ -1,5 +1,6 @@
 import XCTest
 @testable import TravelJournalUI
+@testable import TravelJournalCore
 
 @MainActor
 final class EditVisitViewModelTests: XCTestCase {
@@ -46,8 +47,13 @@ final class EditVisitViewModelTests: XCTestCase {
         )
 
         XCTAssertFalse(vm.hasValidDateRange)
+        XCTAssertEqual(
+            vm.dateValidationBanner,
+            ErrorPresentationMapper.banner(for: .invalidInput(message: "End date must be on or after start date."))
+        )
 
         vm.endDate = start
         XCTAssertTrue(vm.hasValidDateRange)
+        XCTAssertNil(vm.dateValidationBanner)
     }
 }

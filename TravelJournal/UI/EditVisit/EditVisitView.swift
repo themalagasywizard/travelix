@@ -20,10 +20,14 @@ public struct EditVisitView: View {
                     DatePicker("Start", selection: $viewModel.startDate, displayedComponents: .date)
                     DatePicker("End", selection: $viewModel.endDate, displayedComponents: .date)
 
-                    if !viewModel.hasValidDateRange {
-                        Text("End date must be after start date")
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+                    if let banner = viewModel.dateValidationBanner {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(banner.title)
+                                .font(.footnote.weight(.semibold))
+                            Text(banner.message)
+                                .font(.footnote)
+                        }
+                        .foregroundStyle(.red)
                     }
                 }
 
