@@ -33,6 +33,9 @@ public struct HomeView: View {
             .padding(.top, 14)
         }
         .background(Color.black)
+        .sheet(item: selectedPlaceStoryItem, onDismiss: viewModel.clearSelectedPlace) { item in
+            PlaceStoryView(viewModel: item.viewModel)
+        }
     }
 
     private var searchBar: some View {
@@ -48,6 +51,15 @@ public struct HomeView: View {
         .padding(.vertical, 10)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private var selectedPlaceStoryItem: PlaceStorySheetItem? {
+        guard let viewModel = viewModel.selectedPlaceStoryViewModel,
+              let selectedID = self.viewModel.selectedPlaceID
+        else {
+            return nil
+        }
+        return PlaceStorySheetItem(id: selectedID, viewModel: viewModel)
     }
 
     private var filtersRow: some View {
@@ -70,4 +82,9 @@ public struct HomeView: View {
             }
         }
     }
+}
+
+private struct PlaceStorySheetItem: Identifiable {
+    let id: String
+    let viewModel: PlaceStoryViewModel
 }

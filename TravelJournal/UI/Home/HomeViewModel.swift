@@ -32,6 +32,28 @@ public final class HomeViewModel: ObservableObject {
         selectedPlaceID = placeID
     }
 
+    public func clearSelectedPlace() {
+        selectedPlaceID = nil
+    }
+
+    public var selectedPlaceStoryViewModel: PlaceStoryViewModel? {
+        guard let selectedPlaceID else { return nil }
+
+        let placeName = selectedPlaceID.capitalized
+        return PlaceStoryViewModel(
+            placeName: placeName,
+            countryName: "Unknown Country",
+            visits: [
+                .init(
+                    id: "sample-\(selectedPlaceID)",
+                    title: "Recent Visit",
+                    dateRangeText: "Dates TBD",
+                    summary: "Seeded summary placeholder until repository wiring is connected."
+                )
+            ]
+        )
+    }
+
     static let defaultPins: [GlobePin] = [
         GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522),
         GlobePin(id: "tokyo", latitude: 35.6764, longitude: 139.6500),

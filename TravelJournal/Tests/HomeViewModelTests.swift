@@ -20,4 +20,13 @@ final class HomeViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.selectedPlaceID, "tokyo")
     }
+
+    func testSelectedPlaceStoryViewModelBuiltFromSelection() {
+        let viewModel = HomeViewModel()
+
+        viewModel.handlePinSelected("paris")
+
+        XCTAssertEqual(viewModel.selectedPlaceStoryViewModel?.placeName, "Paris")
+        XCTAssertEqual(viewModel.selectedPlaceStoryViewModel?.visits.count, 1)
+    }
 }

@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 03:11 Europe/Paris
+Last updated: 2026-02-24 03:21 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -23,7 +23,7 @@ Last updated: 2026-02-24 03:11 Europe/Paris
 
 ## Phase 3 — Core UI flows
 - [~] Home = GlobeView + top search bar + filters (implemented `HomeView` + `HomeViewModel` with search field, filter chips, globe embedding, and pin selection state; runtime UI validation pending on Xcode)
-- [ ] Place Story screen
+- [~] Place Story screen (implemented `PlaceStoryView` + `PlaceStoryViewModel` structure and wired Home pin selection to present Place Story sheet; repository-backed visit data wiring pending)
 - [ ] Visit Detail screen
 
 ## Notes / blockers
