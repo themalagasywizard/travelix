@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 14:44 Europe/Paris
+Last updated: 2026-02-24 14:55 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -25,7 +25,7 @@ Last updated: 2026-02-24 14:44 Europe/Paris
 - [~] Home = GlobeView + top search bar + filters (implemented `HomeView` + `HomeViewModel` with search field, filter chips, globe embedding, and pin selection state; runtime UI validation pending on Xcode)
 - [~] Place Story screen (wired `HomeViewModel` to build repository-backed `PlaceStoryViewModel` data when pin↔place mapping and repositories are injected, with placeholder fallback retained for non-wired contexts; added repository-backed coverage in `HomeViewModelTests`; runtime UI validation pending on Xcode)
 - [~] Visit Detail screen (wired Place Story visit-row selection to present `VisitDetailView` sheet via `selectedVisitDetailViewModel`; completed repository-backed detail hydration for notes/photo counts/spots/recommendations via `HomeViewModel` + `PlaceStoryVisitRow`, and expanded `PlaceStoryViewModelTests`/`HomeViewModelTests` coverage; runtime UI validation pending on Xcode)
-- [~] Trips screen (implemented `TripsListViewModel` + `TripsListView` for repository-backed trip listing with date-range/visit-count summaries and friendly error banner handling; added `TripsListViewModelTests` for success/error states; runtime navigation wiring + visual validation pending on Xcode)
+- [~] Trips screen (implemented `TripsListViewModel` + `TripsListView` for repository-backed trip listing with date-range/visit-count summaries and friendly error banner handling; added `TripsListViewModelTests` for success/error states; now wired Home bottom bar with a Trips button that opens `TripsListView` in a sheet via repository-backed `HomeViewModel.makeTripsListViewModel()`, including unavailable-repository banner fallback and new `HomeViewModelTests` coverage; runtime navigation polish + visual validation pending on Xcode)
 
 ## Phase 4 — Create/Edit content
 - [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content, plus `saveVisit()` persistence wiring to `PlaceRepository`/`VisitRepository` with input validation and error states; updated save CTA to persist on final step, standardized validation/persistence failures through `ErrorPresentationMapper` banner models, and expanded `AddVisitFlowViewModelTests` for persistence + banner mapping coverage; now wired Home floating “+” CTA to present Add Visit flow, inject repository-backed flow model, and register successful saves back into `HomeViewModel` so the new place pin/metadata appears on the globe immediately with auto-selection; added “Use current location” step-1 UI action and `AddVisitCurrentLocationProviding` integration so resolved city/country/coordinates hydrate draft + persisted `Place` lat/lon metadata, with new async view-model tests for success/failure banner handling and resolved-coordinate persistence; runtime end-to-end verification pending on Xcode)

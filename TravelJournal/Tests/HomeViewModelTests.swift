@@ -377,6 +377,34 @@ final class HomeViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.errorBanner?.title, "Something went wrong")
     }
 
+    func testMakeTripsListViewModelReturnsRepositoryBackedViewModelWhenDependenciesExist() throws {
+        let viewModel = HomeViewModel(
+            tripRepository: StubTripRepository(trips: []),
+            visitRepository: StubVisitRepository(visitsByPlaceID: [:])
+        )
+
+        let tripsViewModel = try viewModel.makeTripsListViewModel()
+
+        XCTAssertNotNil(tripsViewModel)
+    }
+
+    func testMakeTripsListViewModelThrowsWithoutTripRepository() {
+        let viewModel = HomeViewModel(visitRepository: StubVisitRepository(visitsByPlaceID: [:]))
+
+        XCTAssertThrowsError(try viewModel.makeTripsListViewModel()) { error in
+            XCTAssertEqual(error as? TJAppError, .invalidInput(message: "Trips are unavailable until repositories are connected."))
+        }
+    }
+
+    func testHandleTripsUnavailableSetsInvalidInputBanner() {
+        let viewModel = HomeViewModel()
+
+        viewModel.handleTripsUnavailable()
+
+        XCTAssertEqual(viewModel.errorBanner?.title, "Check your input")
+        XCTAssertEqual(viewModel.errorBanner?.message, "Trips are unavailable until repositories are connected.")
+    }
+
     func testMakeAddVisitFlowViewModelForwardsMediaRepositoryForSaveFlow() {
         let placeRepository = StubPlaceRepository(placeByID: [:])
         let visitRepository = StubVisitRepository(visitsByPlaceID: [:])
@@ -448,6 +476,18 @@ private struct StubVisitRepository: VisitRepository {
 
     func fetchVisits(forTrip tripID: UUID) throws -> [Visit] {
         []
+    }
+}
+
+private struct StubTripRepository: TripRepository {
+    let trips: [Trip]
+
+    func createTrip(_ trip: Trip) throws {}
+
+    func updateTrip(_ trip: Trip) throws {}
+
+    func fetchTrips() throws -> [Trip] {
+        trips
     }
 }
 

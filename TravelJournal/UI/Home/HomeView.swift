@@ -7,7 +7,9 @@ public struct HomeView: View {
     @State private var isPinsListPresented = false
     @State private var isAddVisitPresented = false
     @State private var isSettingsPresented = false
+    @State private var isTripsPresented = false
     @State private var addVisitViewModel = AddVisitFlowViewModel()
+    @State private var tripsListViewModel: TripsListViewModel?
 
     public init(viewModel: @autoclosure @escaping () -> HomeViewModel = HomeViewModel()) {
         _viewModel = StateObject(wrappedValue: viewModel())
@@ -97,6 +99,13 @@ public struct HomeView: View {
         .sheet(isPresented: $isSettingsPresented) {
             SettingsView(viewModel: SettingsViewModel(syncFeatureFlags: UserDefaultsSyncFeatureFlagStore()))
         }
+        .sheet(isPresented: $isTripsPresented) {
+            if let tripsListViewModel {
+                NavigationStack {
+                    TripsListView(viewModel: tripsListViewModel)
+                }
+            }
+        }
         .safeAreaInset(edge: .bottom) {
             HStack {
                 Button {
@@ -113,6 +122,25 @@ public struct HomeView: View {
                 .padding(.leading, 16)
                 .padding(.bottom, 8)
                 .accessibilityLabel("Settings")
+
+                Button {
+                    do {
+                        tripsListViewModel = try viewModel.makeTripsListViewModel()
+                        isTripsPresented = true
+                    } catch {
+                        viewModel.handleTripsUnavailable()
+                    }
+                } label: {
+                    Image(systemName: "suitcase.rolling")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(14)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .padding(.bottom, 8)
+                .accessibilityLabel("Trips")
 
                 Spacer()
 

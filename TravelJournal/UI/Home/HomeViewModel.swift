@@ -57,6 +57,7 @@ public final class HomeViewModel: ObservableObject {
     private var pinIDToPlaceID: [String: UUID]
     private let placeRepository: PlaceRepository?
     private let visitRepository: VisitRepository?
+    private let tripRepository: TripRepository?
     private let spotRepository: SpotRepository?
     private let mediaRepository: MediaRepository?
     private let searchRepository: SearchRepository?
@@ -71,6 +72,7 @@ public final class HomeViewModel: ObservableObject {
         pinIDToPlaceID: [String: UUID] = [:],
         placeRepository: PlaceRepository? = nil,
         visitRepository: VisitRepository? = nil,
+        tripRepository: TripRepository? = nil,
         spotRepository: SpotRepository? = nil,
         mediaRepository: MediaRepository? = nil,
         searchRepository: SearchRepository? = nil,
@@ -85,6 +87,7 @@ public final class HomeViewModel: ObservableObject {
         self.pinIDToPlaceID = pinIDToPlaceID
         self.placeRepository = placeRepository
         self.visitRepository = visitRepository
+        self.tripRepository = tripRepository
         self.spotRepository = spotRepository
         self.mediaRepository = mediaRepository
         self.searchRepository = searchRepository
@@ -135,6 +138,10 @@ public final class HomeViewModel: ObservableObject {
         errorBanner = nil
     }
 
+    public func handleTripsUnavailable() {
+        errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: "Trips are unavailable until repositories are connected."))
+    }
+
     public func makeAddVisitFlowViewModel(now: @escaping () -> Date = Date.init) -> AddVisitFlowViewModel {
         AddVisitFlowViewModel(
             placeRepository: placeRepository,
@@ -142,6 +149,14 @@ public final class HomeViewModel: ObservableObject {
             mediaRepository: mediaRepository,
             now: now
         )
+    }
+
+    public func makeTripsListViewModel() throws -> TripsListViewModel {
+        guard let tripRepository, let visitRepository else {
+            throw TJAppError.invalidInput(message: "Trips are unavailable until repositories are connected.")
+        }
+
+        return TripsListViewModel(tripRepository: tripRepository, visitRepository: visitRepository)
     }
 
     public func registerCreatedVisit(_ result: AddVisitSaveResult) {
