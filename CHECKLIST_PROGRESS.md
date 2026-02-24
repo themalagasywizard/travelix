@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 02:01 Europe/Paris
+Last updated: 2026-02-24 02:10 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -13,8 +13,13 @@ Last updated: 2026-02-24 02:01 Europe/Paris
 - [x] Repository CRUD (implemented Place/Visit/Trip/Spot/Media repositories with CRUD unit tests; execution pending on Swift/Xcode-capable runner)
 - [x] Seed demo data (implemented `DemoDataSeeder` with deterministic counts and added developer UI action `Load Demo Data`; runtime/UI verification pending on Xcode)
 
-## Phase 2+
-- [ ] Not started
+## Phase 2 — Globe MVP
+- [~] Lat/Lon → 3D conversion utility (implemented `GlobeCoordinateConverter` + sanity unit tests; test execution pending on Swift/Xcode-capable runner)
+- [ ] SceneKit globe view wrapper
+- [ ] Camera + gestures
+- [ ] Render pins
+- [ ] Pin hit-testing
+- [ ] Performance benchmark
 
 ## Notes / blockers
 - This environment cannot run Xcode simulator/device verification directly.
