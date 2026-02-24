@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 03:00 Europe/Paris
+Last updated: 2026-02-24 03:11 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -20,6 +20,11 @@ Last updated: 2026-02-24 03:00 Europe/Paris
 - [~] Render pins (added `GlobePin` model + pin container rendering pipeline in `GlobeSceneView`, with lat/lon placement via `GlobeCoordinateConverter`; visual/runtime validation pending on SceneKit runner)
 - [~] Pin hit-testing (implemented tap hit-test on SceneKit nodes with `onPinSelected` callback and selected-pin highlight state in `GlobeSceneView`; runtime validation pending on Xcode runner)
 - [~] Performance benchmark (added CPU-side benchmark utility `GlobePinRenderBenchmark` for 200-pin generation path + benchmark tests; Instruments/SceneKit FPS capture still pending on macOS/Xcode)
+
+## Phase 3 — Core UI flows
+- [~] Home = GlobeView + top search bar + filters (implemented `HomeView` + `HomeViewModel` with search field, filter chips, globe embedding, and pin selection state; runtime UI validation pending on Xcode)
+- [ ] Place Story screen
+- [ ] Visit Detail screen
 
 ## Notes / blockers
 - This environment cannot run Xcode simulator/device verification directly.
