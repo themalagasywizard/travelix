@@ -29,13 +29,18 @@ public struct GlobeSceneView: UIViewRepresentable {
     }
 
     private let configuration: Configuration
+    private let onPinSelected: ((String) -> Void)?
 
-    public init(configuration: Configuration = .init()) {
+    public init(
+        configuration: Configuration = .init(),
+        onPinSelected: ((String) -> Void)? = nil
+    ) {
         self.configuration = configuration
+        self.onPinSelected = onPinSelected
     }
 
     public func makeCoordinator() -> Coordinator {
-        Coordinator(configuration: configuration)
+        Coordinator(configuration: configuration, onPinSelected: onPinSelected)
     }
 
     public func makeUIView(context: Context) -> SCNView {
@@ -120,6 +125,7 @@ public struct GlobeSceneView: UIViewRepresentable {
 public extension GlobeSceneView {
     final class Coordinator: NSObject {
         private var configuration: Configuration
+        private let onPinSelected: ((String) -> Void)?
 
         weak var globeNode: SCNNode?
         weak var cameraNode: SCNNode?
@@ -131,8 +137,9 @@ public extension GlobeSceneView {
         private var lastFrameTimestamp: CFTimeInterval?
         private var currentCameraDistance: CGFloat
 
-        init(configuration: Configuration) {
+        init(configuration: Configuration, onPinSelected: ((String) -> Void)?) {
             self.configuration = configuration
+            self.onPinSelected = onPinSelected
             self.currentCameraDistance = configuration.radius * 3.0
         }
 
@@ -159,14 +166,18 @@ public extension GlobeSceneView {
 
             let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
             view.addGestureRecognizer(pinch)
+
+            let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+            tap.numberOfTapsRequired = 1
+            view.addGestureRecognizer(tap)
         }
 
         func renderPins(_ pins: [GlobePin]) {
             guard let pinsContainerNode else { return }
 
-            let pinIDs = pins.map(\.id)
-            guard pinIDs != renderedPinIDs else { return }
-            renderedPinIDs = pinIDs
+            let pinSignatures = pins.map { "\($0.id):\($0.latitude):\($0.longitude)" }
+            guard pinSignatures != renderedPinIDs else { return }
+            renderedPinIDs = pinSignatures
 
             pinsContainerNode.childNodes.forEach { $0.removeFromParentNode() }
 
@@ -198,6 +209,50 @@ public extension GlobeSceneView {
             node.position = SCNVector3(position.x, position.y, position.z)
 
             return node
+        }
+
+        private func extractPinID(from nodeName: String) -> String? {
+            guard nodeName.hasPrefix("pin-") else { return nil }
+            return String(nodeName.dropFirst(4))
+        }
+
+        private func highlightSelectedPin(pinID: String) {
+            guard let container = pinsContainerNode else { return }
+
+            for node in container.childNodes {
+                guard let geometry = node.geometry,
+                      let material = geometry.firstMaterial,
+                      let nodeName = node.name,
+                      let currentID = extractPinID(from: nodeName) else {
+                    continue
+                }
+
+                if currentID == pinID {
+                    material.diffuse.contents = UIColor.systemYellow
+                    material.emission.contents = UIColor.systemYellow.withAlphaComponent(0.35)
+                    node.scale = SCNVector3(1.35, 1.35, 1.35)
+                } else {
+                    material.diffuse.contents = UIColor.systemRed
+                    material.emission.contents = UIColor.systemRed.withAlphaComponent(0.15)
+                    node.scale = SCNVector3(1, 1, 1)
+                }
+            }
+        }
+
+        @objc private func handleTap(_ recognizer: UITapGestureRecognizer) {
+            guard let view = recognizer.view as? SCNView else { return }
+            let point = recognizer.location(in: view)
+            let hits = view.hitTest(point, options: [SCNHitTestOption.searchMode: SCNHitTestSearchMode.all.rawValue])
+
+            guard let selected = hits.first(where: { ($0.node.name ?? "").hasPrefix("pin-") }),
+                  let nodeName = selected.node.name,
+                  let pinID = extractPinID(from: nodeName)
+            else {
+                return
+            }
+
+            highlightSelectedPin(pinID: pinID)
+            onPinSelected?(pinID)
         }
 
         @objc private func handlePan(_ recognizer: UIPanGestureRecognizer) {
@@ -318,7 +373,10 @@ public struct GlobeSceneView: View {
         }
     }
 
-    public init(configuration: Configuration = .init()) {}
+    public init(
+        configuration: Configuration = .init(),
+        onPinSelected: ((String) -> Void)? = nil
+    ) {}
 
     public var body: some View {
         Text("SceneKit unavailable on this platform")
