@@ -102,7 +102,7 @@ public final class VisitSpotsEditorViewModel: ObservableObject {
             id: spot.id.uuidString,
             name: spot.name,
             category: spot.category ?? TJStrings.SpotsEditor.defaultCategory,
-            ratingText: spot.rating.map { "\($0)/5" },
+            ratingText: spot.rating.map(TJStrings.SpotsEditor.ratingOutOfFive),
             note: spot.note
         )
     }

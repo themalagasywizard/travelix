@@ -134,6 +134,10 @@ public enum TJStrings {
         public static let spotNotFound = "Spot not found"
         public static let selectedSpotMissing = "The selected spot no longer exists."
 
+        public static func ratingOutOfFive(_ rating: Int) -> String {
+            "\(rating)/5"
+        }
+
         public static func failedToLoadSpots(_ message: String) -> String {
             "Failed to load spots: \(message)"
         }

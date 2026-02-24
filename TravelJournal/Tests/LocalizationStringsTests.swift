@@ -77,6 +77,7 @@ final class LocalizationStringsTests: XCTestCase {
         XCTAssertEqual(TJStrings.SpotsEditor.spotReferenceInvalid, "Spot reference is invalid.")
         XCTAssertEqual(TJStrings.SpotsEditor.spotNotFound, "Spot not found")
         XCTAssertEqual(TJStrings.SpotsEditor.selectedSpotMissing, "The selected spot no longer exists.")
+        XCTAssertEqual(TJStrings.SpotsEditor.ratingOutOfFive(5), "5/5")
         XCTAssertEqual(TJStrings.SpotsEditor.failedToLoadSpots("x"), "Failed to load spots: x")
         XCTAssertEqual(TJStrings.SpotsEditor.failedToAddSpot("x"), "Failed to add spot: x")
         XCTAssertEqual(TJStrings.SpotsEditor.failedToUpdateSpot("x"), "Failed to update spot: x")
