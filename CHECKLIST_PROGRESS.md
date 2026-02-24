@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 14:55 Europe/Paris
+Last updated: 2026-02-24 15:00 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -55,10 +55,10 @@ Last updated: 2026-02-24 14:55 Europe/Paris
 
 ## Optional Phase 9 — iCloud sync
 - [~] Feature flag (implemented `SyncFeatureFlagProviding` + `UserDefaultsSyncFeatureFlagStore` with deterministic default-off behavior and persistence toggling coverage in `SyncFeatureFlagsTests`; now added `SettingsViewModel` + `SettingsView` iCloud sync toggle wiring and integrated Home gear-button sheet presentation, with new `SettingsViewModelTests` covering initialization, persistence, and unchanged-toggle no-op behavior; runtime verification pending on Xcode)
-- [~] CloudKit schema + sync engine (added sync-domain scaffolding with `SyncRecordEnvelope`, `SyncBatch`, and `CloudSyncEngine` protocol plus default `NoopCloudSyncEngine` factory implementation and baseline async coverage in `CloudSyncEngineTests`; now added deterministic sync merge utility `SyncBatchMerging.mergeLastWriteWins` (identity-based merge with remote-wins tie-breaker) and persisted pull-cursor store `UserDefaultsSyncCursorStore`, plus new `SyncOrchestrator` run-loop wiring for pending push → pull-since-cursor → local apply + cursor advancement with focused coverage in `SyncOrchestratorTests`; concrete CloudKit transport and end-to-end multi-device replication remain pending)
+- [~] CloudKit schema + sync engine (added sync-domain scaffolding with `SyncRecordEnvelope`, `SyncBatch`, and `CloudSyncEngine` protocol plus default `NoopCloudSyncEngine` factory implementation and baseline async coverage in `CloudSyncEngineTests`; now added deterministic sync merge utility `SyncBatchMerging.mergeLastWriteWins` (identity-based merge with remote-wins tie-breaker) and persisted pull-cursor store `UserDefaultsSyncCursorStore`, plus new `SyncOrchestrator` run-loop wiring for pending push → pull-since-cursor → local apply + cursor advancement with focused coverage in `SyncOrchestratorTests`; this run added `InMemoryCloudSyncStorage`/`InMemoryCloudSyncEngine` shared-transport scaffolding with cursor-aware pull semantics and deterministic last-write-wins/tie-break behavior, plus replication coverage in `CloudSyncEngineTests` to simulate multi-peer sync without CloudKit; concrete CloudKit transport and end-to-end multi-device replication remain pending)
 - [~] Conflict policy (implemented reusable `SyncConflictResolver.resolveLastWriteWins` with tie-breaker semantics and dedicated unit tests in `SyncConflictResolverTests`; runtime validation in real sync flows remains pending)
 
 ## Notes / blockers
 - Per user override, Xcode project creation/tooling steps are intentionally skipped in this environment; manual Xcode import/build will be handled by the user.
 - Runtime iOS/SceneKit verification and Swift test execution remain pending on a macOS/Xcode-capable runner.
-- New environment blocker observed this run: `swift` CLI is not installed in the container (`swift: not found`), so local SwiftPM test execution could not be run here.
+- No new blockers this run.
