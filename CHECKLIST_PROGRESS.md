@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 01:30 Europe/Paris
+Last updated: 2026-02-24 01:33 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -10,7 +10,7 @@ Last updated: 2026-02-24 01:30 Europe/Paris
 ## Phase 1 — Data layer
 - [x] Define initial domain entities (Place, Visit, Trip, Spot, Media, Tag)
 - [x] Implement initial DB migration schema (v1 tables + indices)
-- [~] Repository CRUD (implemented PlaceRepository + VisitRepository + CRUD tests; pending local test execution)
+- [~] Repository CRUD (implemented Place/Visit/Trip/Spot repositories + unit tests; MediaRepository pending, and tests not executable in current environment)
 - [ ] Seed demo data (developer mode)
 
 ## Phase 2+
