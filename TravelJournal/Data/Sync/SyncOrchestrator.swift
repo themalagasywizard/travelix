@@ -85,10 +85,30 @@ public struct SyncOrchestrator: Sendable {
                 continue
             }
 
+            if shouldDropPulledRecordAsStaleConflict(pulled, pendingPushRecords: pendingPushRecords) {
+                continue
+            }
+
             filtered.append(pulled)
         }
 
         return filtered
+    }
+
+    private func shouldDropPulledRecordAsStaleConflict(
+        _ pulled: SyncRecordEnvelope,
+        pendingPushRecords: [SyncRecordEnvelope]
+    ) -> Bool {
+        guard let pending = pendingPushRecords.first(where: { $0.kind == pulled.kind && $0.id == pulled.id }) else {
+            return false
+        }
+
+        let resolved = SyncConflictResolver.resolveLastWriteWins(
+            local: SyncConflictValue(value: pending, updatedAt: pending.updatedAt),
+            remote: SyncConflictValue(value: pulled, updatedAt: pulled.updatedAt)
+        )
+
+        return resolved.value == pending
     }
 
     private func latestTimestamp(in records: [SyncRecordEnvelope]) -> Date? {
