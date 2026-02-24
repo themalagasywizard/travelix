@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 04:21 Europe/Paris
+Last updated: 2026-02-24 04:31 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -34,7 +34,7 @@ Last updated: 2026-02-24 04:21 Europe/Paris
 
 ## Phase 5 — Media pipeline
 - [~] PhotosPicker import (implemented repository-level import entry point `importMedia(from:forVisit:importedAt:)` with `MediaImportPayload` mapping to persisted `Media` records; added `testImportMediaCreatesRecordFromPayload`; real PhotosPicker UI integration/runtime verification pending on Xcode runner)
-- [ ] Thumbnail generator + cache
+- [~] Thumbnail generator + cache (implemented `DefaultThumbnailCache` with in-memory `NSCache` + on-disk cache file persistence keyed by media ID and pixel size; added `ThumbnailCacheTests` for store/load roundtrip and cache clear behavior; image decode/generation pipeline integration + runtime verification pending on Xcode runner)
 - [ ] Offline validation
 
 ## Notes / blockers
