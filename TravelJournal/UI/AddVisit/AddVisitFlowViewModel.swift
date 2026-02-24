@@ -10,19 +10,22 @@ public struct AddVisitDraft: Equatable {
     public var endDate: Date
     public var note: String
     public var photoItemCount: Int
+    public var mediaImportPayloads: [MediaImportPayload]
 
     public init(
         locationQuery: String = "",
         startDate: Date = Date(),
         endDate: Date = Date(),
         note: String = "",
-        photoItemCount: Int = 0
+        photoItemCount: Int = 0,
+        mediaImportPayloads: [MediaImportPayload] = []
     ) {
         self.locationQuery = locationQuery
         self.startDate = startDate
         self.endDate = endDate
         self.note = note
         self.photoItemCount = photoItemCount
+        self.mediaImportPayloads = mediaImportPayloads
     }
 }
 
@@ -77,17 +80,20 @@ public final class AddVisitFlowViewModel: ObservableObject {
 
     private let placeRepository: PlaceRepository?
     private let visitRepository: VisitRepository?
+    private let mediaRepository: MediaRepository?
     private let now: () -> Date
 
     public init(
         draft: AddVisitDraft = .init(),
         placeRepository: PlaceRepository? = nil,
         visitRepository: VisitRepository? = nil,
+        mediaRepository: MediaRepository? = nil,
         now: @escaping () -> Date = Date.init
     ) {
         self.draft = draft
         self.placeRepository = placeRepository
         self.visitRepository = visitRepository
+        self.mediaRepository = mediaRepository
         self.now = now
     }
 
@@ -103,6 +109,11 @@ public final class AddVisitFlowViewModel: ObservableObject {
     public func updateContent(note: String, photoItemCount: Int) {
         draft.note = note
         draft.photoItemCount = max(0, photoItemCount)
+    }
+
+    public func updateSelectedMediaPayloads(_ payloads: [MediaImportPayload]) {
+        draft.mediaImportPayloads = payloads
+        draft.photoItemCount = payloads.count
     }
 
     public func goNext() {
@@ -162,6 +173,10 @@ public final class AddVisitFlowViewModel: ObservableObject {
         do {
             try placeRepository?.upsertPlace(place)
             try visitRepository?.createVisit(visit)
+            try draft.mediaImportPayloads.forEach { payload in
+                _ = try mediaRepository?.importMedia(from: payload, forVisit: visit.id, importedAt: timestamp)
+            }
+
             let result = AddVisitSaveResult(place: place, visit: visit)
             saveResult = result
             return result

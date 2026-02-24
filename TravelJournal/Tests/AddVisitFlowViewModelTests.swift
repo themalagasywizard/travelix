@@ -35,12 +35,17 @@ final class AddVisitFlowViewModelTests: XCTestCase {
         viewModel.updateLocationQuery("Tokyo")
         viewModel.updateDates(start: start, end: end)
         viewModel.updateContent(note: "Sakura everywhere", photoItemCount: 12)
+        viewModel.updateSelectedMediaPayloads([
+            MediaImportPayload(localIdentifier: "asset-1", fileURL: nil, width: 1000, height: 800),
+            MediaImportPayload(localIdentifier: "asset-2", fileURL: nil, width: 1200, height: 900)
+        ])
 
         XCTAssertEqual(viewModel.draft.locationQuery, "Tokyo")
         XCTAssertEqual(viewModel.draft.startDate, start)
         XCTAssertEqual(viewModel.draft.endDate, end)
         XCTAssertEqual(viewModel.draft.note, "Sakura everywhere")
-        XCTAssertEqual(viewModel.draft.photoItemCount, 12)
+        XCTAssertEqual(viewModel.draft.photoItemCount, 2)
+        XCTAssertEqual(viewModel.draft.mediaImportPayloads.count, 2)
     }
 
     func testSaveVisitPersistsPlaceAndVisit() {
@@ -69,6 +74,38 @@ final class AddVisitFlowViewModelTests: XCTestCase {
         XCTAssertEqual(result?.visit.notes, "Pastéis every morning")
         XCTAssertEqual(result?.visit.placeID, result?.place.id)
         XCTAssertEqual(result?.visit.createdAt, timestamp)
+        XCTAssertNil(viewModel.saveError)
+        XCTAssertNil(viewModel.errorBanner)
+    }
+
+    func testSaveVisitImportsSelectedMediaPayloads() {
+        let placeRepository = InMemoryPlaceRepository()
+        let visitRepository = InMemoryVisitRepository()
+        let mediaRepository = InMemoryMediaRepository()
+        let timestamp = Date(timeIntervalSince1970: 1_700_001_000)
+
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(
+                locationQuery: "Osaka",
+                startDate: Date(timeIntervalSince1970: 1_700_010_000),
+                endDate: Date(timeIntervalSince1970: 1_700_020_000),
+                note: "Food crawl",
+                mediaImportPayloads: [
+                    MediaImportPayload(localIdentifier: "ph://1", fileURL: nil, width: 3024, height: 4032),
+                    MediaImportPayload(localIdentifier: nil, fileURL: "file:///tmp/demo.jpg", width: 1600, height: 900)
+                ]
+            ),
+            placeRepository: placeRepository,
+            visitRepository: visitRepository,
+            mediaRepository: mediaRepository,
+            now: { timestamp }
+        )
+
+        let result = viewModel.saveVisit()
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(mediaRepository.importedPayloads.count, 2)
+        XCTAssertEqual(mediaRepository.importedVisitIDs, [result?.visit.id, result?.visit.id])
         XCTAssertNil(viewModel.saveError)
         XCTAssertNil(viewModel.errorBanner)
     }
@@ -106,6 +143,22 @@ final class AddVisitFlowViewModelTests: XCTestCase {
             draft: AddVisitDraft(locationQuery: "Rome"),
             placeRepository: FailingPlaceRepository(),
             visitRepository: InMemoryVisitRepository()
+        )
+
+        XCTAssertNil(viewModel.saveVisit())
+        XCTAssertEqual(viewModel.saveError, .persistenceFailed)
+        XCTAssertEqual(viewModel.errorBanner, ErrorPresentationMapper.banner(for: .databaseFailure))
+    }
+
+    func testSaveVisitMediaImportFailureMapsDatabaseBanner() {
+        let viewModel = AddVisitFlowViewModel(
+            draft: AddVisitDraft(
+                locationQuery: "Seoul",
+                mediaImportPayloads: [MediaImportPayload(localIdentifier: "ph://broken", fileURL: nil, width: 100, height: 100)]
+            ),
+            placeRepository: InMemoryPlaceRepository(),
+            visitRepository: InMemoryVisitRepository(),
+            mediaRepository: FailingMediaRepository()
         )
 
         XCTAssertNil(viewModel.saveVisit())
@@ -162,4 +215,52 @@ private final class InMemoryVisitRepository: VisitRepository {
     func fetchVisits(forTrip tripID: UUID) throws -> [Visit] {
         []
     }
+}
+
+private final class InMemoryMediaRepository: MediaRepository {
+    private(set) var importedPayloads: [MediaImportPayload] = []
+    private(set) var importedVisitIDs: [UUID] = []
+
+    func addMedia(_ media: Media) throws {}
+
+    @discardableResult
+    func importMedia(from payload: MediaImportPayload, forVisit visitID: UUID, importedAt: Date) throws -> Media {
+        importedPayloads.append(payload)
+        importedVisitIDs.append(visitID)
+        return Media(
+            id: UUID(),
+            visitID: visitID,
+            localIdentifier: payload.localIdentifier,
+            fileURL: payload.fileURL,
+            width: payload.width,
+            height: payload.height,
+            createdAt: importedAt,
+            updatedAt: importedAt
+        )
+    }
+
+    func updateMedia(_ media: Media) throws {}
+
+    func deleteMedia(id: UUID) throws {}
+
+    func fetchMedia(forVisit visitID: UUID) throws -> [Media] { [] }
+
+    func fetchMedia(id: UUID) throws -> Media? { nil }
+}
+
+private final class FailingMediaRepository: MediaRepository {
+    func addMedia(_ media: Media) throws {}
+
+    @discardableResult
+    func importMedia(from payload: MediaImportPayload, forVisit visitID: UUID, importedAt: Date) throws -> Media {
+        throw NSError(domain: "AddVisitFlowViewModelTests", code: 2)
+    }
+
+    func updateMedia(_ media: Media) throws {}
+
+    func deleteMedia(id: UUID) throws {}
+
+    func fetchMedia(forVisit visitID: UUID) throws -> [Media] { [] }
+
+    func fetchMedia(id: UUID) throws -> Media? { nil }
 }
