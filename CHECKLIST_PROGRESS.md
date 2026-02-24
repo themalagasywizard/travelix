@@ -1,6 +1,6 @@
 # TravelJournal Progress Tracker
 
-Last updated: 2026-02-24 09:01 Europe/Paris
+Last updated: 2026-02-24 10:35 Europe/Paris
 
 ## Phase 0 — Repo & foundations
 - [ ] Create Xcode project
@@ -23,8 +23,8 @@ Last updated: 2026-02-24 09:01 Europe/Paris
 
 ## Phase 3 — Core UI flows
 - [~] Home = GlobeView + top search bar + filters (implemented `HomeView` + `HomeViewModel` with search field, filter chips, globe embedding, and pin selection state; runtime UI validation pending on Xcode)
-- [~] Place Story screen (implemented `PlaceStoryView` + `PlaceStoryViewModel` structure and wired Home pin selection to present Place Story sheet; repository-backed visit data wiring pending)
-- [~] Visit Detail screen (implemented `VisitDetailView` + `VisitDetailViewModel` sections for dates/summary/photos/notes/spots/recommendations with view-model tests; navigation/data wiring and runtime validation pending)
+- [~] Place Story screen (wired `HomeViewModel` to build repository-backed `PlaceStoryViewModel` data when pin↔place mapping and repositories are injected, with placeholder fallback retained for non-wired contexts; added repository-backed coverage in `HomeViewModelTests`; runtime UI validation pending on Xcode)
+- [~] Visit Detail screen (wired Place Story visit-row selection to present `VisitDetailView` sheet via `selectedVisitDetailViewModel`; added selection-to-detail mapping coverage in `PlaceStoryViewModelTests`; richer repository-backed visit detail content wiring and runtime validation pending)
 
 ## Phase 4 — Create/Edit content
 - [~] Add Visit flow (modal) (implemented `AddVisitFlowView` + `AddVisitFlowViewModel` with 3-step flow: Location → Dates → Content and step-navigation tests; persistence + globe refresh wiring pending)
@@ -53,6 +53,5 @@ Last updated: 2026-02-24 09:01 Europe/Paris
 - [~] Performance final (added `DatabasePerformanceBenchmark` with deterministic measurements for DB cold start and visit-read path over seeded rows; added `DatabasePerformanceBenchmarkTests` for non-negative timing assertions and operation identity; Instruments traces for cold start + globe interaction still pending on macOS/Xcode)
 
 ## Notes / blockers
-- `Create Xcode project` remains open: re-verified this run (2026-02-24 08:59 Europe/Paris) that Xcode tooling is unavailable in this Linux environment (`xcodebuild: not found`), so iOS project creation/build/run validation cannot be performed here.
-- Swift toolchain is unavailable in this environment (`swift: not found`), so unit tests could not be executed here.
-- We can continue autonomous code implementation and git pushes; runtime iOS verification must be done on a macOS/Xcode runner.
+- Per user override, Xcode project creation/tooling steps are intentionally skipped in this environment; manual Xcode import/build will be handled by the user.
+- Runtime iOS/SceneKit verification and Swift test execution remain pending on a macOS/Xcode-capable runner.

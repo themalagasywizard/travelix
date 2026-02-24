@@ -17,6 +17,9 @@ public struct PlaceStoryView: View {
             .padding(16)
         }
         .background(Color.black.ignoresSafeArea())
+        .sheet(item: selectedVisitSheetItem, onDismiss: viewModel.clearSelectedVisit) { item in
+            VisitDetailView(viewModel: item.viewModel)
+        }
     }
 
     private var header: some View {
@@ -49,6 +52,16 @@ public struct PlaceStoryView: View {
             .frame(height: 90)
     }
 
+    private var selectedVisitSheetItem: VisitDetailSheetItem? {
+        guard let viewModel = viewModel.selectedVisitDetailViewModel,
+              let selectedVisitID = self.viewModel.selectedVisitID
+        else {
+            return nil
+        }
+
+        return VisitDetailSheetItem(id: selectedVisitID, viewModel: viewModel)
+    }
+
     private var visitsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Visits")
@@ -56,26 +69,36 @@ public struct PlaceStoryView: View {
                 .foregroundStyle(.white)
 
             ForEach(viewModel.visits) { visit in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(visit.title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
+                Button {
+                    viewModel.selectVisit(visit.id)
+                } label: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(visit.title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
 
-                    Text(visit.dateRangeText)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        Text(visit.dateRangeText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
 
-                    if let summary = visit.summary, !summary.isEmpty {
-                        Text(summary)
-                            .font(.footnote)
-                            .foregroundStyle(.white.opacity(0.9))
+                        if let summary = visit.summary, !summary.isEmpty {
+                            Text(summary)
+                                .font(.footnote)
+                                .foregroundStyle(.white.opacity(0.9))
+                        }
                     }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.white.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .buttonStyle(.plain)
             }
         }
     }
+}
+
+private struct VisitDetailSheetItem: Identifiable {
+    let id: String
+    let viewModel: VisitDetailViewModel
 }

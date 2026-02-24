@@ -1,5 +1,7 @@
 import Foundation
 import Combine
+import TravelJournalData
+import TravelJournalDomain
 
 @MainActor
 public final class HomeViewModel: ObservableObject {
@@ -23,18 +25,27 @@ public final class HomeViewModel: ObservableObject {
     private let placeIDsByTagID: [String: Set<String>]
     private let placeIDsByTripID: [String: Set<String>]
     private let placeIDsByYear: [Int: Set<String>]
+    private let pinIDToPlaceID: [String: UUID]
+    private let placeRepository: PlaceRepository?
+    private let visitRepository: VisitRepository?
 
     public init(
         pins: [GlobePin] = HomeViewModel.defaultPins,
         placeIDsByTagID: [String: Set<String>] = [:],
         placeIDsByTripID: [String: Set<String>] = [:],
-        placeIDsByYear: [Int: Set<String>] = [:]
+        placeIDsByYear: [Int: Set<String>] = [:],
+        pinIDToPlaceID: [String: UUID] = [:],
+        placeRepository: PlaceRepository? = nil,
+        visitRepository: VisitRepository? = nil
     ) {
         self.pins = pins
         self.visiblePins = pins
         self.placeIDsByTagID = placeIDsByTagID
         self.placeIDsByTripID = placeIDsByTripID
         self.placeIDsByYear = placeIDsByYear
+        self.pinIDToPlaceID = pinIDToPlaceID
+        self.placeRepository = placeRepository
+        self.visitRepository = visitRepository
     }
 
     public func toggleFilter(_ filter: FilterChip) {
@@ -112,9 +123,12 @@ public final class HomeViewModel: ObservableObject {
     public var selectedPlaceStoryViewModel: PlaceStoryViewModel? {
         guard let selectedPlaceID else { return nil }
 
-        let placeName = selectedPlaceID.capitalized
+        if let model = repositoryBackedPlaceStory(for: selectedPlaceID) {
+            return model
+        }
+
         return PlaceStoryViewModel(
-            placeName: placeName,
+            placeName: selectedPlaceID.capitalized,
             countryName: "Unknown Country",
             visits: [
                 .init(
@@ -126,6 +140,41 @@ public final class HomeViewModel: ObservableObject {
             ]
         )
     }
+
+    private func repositoryBackedPlaceStory(for pinID: String) -> PlaceStoryViewModel? {
+        guard
+            let placeRepository,
+            let visitRepository,
+            let placeID = pinIDToPlaceID[pinID],
+            let place = try? placeRepository.fetchPlace(id: placeID),
+            let place
+        else {
+            return nil
+        }
+
+        let visits = (try? visitRepository.fetchVisits(forPlace: place.id)) ?? []
+        let rows = visits.map { visit in
+            PlaceStoryVisitRow(
+                id: visit.id.uuidString.lowercased(),
+                title: visit.summary?.isEmpty == false ? (visit.summary ?? "") : "Visit",
+                dateRangeText: Self.dateRangeFormatter.string(from: visit.startDate, to: visit.endDate),
+                summary: visit.notes
+            )
+        }
+
+        return PlaceStoryViewModel(
+            placeName: place.name,
+            countryName: place.country ?? "Unknown Country",
+            visits: rows
+        )
+    }
+
+    private static let dateRangeFormatter: DateIntervalFormatter = {
+        let formatter = DateIntervalFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
 
     static let defaultPins: [GlobePin] = [
         GlobePin(id: "paris", latitude: 48.8566, longitude: 2.3522),

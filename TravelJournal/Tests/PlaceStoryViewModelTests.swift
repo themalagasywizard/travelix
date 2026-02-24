@@ -30,4 +30,19 @@ final class PlaceStoryViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.visitCountText, "1 visit")
         XCTAssertEqual(viewModel.visits.count, 1)
     }
+
+    func testSelectingVisitBuildsVisitDetailViewModel() {
+        let row = PlaceStoryVisitRow(id: "v42", title: "Tokyo Food Run", dateRangeText: "Apr 01 - Apr 04", summary: "Ramen and markets")
+        let viewModel = PlaceStoryViewModel(
+            placeName: "Tokyo",
+            countryName: "Japan",
+            visits: [row]
+        )
+
+        viewModel.selectVisit("v42")
+
+        XCTAssertEqual(viewModel.selectedVisitID, "v42")
+        XCTAssertEqual(viewModel.selectedVisitDetailViewModel?.title, "Tokyo Food Run")
+        XCTAssertEqual(viewModel.selectedVisitDetailViewModel?.summary, "Ramen and markets")
+    }
 }
