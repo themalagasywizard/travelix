@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import TravelJournalCore
 
 public struct PlaceStoryVisitRow: Identifiable, Equatable {
     public let id: String
@@ -49,12 +50,12 @@ public final class PlaceStoryViewModel: ObservableObject {
         self.countryName = countryName
         self.visits = visits
         self.selectedVisitID = nil
-        self.visitCountText = "\(visits.count) \(visits.count == 1 ? "visit" : "visits")"
+        self.visitCountText = TJStrings.PlaceStory.visitCount(visits.count)
     }
 
     public func apply(visits: [PlaceStoryVisitRow]) {
         self.visits = visits
-        self.visitCountText = "\(visits.count) \(visits.count == 1 ? "visit" : "visits")"
+        self.visitCountText = TJStrings.PlaceStory.visitCount(visits.count)
 
         if let selectedVisitID, visits.contains(where: { $0.id == selectedVisitID }) == false {
             self.selectedVisitID = nil

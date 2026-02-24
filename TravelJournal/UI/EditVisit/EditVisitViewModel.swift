@@ -91,7 +91,7 @@ public final class EditVisitViewModel: ObservableObject {
     public var dateValidationBanner: ErrorBannerModel? {
         guard hasValidDateRange == false else { return nil }
         return ErrorPresentationMapper.banner(
-            for: .invalidInput(message: "End date must be on or after start date.")
+            for: .invalidInput(message: TJStrings.EditVisit.invalidDateRangeError)
         )
     }
 

@@ -33,7 +33,7 @@ public enum AddVisitCurrentLocationError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .unavailable:
-            return "Current location is unavailable on this device."
+            return TJStrings.AddVisit.currentLocationUnavailable
         }
     }
 }
@@ -90,9 +90,9 @@ public final class AddVisitFlowViewModel: ObservableObject {
 
         public var title: String {
             switch self {
-            case .location: return "Location"
-            case .dates: return "Dates"
-            case .content: return "Content"
+            case .location: return TJStrings.AddVisit.stepLocationTitle
+            case .dates: return TJStrings.AddVisit.stepDatesTitle
+            case .content: return TJStrings.AddVisit.stepContentTitle
             }
         }
     }
@@ -105,11 +105,11 @@ public final class AddVisitFlowViewModel: ObservableObject {
         public var errorDescription: String? {
             switch self {
             case .missingLocation:
-                return "Please enter a location before saving."
+                return TJStrings.AddVisit.missingLocationError
             case .invalidDateRange:
-                return "End date must be on or after start date."
+                return TJStrings.AddVisit.invalidDateRangeError
             case .persistenceFailed:
-                return "We couldn't save this visit. Please try again."
+                return TJStrings.AddVisit.persistenceFailedError
             }
         }
     }
@@ -155,7 +155,7 @@ public final class AddVisitFlowViewModel: ObservableObject {
     public func useCurrentLocation() async {
         guard let locationProvider else {
             errorBanner = ErrorPresentationMapper.banner(
-                for: .invalidInput(message: AddVisitCurrentLocationError.unavailable.errorDescription ?? "Current location is unavailable on this device.")
+                for: .invalidInput(message: AddVisitCurrentLocationError.unavailable.errorDescription ?? TJStrings.AddVisit.currentLocationUnavailable)
             )
             hapticsClient.notifyWarning()
             return
@@ -211,14 +211,14 @@ public final class AddVisitFlowViewModel: ObservableObject {
         let trimmedLocation = draft.locationQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmedLocation.isEmpty == false else {
             saveError = .missingLocation
-            errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: SaveError.missingLocation.errorDescription ?? "Please enter a location before saving."))
+            errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: SaveError.missingLocation.errorDescription ?? TJStrings.AddVisit.missingLocationError))
             hapticsClient.notifyWarning()
             return nil
         }
 
         guard draft.endDate >= draft.startDate else {
             saveError = .invalidDateRange
-            errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: SaveError.invalidDateRange.errorDescription ?? "End date must be on or after start date."))
+            errorBanner = ErrorPresentationMapper.banner(for: .invalidInput(message: SaveError.invalidDateRange.errorDescription ?? TJStrings.AddVisit.invalidDateRangeError))
             hapticsClient.notifyWarning()
             return nil
         }

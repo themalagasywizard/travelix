@@ -42,6 +42,13 @@ public enum TJStrings {
         public static let back = "Back"
         public static let save = "Save"
         public static let next = "Next"
+        public static let stepLocationTitle = "Location"
+        public static let stepDatesTitle = "Dates"
+        public static let stepContentTitle = "Content"
+        public static let currentLocationUnavailable = "Current location is unavailable on this device."
+        public static let missingLocationError = "Please enter a location before saving."
+        public static let invalidDateRangeError = "End date must be on or after start date."
+        public static let persistenceFailedError = "We couldn't save this visit. Please try again."
 
         public static func stepCounter(stepIndex: Int, total: Int, title: String) -> String {
             "Step \(stepIndex)/\(total) · \(title)"
@@ -64,6 +71,10 @@ public enum TJStrings {
     public enum PlaceStory {
         public static let miniGlobePreview = "Mini globe preview"
         public static let visits = "Visits"
+
+        public static func visitCount(_ count: Int) -> String {
+            "\(count) visit\(count == 1 ? "" : "s")"
+        }
     }
 
     public enum EditVisit {
@@ -78,6 +89,7 @@ public enum TJStrings {
         public static let summarySection = "Summary"
         public static let oneLineSummary = "One-line summary"
         public static let notesSection = "Notes"
+        public static let invalidDateRangeError = "End date must be on or after start date."
     }
 
     public enum SpotsEditor {
